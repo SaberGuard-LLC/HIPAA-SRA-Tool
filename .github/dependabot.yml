@@ -1,0 +1,7 @@
+# Dependabot configuration for Saberguard
+version: 2
+updates:
+  - package-ecosystem: "npm" # Change to "pip", "docker", etc. depending on your project
+    directory: "/" # Root directory of your project
+    schedule:
+      interval: "weekly"
