@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HIPAA Security Risk Assessment (SRA) – Client‑side Only</title>
+  <meta name="description" content="A client‑side only HIPAA Security Risk Assessment (SRA) tool. No servers, no tracking, no data retention. Export to PDF via print.">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #121821;
+      --ink: #e8eef6;
+      --muted: #94a3b8;
+      --brand: #7c3aed;
+      --accent: #22d3ee;
+      --ok: #16a34a;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --pill: #1f2937;
+      --border: #223043;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; color:var(--ink); background:linear-gradient(180deg,#0b0f14, #0b0f14 50%, #0b0f14), var(--bg); font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    .wrap { max-width: 1050px; margin: 24px auto 88px; padding: 0 20px; }
+    header { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin: 10px 0 22px; }
+    .brand { height:48px; object-fit:contain; filter: drop-shadow(0 8px 24px rgba(124,58,237,.35)); }
+    h1 { font-size: 28px; margin:0; letter-spacing:.2px; color:var(--ink); }
+    .sub { color:var(--muted); font-size:14px; }
+    .card { background: linear-gradient(180deg, rgba(34,48,67,.6), rgba(18,24,33,.9)); border:1px solid var(--border); border-radius:16px; padding:18px; margin: 14px 0; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+    .controls { display:flex; flex-wrap:wrap; gap:10px; }
+    button, .btn { background: linear-gradient(180deg,#1f2937,#111827); border:1px solid var(--border); color:var(--ink); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; }
+    button.primary { background: linear-gradient(180deg,#7c3aed,#5b21b6); border-color:#7c3aed; }
+    button.ghost { background: transparent; }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+    .grid { display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width: 900px){ .grid { grid-template-columns: 1fr 1fr; } }
+    .q { background: #0f172a; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .q h3 { margin:0 0 4px; font-size:16px; }
+    .q small { color: var(--muted); }
+    .pill { display:inline-flex; align-items:center; gap:8px; background: var(--pill); border:1px solid var(--border); color:var(--muted); padding:6px 10px; border-radius:999px; font-size:12px; }
+    .options { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .opt { border:1px solid var(--border); padding:8px 10px; border-radius:10px; cursor:pointer; user-select:none; }
+    .opt[data-v="2"]{ color:var(--ok); border-color: rgba(22,163,74,.6); }
+    .opt[data-v="1"]{ color:var(--warn); border-color: rgba(245,158,11,.6); }
+    .opt[data-v="0"]{ color:var(--bad); border-color: rgba(239,68,68,.6); }
+    .opt.active { box-shadow: 0 0 0 2px currentColor inset; }
+    .flex { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .right { margin-left:auto; }
+    textarea { width:100%; min-height:72px; border-radius:12px; background:#0b1220; color:var(--ink); border:1px solid var(--border); padding:10px; }
+    label { font-weight:600; }
+    .two { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .sr { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .stat { background:#0b1220; border:1px solid var(--border); border-radius:12px; padding:12px; }
+    .stat b { font-size:22px; }
+    footer { margin-top: 24px; color: var(--muted); font-size:12px; }
+
+    /* Compliance matrix elements */
+    .matrix { display:grid; gap:12px; }
+    .matrix .row { display:grid; grid-template-columns: 220px 120px 1fr; align-items:center; gap:12px; background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:12px; }
+    .matrix .row h4 { margin:0; font-size:15px; color:var(--ink); }
+    .mini { display:flex; gap:6px; align-items:center; color:var(--muted); }
+    .swatch { width:12px; height:12px; border-radius:3px; border:1px solid var(--border); }
+    .swatch.y { background:rgba(22,163,74,.7); }
+    .swatch.p { background:rgba(245,158,11,.7); }
+    .swatch.n { background:rgba(239,68,68,.7); }
+    .bar { height:10px; background:#0b1220; border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+    .bar .yes { height:100%; display:block; background:linear-gradient(90deg, var(--accent), var(--brand)); width:0%; }
+    .gridDots { display:flex; flex-wrap:wrap; gap:6px; }
+    .dot { width:10px; height:10px; border-radius:2px; background:#1f2937; border:1px solid var(--border); }
+    .dot[data-s="2"]{ background:rgba(22,163,74,.75); }
+    .dot[data-s="1"]{ background:rgba(245,158,11,.75); }
+    .dot[data-s="0"]{ background:rgba(239,68,68,.75); }
+
+    /* Print styling for PDF */
+    @media print {
+      body { background:white; color:#000; }
+      .card, .q, .stat { box-shadow:none; }
+      .controls, .no-print { display:none !important; }
+      a { color:#000; text-decoration: underline; }
+      .wrap { margin:0; max-width: initial; }
+      header { border-bottom: 2px solid #000; padding-bottom: 8px; }
+      .brand { filter: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img class="brand" src="SaberGuard_1.png" alt="SaberGuard" onerror="this.style.display='none'" />
+      <div>
+        <h1>HIPAA Security Risk Assessment (SRA)</h1>
+        <div class="sub">Client‑side only • No data leaves your browser • Export report via <em>Print → Save as PDF</em></div>
+      </div>
+      <div class="right no-print controls">
+        <button id="btnPrint" class="btn">Print / Save PDF</button>
+        <button id="btnExport" class="btn">Export Responses (.json)</button>
+        <button id="btnImport" class="btn">Import (.json)</button>
+        <input id="fileImport" type="file" accept="application/json" style="display:none" />
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="flex" style="justify-content:space-between; align-items:flex-start; gap:10px;">
+        <div>
+          <div class="pill">45 CFR 164.308, 164.310, 164.312, 164.316</div>
+          <p style="margin:10px 0 0; color:var(--muted)">This tool helps you perform an annual HIPAA Security Risk Assessment focusing on <strong>Administrative</strong>, <strong>Physical</strong>, and <strong>Technical</strong> safeguards. It calculates risk based on likelihood × impact, captures gaps and remediation plans, and assembles a printable report. <strong>No information is transmitted or stored remotely.</strong></p>
+        </div>
+        <div class="stat" style="min-width:260px">
+          <div class="two">
+            <div><small>Total Controls</small><br><b id="statTotal">–</b></div>
+            <div><small>Answered</small><br><b id="statAnswered">0</b></div>
+          </div>
+          <div class="two" style="margin-top:8px">
+            <div><small>Overall Score</small><br><b id="statScore">0%</b></div>
+            <div><small>Risk Level</small><br><b id="statRisk">–</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="grid" id="meta">
+        <div class="q">
+          <h3>Organization</h3>
+          <small>Legal name of the Covered Entity or Business Associate</small>
+          <input id="orgName" placeholder="e.g., SaberGuard Client – BAA Co." style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
+        </div>
+        <div class="q">
+          <h3>Assessment Date</h3>
+          <small>When this SRA is being performed</small>
+          <input id="assessDate" type="date" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
+        </div>
+        <div class="q">
+          <h3>Assessor</h3>
+          <small>Name & role of who completed the SRA</small>
+          <input id="assessor" placeholder="e.g., Jane Doe – Security Officer" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
+        </div>
+        <div class="q">
+          <h3>Scope</h3>
+          <small>Systems, facilities, ePHI repositories, business processes included</small>
+          <textarea id="scope" placeholder="EHR, email, backups, laptops, telehealth platform, home office endpoints, Wi‑Fi, MDM/Intune, cloud file storage, etc."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="flex" style="justify-content:space-between; align-items:center;">
+        <h2 style="margin:0">Controls Checklist</h2>
+        <div class="pill">Answer: <span style="color:var(--ok)">Yes</span> (2), <span style="color:var(--warn)">Partial</span> (1), <span style="color:var(--bad)">No</span> (0)</div>
+      </div>
+      <div id="questions" class="grid" style="margin-top:10px"></div>
+    </section>
+
+    <section class="card">
+      <div class="flex" style="justify-content:space-between; align-items:center;">
+        <h2 style="margin:0">Compliance Matrix</h2>
+        <div class="pill">Overview of HIPAA Security Rule families</div>
+      </div>
+      <div id="matrix" class="matrix"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0">Risk Register</h2>
+      <div class="sr">
+        <div class="q">
+          <label for="threats">Key Threats & Vulnerabilities</label>
+          <small>Summarize what could go wrong (e.g., lost laptop, phishing, misconfig, home Wi‑Fi)
+          </small>
+          <textarea id="threats"></textarea>
+        </div>
+        <div class="q">
+          <label for="likelihood">Likelihood (1–5)</label>
+          <input id="likelihood" type="number" min="1" max="5" value="3" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);"/>
+          <label for="impact" style="margin-top:8px; display:block;">Impact (1–5)</label>
+          <input id="impact" type="number" min="1" max="5" value="3" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);"/>
+          <div class="pill" style="margin-top:10px">Risk Score: <span id="riskScore" style="font-weight:700">9</span></div>
+        </div>
+        <div class="q">
+          <label for="remediation">Remediation Plan</label>
+          <small>Actions, owners, due dates (e.g., enable MFA on email by 2025‑10‑31; Intune MDM enforce BitLocker; BAA with vendors)
+          </small>
+          <textarea id="remediation"></textarea>
+        </div>
+        <div class="q">
+          <label for="residual">Residual Risk Acceptance</label>
+          <small>Document what risk remains and who approved it (if any)</small>
+          <textarea id="residual"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0">Management Attestation</h2>
+      <p class="sub">I attest that this assessment is accurate to the best of my knowledge, and I authorize the remediation plan.
+      </p>
+      <div class="two">
+        <div class="q">
+          <label>Executive Name / Title</label>
+          <input id="exec" placeholder="e.g., Privacy Officer – Jane Doe" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
+        </div>
+        <div class="q">
+          <label>Date</label>
+          <input id="signDate" type="date" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>Privacy:</strong> This app runs entirely in your browser. It sends <em>no data</em> to any server. Use your browser’s <em>Print</em> to save a PDF for your records. Optionally export/import a local <code>.json</code> of your responses.
+      </p>
+      <p><strong>Disclaimer:</strong> This tool is provided “as‑is” and does not constitute legal advice. You are responsible for validating results with counsel or a compliance professional.</p>
+    </footer>
+  </div>
+
+  <script>
+    // === Controls library (client-only) ===
+    const CATEGORIES = [
+      { key: 'admin',  title: 'Administrative Safeguards (164.308)' },
+      { key: 'physical', title: 'Physical Safeguards (164.310)' },
+      { key: 'technical', title: 'Technical Safeguards (164.312)' },
+      { key: 'docs', title: 'Policies, Procedures & Documentation (164.316)' },
+    ];
+
+    // Minimal but meaningful annual HIPAA SRA controls (editable)
+    const CONTROLS = [
+      { id:'risk-mgmt', cat:'admin', text:'Formal risk analysis performed within the last 12 months and documented', ref:'164.308(a)(1)(ii)(A)' },
+      { id:'risk-plan', cat:'admin', text:'Risk management plan with owners and deadlines is maintained', ref:'164.308(a)(1)(ii)(B)' },
+      { id:'assign-sec', cat:'admin', text:'Security official assigned with documented responsibilities', ref:'164.308(a)(2)' },
+      { id:'workforce-sec', cat:'admin', text:'Workforce security: auth, supervision, and termination procedures in place', ref:'164.308(a)(3)' },
+      { id:'info-access', cat:'admin', text:'Information access management follows role-based access (minimum necessary)', ref:'164.308(a)(4)' },
+      { id:'security-train', cat:'admin', text:'Security awareness & training conducted (incl. phishing) within 12 months', ref:'164.308(a)(5)' },
+      { id:'contingency', cat:'admin', text:'Contingency plans incl. backups, disaster recovery, and emergency mode ops', ref:'164.308(a)(7)' },
+      { id:'evals', cat:'admin', text:'Periodic technical & nontechnical evaluations performed (e.g., at changes)', ref:'164.308(a)(8)' },
+      { id:'baa', cat:'admin', text:'Business Associate Agreements in place for all vendors handling ePHI', ref:'164.308(b)(1)' },
+
+      { id:'facility-access', cat:'physical', text:'Facility access controls (badging/keys/visitor logs) are defined & enforced', ref:'164.310(a)(1)' },
+      { id:'workstation-use', cat:'physical', text:'Workstation use policies define acceptable use and secure locations', ref:'164.310(b)' },
+      { id:'workstation-sec', cat:'physical', text:'Workstation security: screen locks, cable locks or secure rooms', ref:'164.310(c)' },
+      { id:'device-media', cat:'physical', text:'Device & media controls: disposal, reuse, movement, and backup', ref:'164.310(d)(1)' },
+
+      { id:'access-control', cat:'technical', text:'Unique user IDs, MFA for remote/email/EHR; emergency access procedure', ref:'164.312(a)(1)' },
+      { id:'audit-controls', cat:'technical', text:'Audit logs enabled and reviewed (EHR, email, VPN, admin actions)', ref:'164.312(b)' },
+      { id:'integrity', cat:'technical', text:'Integrity controls (anti‑malware, allow‑listing, code signing) in place', ref:'164.312(c)(1)' },
+      { id:'transmission', cat:'technical', text:'Encryption in transit (TLS) for ePHI systems and email (or secure portal)', ref:'164.312(e)(1)' },
+      { id:'encryption-rest', cat:'technical', text:'Encryption at rest for laptops, servers, and cloud storage (e.g., BitLocker)', ref:'Addressable' },
+      { id:'mdm', cat:'technical', text:'Mobile/Endpoint management (MDM/Intune) enforces policies and updates', ref:'Good practice' },
+
+      { id:'policies', cat:'docs', text:'Written policies & procedures maintained and reviewed within 12 months', ref:'164.316(a)' },
+      { id:'sanctions', cat:'docs', text:'Sanction policy for violations is documented and applied', ref:'164.308(a)(1)(ii)(C)' },
+      { id:'incident', cat:'docs', text:'Incident response plan with roles, timelines, and breach notification steps', ref:'164.308(a)(6)' },
+      { id:'records-retain', cat:'docs', text:'SRA records & policy documentation retained for 6 years', ref:'164.316(b)(2)(i)' },
+    ];
+
+    const state = { responses: {}, notes: {} };
+
+    const qWrap = document.getElementById('questions');
+    const totalEl = document.getElementById('statTotal');
+    const answeredEl = document.getElementById('statAnswered');
+    const scoreEl = document.getElementById('statScore');
+    const riskEl = document.getElementById('statRisk');
+    const matrixWrap = document.getElementById('matrix');
+
+    function render(){
+      totalEl.textContent = CONTROLS.length;
+      answeredEl.textContent = Object.keys(state.responses).length;
+      const max = CONTROLS.length * 2;
+      const sum = Object.values(state.responses).reduce((a,b)=>a+b,0);
+      const pct = Math.round((sum / max) * 100) || 0;
+      scoreEl.textContent = pct + '%';
+      riskEl.textContent = pct >= 85 ? 'Low' : pct >= 60 ? 'Moderate' : 'Elevated';
+
+      renderMatrix();
+
+      qWrap.innerHTML = '';
+      CATEGORIES.forEach(cat => {
+        const group = document.createElement('div');
+        group.className = 'q';
+        const inCat = CONTROLS.filter(c => c.cat === cat.key);
+        const yes = inCat.filter(c => state.responses[c.id] === 2).length;
+        const part = inCat.filter(c => state.responses[c.id] === 1).length;
+        const no = inCat.filter(c => state.responses[c.id] === 0).length;
+
+        group.innerHTML = `\n          <div class="flex" style="justify-content:space-between; align-items:flex-start;">\n            <div>\n              <h3>${cat.title}</h3>\n              <small>${yes} Yes • ${part} Partial • ${no} No</small>\n            </div>\n            <div class="pill">${inCat.length} controls</div>\n          </div>\n          <div id="${cat.key}-list"></div>\n        `;
+        qWrap.appendChild(group);
+
+        const list = group.querySelector(`#${cat.key}-list`);
+        inCat.forEach(ctrl => {
+          const row = document.createElement('div');
+          row.className = 'q';
+          row.innerHTML = `\n            <div class="flex" style="justify-content:space-between; align-items:center;">\n              <div>\n                <h3 style="margin-bottom:4px">${ctrl.text}</h3>\n                <small>Ref: ${ctrl.ref}</small>\n              </div>\n              <div class="options" role="radiogroup" aria-label="${ctrl.text}">\n                <div class="opt ${state.responses[ctrl.id]===2?'active':''}" data-id="${ctrl.id}" data-v="2" title="Meets the control">Yes</div>\n                <div class="opt ${state.responses[ctrl.id]===1?'active':''}" data-id="${ctrl.id}" data-v="1" title="Partially meets the control">Partial</div>\n                <div class="opt ${state.responses[ctrl.id]===0?'active':''}" data-id="${ctrl.id}" data-v="0" title="Does not meet the control">No</div>\n              </div>\n            </div>\n            <div style="margin-top:8px">\n              <label for="note-${ctrl.id}">Notes / Evidence (optional)</label>\n              <textarea id="note-${ctrl.id}" placeholder="Describe how this is met, list systems/evidence, or note planned actions."></textarea>\n            </div>\n          `;
+          list.appendChild(row);
+
+          row.querySelectorAll('.opt').forEach(el => {
+            el.addEventListener('click', () => {
+              const id = el.dataset.id; const v = Number(el.dataset.v);
+              state.responses[id] = v; render();
+            });
+          });
+
+          const ta = row.querySelector('textarea');
+          ta.value = state.notes[ctrl.id] || '';
+          ta.addEventListener('input', e => { state.notes[ctrl.id] = e.target.value; });
+        });
+      });
+    }
+
+    function renderMatrix(){
+      matrixWrap.innerHTML='';
+      CATEGORIES.forEach(cat=>{
+        const inCat = CONTROLS.filter(c=>c.cat===cat.key);
+        const yes = inCat.filter(c => state.responses[c.id]===2).length;
+        const part = inCat.filter(c => state.responses[c.id]===1).length;
+        const no = inCat.filter(c => state.responses[c.id]===0).length;
+        const total = inCat.length || 1;
+        const yesPct = Math.round((yes/total)*100);
+
+        const row = document.createElement('div');
+        row.className='row';
+        row.innerHTML = `\n          <div>\n            <h4>${cat.title}</h4>\n            <div class="mini"><span class="swatch y"></span>${yes} Yes <span class="swatch p"></span>${part} Partial <span class="swatch n"></span>${no} No</div>\n          </div>\n          <div>\n            <div class="bar" aria-label="${yesPct}% yes">\n              <span class="yes" style="width:${yesPct}%"></span>\n            </div>\n            <small class="sub">${yesPct}% controls fully met</small>\n          </div>\n          <div class="gridDots" title="Each square is one control">\n            ${inCat.map(c=>`<span class="dot" data-s="${state.responses[c.id] ?? ''}" title="${c.text} (Ref: ${c.ref})"></span>`).join('')}\n          </div>\n        `;
+        matrixWrap.appendChild(row);
+      });
+    }
+
+    function updateRiskScore(){
+      const L = Number(document.getElementById('likelihood').value||0);
+      const I = Number(document.getElementById('impact').value||0);
+      document.getElementById('riskScore').textContent = (L*I).toString();
+    }
+    document.getElementById('likelihood').addEventListener('input', updateRiskScore);
+    document.getElementById('impact').addEventListener('input', updateRiskScore);
+
+    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+
+    document.getElementById('btnExport').addEventListener('click', () => {
+      const payload = {
+        meta: {
+          orgName: document.getElementById('orgName').value,
+          assessDate: document.getElementById('assessDate').value,
+          assessor: document.getElementById('assessor').value,
+          scope: document.getElementById('scope').value,
+          threats: document.getElementById('threats').value,
+          likelihood: document.getElementById('likelihood').value,
+          impact: document.getElementById('impact').value,
+          remediation: document.getElementById('remediation').value,
+          residual: document.getElementById('residual').value,
+          exec: document.getElementById('exec').value,
+          signDate: document.getElementById('signDate').value,
+          score: document.getElementById('statScore').textContent,
+          riskLevel: document.getElementById('statRisk').textContent,
+        },
+        responses: state.responses,
+        notes: state.notes,
+        version: '1.0.0'
+      };
+      const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `hipaa-sra_${(payload.meta.orgName||'org').replace(/\s+/g,'-').toLowerCase()}_${payload.meta.assessDate||'date'}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
+    document.getElementById('fileImport').addEventListener('change', (evt) => {
+      const file = evt.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try{
+          const data = JSON.parse(e.target.result);
+          document.getElementById('orgName').value = data.meta?.orgName||'';
+          document.getElementById('assessDate').value = data.meta?.assessDate||'';
+          document.getElementById('assessor').value = data.meta?.assessor||'';
+          document.getElementById('scope').value = data.meta?.scope||'';
+          document.getElementById('threats').value = data.meta?.threats||'';
+          document.getElementById('likelihood').value = data.meta?.likelihood||3;
+          document.getElementById('impact').value = data.meta?.impact||3;
+          document.getElementById('remediation').value = data.meta?.remediation||'';
+          document.getElementById('residual').value = data.meta?.residual||'';
+          document.getElementById('exec').value = data.meta?.exec||'';
+          document.getElementById('signDate').value = data.meta?.signDate||'';
+          state.responses = data.responses||{};
+          state.notes = data.notes||{};
+          updateRiskScore();
+          render();
+        }catch(err){
+          alert('Invalid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    updateRiskScore();
+    render();
+  </script>
+</body>
+</html>
