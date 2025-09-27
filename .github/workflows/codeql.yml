@@ -1,0 +1,55 @@
+name: "CodeQL Advanced"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Runs every Tuesday at 11:44 AM UTC
+    - cron: '44 11 * * 2'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    # Use 'ubuntu-latest' for JavaScript/TypeScript analysis.
+    runs-on: ubuntu-latest
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # We only include 'javascript-typescript' because CodeQL does not support plain HTML.
+          - language: 'javascript-typescript'
+            build-mode: 'none' # Interpreted language, no build step needed
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        # Use 'security-extended' for a more comprehensive scan of web code.
+        queries: security-extended
+
+    # Skip the manual build step since build-mode is set to 'none' for JavaScript.
+    # The CodeQL Action will find and analyze your JavaScript/TypeScript files automatically.
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
