@@ -11,8 +11,9 @@ A **local-first HIPAA Security Risk Assessment (SRA) workspace**, created by [Sa
 ## ✨ Features
 - Covers HIPAA Security Rule safeguards (164.308, 164.310, 164.312, 164.316)
 - Guided, plain-language review of all 61 Security Rule standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316
+- ePHI system and data-flow inventory to establish assessment scope
 - Per-safeguard implementation notes and local evidence attachments
-- Filterable gap review and live assessment progress
+- Filterable gap review, live assessment progress, and six-point report-readiness checks
 - Multi-item risk register with likelihood × impact, owners, target dates, remediation, and residual risk
 - Management attestation block for executive sign‑off
 - **No data leaves the tab unless the assessor chooses to download or print it**
@@ -41,6 +42,7 @@ Import the GitHub repository into Vercel and deploy it as-is. The included `verc
 
 - The application does not use `localStorage`, `sessionStorage`, IndexedDB, cookies, analytics, or network APIs.
 - Unsaved work is held in JavaScript memory and is lost when the tab is closed or refreshed.
+- Evidence attachments are limited to 10 MB per file and 25 MB per assessment to avoid exhausting browser memory.
 - JSON files and printed reports can contain sensitive security details. Store them only in an approved encrypted location and follow the client's retention and access-control policies.
 
 ## Scope and interpretation
