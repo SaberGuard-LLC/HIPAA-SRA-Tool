@@ -10,7 +10,7 @@ A **local-first HIPAA Security Risk Assessment (SRA) workspace**, created by [Sa
 
 ## ✨ Features
 - Covers HIPAA Security Rule safeguards (164.308, 164.310, 164.312, 164.316)
-- Guided, plain-language review of 28 administrative, physical, technical, and documentation safeguards
+- Guided, plain-language review of all 61 Security Rule standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316
 - Per-safeguard implementation notes and local evidence attachments
 - Filterable gap review and live assessment progress
 - Multi-item risk register with likelihood × impact, owners, target dates, remediation, and residual risk
@@ -42,6 +42,14 @@ Import the GitHub repository into Vercel and deploy it as-is. The included `verc
 - The application does not use `localStorage`, `sessionStorage`, IndexedDB, cookies, analytics, or network APIs.
 - Unsaved work is held in JavaScript memory and is lost when the tab is closed or refreshed.
 - JSON files and printed reports can contain sensitive security details. Store them only in an approved encrypted location and follow the client's retention and access-control policies.
+
+## Scope and interpretation
+
+The catalog includes the Security Rule's standards and required/addressable implementation specifications, including organizational requirements and applicability-dependent provisions. An **addressable** specification is not optional: assessors must determine whether it is reasonable and appropriate, implement an equivalent alternative when appropriate, and document the decision. An **N/A** response likewise needs a documented applicability basis.
+
+The Security Rule requires risk analysis and periodic evaluation; it does not prescribe one universal annual checklist. SaberGuard presents the catalog as an annual workflow because annual reassessment is a practical baseline, but organizations must also reassess when environmental or operational changes affect ePHI security. This tool supports—but cannot by itself establish—a complete risk analysis: assessors must identify all ePHI, threats, vulnerabilities, existing measures, likelihood, impact, and risk treatment within the organization's actual scope.
+
+Authoritative references: [45 CFR Part 164, Subpart C](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C), [HHS Security Risk Assessment guidance](https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html), and [HHS Security Rule guidance](https://www.hhs.gov/hipaa/for-professionals/security/guidance/index.html).
 
 ## ⚖️ Disclaimer
 This tool is provided **“as‑is”** for educational and compliance support purposes. It does **not** constitute legal advice. Covered Entities and Business Associates are responsible for validating results with legal/compliance professionals. HIPAA requires SRA documentation retention for **6 years**.
