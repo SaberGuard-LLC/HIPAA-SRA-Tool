@@ -1,396 +1,145 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HIPAA Security Risk Assessment (SRA) - Client‑side Only</title>
-  <meta name="description" content="A client‑side only HIPAA Security Risk Assessment (SRA) tool. No servers, no tracking, no data retention. Export to PDF via print.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A private, local-first HIPAA Security Risk Assessment workspace from SaberGuard.">
+  <title>SaberGuard | HIPAA Security Risk Assessment</title>
   <style>
-    :root {
-      --bg: #0b0f14;
-      --card: #121821;
-      --ink: #e8eef6;
-      --muted: #94a3b8;
-      --brand: #7c3aed;
-      --accent: #22d3ee;
-      --ok: #16a34a;
-      --warn: #f59e0b;
-      --bad: #ef4444;
-      --pill: #1f2937;
-      --border: #223043;
-    }
-    * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; color:var(--ink); background:linear-gradient(180deg,#0b0f14, #0b0f14 50%, #0b0f14), var(--bg); font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif; }
-    a { color: var(--accent); text-decoration: none; }
-    .wrap { max-width: 1050px; margin: 24px auto 88px; padding: 0 20px; }
-    header { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin: 10px 0 22px; }
-    .brand { height:48px; object-fit:contain; filter: drop-shadow(0 8px 24px rgba(124,58,237,.35)); }
-    h1 { font-size: 28px; margin:0; letter-spacing:.2px; color:var(--ink); }
-    .sub { color:var(--muted); font-size:14px; }
-    .card { background: linear-gradient(180deg, rgba(34,48,67,.6), rgba(18,24,33,.9)); border:1px solid var(--border); border-radius:16px; padding:18px; margin: 14px 0; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
-    .controls { display:flex; flex-wrap:wrap; gap:10px; }
-    button, .btn { background: linear-gradient(180deg,#1f2937,#111827); border:1px solid var(--border); color:var(--ink); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; }
-    button.primary { background: linear-gradient(180deg,#7c3aed,#5b21b6); border-color:#7c3aed; }
-    button.ghost { background: transparent; }
-    button:disabled{ opacity:.5; cursor:not-allowed; }
-    .grid { display:grid; grid-template-columns: 1fr; gap:12px; }
-    @media (min-width: 900px){ .grid { grid-template-columns: 1fr 1fr; } }
-    .q { background: #0f172a; border:1px solid var(--border); border-radius:14px; padding:14px; }
-    .q h3 { margin:0 0 4px; font-size:16px; }
-    .q small { color: var(--muted); }
-    .pill { display:inline-flex; align-items:center; gap:8px; background: var(--pill); border:1px solid var(--border); color:var(--muted); padding:6px 10px; border-radius:999px; font-size:12px; }
-    .options { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .opt { border:1px solid var(--border); padding:8px 10px; border-radius:10px; cursor:pointer; user-select:none; }
-    .opt[data-v="2"]{ color:var(--ok); border-color: rgba(22,163,74,.6); }
-    .opt[data-v="1"]{ color:var(--warn); border-color: rgba(245,158,11,.6); }
-    .opt[data-v="0"]{ color:var(--bad); border-color: rgba(239,68,68,.6); }
-    .opt.active { box-shadow: 0 0 0 2px currentColor inset; }
-    .flex { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .right { margin-left:auto; }
-    textarea { width:100%; min-height:72px; border-radius:12px; background:#0b1220; color:var(--ink); border:1px solid var(--border); padding:10px; }
-    label { font-weight:600; }
-    .two { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    .sr { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    .stat { background:#0b1220; border:1px solid var(--border); border-radius:12px; padding:12px; }
-    .stat b { font-size:22px; }
-    footer { margin-top: 24px; color: var(--muted); font-size:12px; }
-
-    /* Compliance matrix elements */
-    .matrix { display:grid; gap:12px; }
-    .matrix .row { display:grid; grid-template-columns: 220px 120px 1fr; align-items:center; gap:12px; background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:12px; }
-    .matrix .row h4 { margin:0; font-size:15px; color:var(--ink); }
-    .mini { display:flex; gap:6px; align-items:center; color:var(--muted); }
-    .swatch { width:12px; height:12px; border-radius:3px; border:1px solid var(--border); }
-    .swatch.y { background:rgba(22,163,74,.7); }
-    .swatch.p { background:rgba(245,158,11,.7); }
-    .swatch.n { background:rgba(239,68,68,.7); }
-    .bar { height:10px; background:#0b1220; border:1px solid var(--border); border-radius:999px; overflow:hidden; }
-    .bar .yes { height:100%; display:block; background:linear-gradient(90deg, var(--accent), var(--brand)); width:0%; }
-    .gridDots { display:flex; flex-wrap:wrap; gap:6px; }
-    .dot { width:10px; height:10px; border-radius:2px; background:#1f2937; border:1px solid var(--border); }
-    .dot[data-s="2"]{ background:rgba(22,163,74,.75); }
-    .dot[data-s="1"]{ background:rgba(245,158,11,.75); }
-    .dot[data-s="0"]{ background:rgba(239,68,68,.75); }
-
-    /* Print styling for PDF */
-    @media print {
-      body { background:white; color:#000; }
-      .card, .q, .stat { box-shadow:none; }
-      .controls, .no-print { display:none !important; }
-      a { color:#000; text-decoration: underline; }
-      .wrap { margin:0; max-width: initial; }
-      header { border-bottom: 2px solid #000; padding-bottom: 8px; }
-      .brand { filter: none; }
-    }
+    :root{--navy:#102a43;--navy2:#183f63;--blue:#176b87;--teal:#0f8b8d;--cyan:#e8f7f7;--ink:#172b3a;--muted:#627786;--line:#dce6eb;--paper:#fff;--wash:#f4f8fa;--green:#177957;--amber:#9a6500;--red:#b53535;--shadow:0 12px 35px rgba(16,42,67,.09)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--wash);color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit}.app{min-height:100vh}.topbar{position:sticky;top:0;z-index:20;height:72px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 32px;gap:20px}.logo{width:48px;height:48px;object-fit:contain}.brand-name{font-weight:800;font-size:17px;color:var(--navy)}.brand-sub{font-size:12px;color:var(--muted)}.top-actions{margin-left:auto;display:flex;gap:8px}.btn{border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--navy);padding:9px 13px;font-weight:700;display:inline-flex;gap:7px;align-items:center}.btn:hover{border-color:#9bb4c2;background:#f8fbfc}.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}.btn.danger{color:var(--red)}.layout{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1440px;margin:auto}.sidebar{position:sticky;top:72px;height:calc(100vh - 72px);padding:28px 18px;border-right:1px solid var(--line);background:#fff}.nav-label{text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:800;color:#8ba0ac;margin:0 10px 10px}.nav a{display:flex;text-decoration:none;padding:10px;border-radius:9px;margin:3px 0;font-weight:650;color:#506777;gap:10px}.nav a:hover{background:var(--wash);color:var(--navy)}.privacy-card{position:absolute;bottom:22px;left:18px;right:18px;border-radius:12px;padding:13px;background:var(--cyan);color:#27636b;font-size:12px}.privacy-card strong{display:block;color:#14545c;margin-bottom:3px}.main{padding:32px 38px 80px;max-width:1180px;width:100%;margin:auto}.hero{background:linear-gradient(125deg,var(--navy),var(--navy2));color:white;border-radius:20px;padding:30px 34px;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:290px;height:290px;border:55px solid rgba(255,255,255,.04);border-radius:50%;right:-80px;top:-110px}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:800;color:#8ddfe0}.hero h1{font-size:30px;line-height:1.15;margin:8px 0}.hero p{max-width:700px;color:#c9dce8;margin:0}.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:25px;position:relative;z-index:1}.metric{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:13px}.metric b{display:block;font-size:23px}.metric span{font-size:11px;color:#c9dce8}.section{scroll-margin-top:92px;margin-top:24px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 18px rgba(16,42,67,.04);padding:25px}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}.step{color:var(--teal);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:850}.section h2{margin:2px 0 3px;font-size:21px;color:var(--navy)}.help{margin:0;color:var(--muted);font-size:13px}.badge{border-radius:99px;background:var(--cyan);color:#17656d;font-size:11px;font-weight:800;padding:6px 10px;white-space:nowrap}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.field.full{grid-column:1/-1}.field label{display:block;font-weight:750;color:#29485b;margin-bottom:5px}.field small{display:block;color:var(--muted);margin:-2px 0 6px}.input,textarea,select{width:100%;border:1px solid #cbdbe3;border-radius:9px;padding:10px 11px;background:#fff;color:var(--ink);outline:none}.input:focus,textarea:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,139,141,.1)}textarea{min-height:86px;resize:vertical}.progress{height:8px;border-radius:9px;background:#e5edf1;overflow:hidden}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),#37b9aa);transition:.2s}.filters{display:flex;gap:8px;flex-wrap:wrap}.filter{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:99px;color:var(--muted);font-weight:700;font-size:12px}.filter.active{background:var(--navy);color:#fff;border-color:var(--navy)}.controls{display:grid;gap:12px}.control-card{border:1px solid var(--line);border-radius:12px;padding:17px}.control-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px}.control-id{color:var(--teal);font-size:11px;font-weight:850}.control-card h3{font-size:15px;line-height:1.4;margin:3px 0}.control-card .explain{font-size:12px;color:var(--muted);margin:4px 0 0}.choices{display:flex;gap:5px;align-items:flex-start}.choice{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 9px;font-size:11px;font-weight:800}.choice[data-value="met"].selected{background:#e7f5ef;color:var(--green);border-color:#8bcab3}.choice[data-value="partial"].selected{background:#fff5da;color:var(--amber);border-color:#e5bd64}.choice[data-value="not-met"].selected{background:#fff0ef;color:var(--red);border-color:#e2a19e}.choice[data-value="na"].selected{background:#eef2f5;color:#526672}.control-detail{display:none;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--line);margin-top:14px;padding-top:14px}.control-card.open .control-detail{display:grid}.control-card.open .toggle-detail{color:var(--teal)}.toggle-detail{border:0;background:none;color:var(--muted);font-size:12px;font-weight:750;padding:7px 0}.evidence-box{border:1px dashed #9db9c5;border-radius:9px;background:#f8fbfc;padding:10px}.evidence-box input{max-width:100%;font-size:12px}.evidence-list{font-size:11px;color:var(--muted);margin-top:5px}.risk-table{width:100%;border-collapse:collapse}.risk-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:8px;border-bottom:1px solid var(--line)}.risk-table td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}.risk-table .input{min-width:90px}.risk-table textarea{min-width:180px;min-height:54px}.score-chip{display:inline-block;padding:5px 9px;border-radius:99px;font-weight:850;font-size:12px}.score-high{background:#ffe8e7;color:var(--red)}.score-medium{background:#fff3d1;color:var(--amber)}.score-low{background:#e5f5ee;color:var(--green)}.empty{text-align:center;padding:25px;color:var(--muted);border:1px dashed var(--line);border-radius:10px}.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.summary-card{border:1px solid var(--line);border-radius:11px;padding:14px}.summary-card b{font-size:22px;color:var(--navy);display:block}.summary-card span{color:var(--muted);font-size:12px}.notice{padding:13px;border-left:3px solid var(--teal);background:var(--cyan);color:#2b6067;font-size:12px;border-radius:0 9px 9px 0;margin-top:16px}.file-status{font-size:12px;color:var(--muted);margin-top:10px}.print-only{display:none}.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px}.mobile-progress{display:none}
+    @media(max-width:900px){.topbar{padding:0 16px}.brand-sub,.top-actions .label{display:none}.layout{display:block}.sidebar{display:none}.main{padding:20px 14px 60px}.hero{padding:24px}.hero-grid{grid-template-columns:1fr 1fr}.form-grid,.control-detail{grid-template-columns:1fr}.field.full{grid-column:auto}.control-top{grid-template-columns:1fr}.choices{flex-wrap:wrap}.report-grid{grid-template-columns:1fr}.risk-scroll{overflow:auto}.mobile-progress{display:block;margin-top:12px}.section{padding:19px}}
+    @media print{@page{margin:14mm}body{background:#fff;font-size:11px}.topbar,.sidebar,.no-print,.filters,.toggle-detail,.privacy-card,.footer{display:none!important}.layout{display:block}.main{padding:0;max-width:none}.hero{background:#fff!important;color:var(--ink);padding:0 0 16px;border-radius:0;box-shadow:none;border-bottom:3px solid var(--navy)}.hero:after{display:none}.hero p{color:var(--muted)}.hero-grid{grid-template-columns:repeat(4,1fr);margin-top:12px}.metric{border:1px solid var(--line);color:var(--ink)}.metric span{color:var(--muted)}.section{box-shadow:none;break-inside:avoid;margin-top:14px;padding:14px}.control-card{break-inside:avoid;padding:10px}.control-detail{display:grid!important}.input,textarea,select{border:0;padding:2px;background:transparent}.print-only{display:block}.choice:not(.selected){display:none}.risk-table textarea{min-height:35px}.evidence-box{border:0;padding:0}.hero .eyebrow{color:var(--teal)}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <img class="brand" src="SaberGuard_1.png" alt="SaberGuard" onerror="this.style.display='none'" />
-      <div>
-        <h1>HIPAA Security Risk Assessment (SRA)</h1>
-        <div class="sub">Client‑side only • No data leaves your browser • Export report via <em>Print → Save as PDF</em></div>
-      </div>
-      <div class="right no-print controls">
-        <button id="btnPrint" class="btn">Print / Save PDF</button>
-        <button id="btnExport" class="btn">Export Responses (.json)</button>
-        <button id="btnImport" class="btn">Import (.json)</button>
-        <input id="fileImport" type="file" accept="application/json" style="display:none" />
-      </div>
-    </header>
+<div class="app">
+  <header class="topbar">
+    <img class="logo" src="SaberGuard_1.png" alt="SaberGuard logo">
+    <div><div class="brand-name">SaberGuard SRA Workspace</div><div class="brand-sub">Private by design · Built for annual assessments</div></div>
+    <div class="top-actions no-print">
+      <button class="btn" id="importBtn">↥ <span class="label">Open assessment</span></button>
+      <button class="btn" id="exportBtn">↧ <span class="label">Save local file</span></button>
+      <button class="btn primary" id="printBtn">▣ <span class="label">Print report</span></button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar no-print">
+      <div class="nav-label">Assessment workflow</div>
+      <nav class="nav"><a href="#overview">01 · Overview</a><a href="#profile">02 · Organization</a><a href="#controlsSection">03 · Safeguards</a><a href="#risks">04 · Risk register</a><a href="#attestation">05 · Attestation</a><a href="#report">06 · Report</a></nav>
+      <div class="privacy-card"><strong>◉ Local-first & private</strong>Entries remain in this tab's memory. Save an encrypted-device JSON file to retain your work.</div>
+    </aside>
+    <main class="main">
+      <section class="hero" id="overview">
+        <div class="eyebrow">Annual security risk analysis</div><h1>Make HIPAA risk assessment clear, complete, and actionable.</h1>
+        <p>A guided workspace for covered entities, business associates, and MSSP assessors. Document safeguards, attach evidence, prioritize risks, and produce a review-ready report.</p>
+        <div class="hero-grid"><div class="metric"><b id="completeMetric">0%</b><span>Assessment complete</span></div><div class="metric"><b id="answeredMetric">0 / 61</b><span>Safeguards reviewed</span></div><div class="metric"><b id="openRiskMetric">0</b><span>Open risks</span></div><div class="metric"><b id="evidenceMetric">0</b><span>Evidence files</span></div></div>
+        <div class="mobile-progress"><div class="progress"><span id="mobileProgress"></span></div></div>
+      </section>
 
-    <section class="card">
-      <div class="flex" style="justify-content:space-between; align-items:flex-start; gap:10px;">
-        <div>
-          <div class="pill">45 CFR 164.308, 164.310, 164.312, 164.316</div>
-          <p style="margin:10px 0 0; color:var(--muted)">This tool helps you perform an annual HIPAA Security Risk Assessment focusing on <strong>Administrative</strong>, <strong>Physical</strong>, and <strong>Technical</strong> safeguards. It calculates risk based on likelihood × impact, captures gaps and remediation plans, and assembles a printable report. <strong>No information is transmitted or stored remotely.</strong></p>
+      <section class="section" id="profile"><div class="section-head"><div><div class="step">Step 1 of 5</div><h2>Organization & assessment scope</h2><p class="help">Define who, what, and where is included before evaluating safeguards.</p></div><span class="badge">Required foundation</span></div>
+        <div class="form-grid">
+          <div class="field"><label for="orgName">Organization name</label><input class="input meta" id="orgName" placeholder="Example Health Clinic"></div>
+          <div class="field"><label for="assessmentDate">Assessment date</label><input class="input meta" id="assessmentDate" type="date"></div>
+          <div class="field"><label for="assessor">Lead assessor</label><input class="input meta" id="assessor" placeholder="Name, title, and company"></div>
+          <div class="field"><label for="period">Review period</label><input class="input meta" id="period" placeholder="January 1 – December 31, 2026"></div>
+          <div class="field full"><label for="scope">Scope statement</label><small>Include locations, workforce, systems, ePHI flows, vendors, and explicit exclusions.</small><textarea class="meta" id="scope" placeholder="This analysis covers..."></textarea></div>
+          <div class="field"><label for="environment">Environment summary</label><textarea class="meta" id="environment" placeholder="EHR, cloud services, endpoints, facilities..."></textarea></div>
+          <div class="field"><label for="methodology">Methodology & participants</label><textarea class="meta" id="methodology" placeholder="Interviews, document review, technical validation..."></textarea></div>
         </div>
-        <div class="stat" style="min-width:260px">
-          <div class="two">
-            <div><small>Total Controls</small><br><b id="statTotal">–</b></div>
-            <div><small>Answered</small><br><b id="statAnswered">0</b></div>
-          </div>
-          <div class="two" style="margin-top:8px">
-            <div><small>Overall Score</small><br><b id="statScore">0%</b></div>
-            <div><small>Risk Level</small><br><b id="statRisk">–</b></div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card">
-      <div class="grid" id="meta">
-        <div class="q">
-          <h3>Organization</h3>
-          <small>Legal name of the Covered Entity or Business Associate</small>
-          <input id="orgName" placeholder="e.g., SaberGuard Client – BAA Co." style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
-        </div>
-        <div class="q">
-          <h3>Assessment Date</h3>
-          <small>When this SRA is being performed</small>
-          <input id="assessDate" type="date" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
-        </div>
-        <div class="q">
-          <h3>Assessor</h3>
-          <small>Name & role of who completed the SRA</small>
-          <input id="assessor" placeholder="e.g., Jane Doe – Security Officer" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
-        </div>
-        <div class="q">
-          <h3>Scope</h3>
-          <small>Systems, facilities, ePHI repositories, business processes included</small>
-          <textarea id="scope" placeholder="EHR, email, backups, laptops, telehealth platform, home office endpoints, Wi‑Fi, MDM/Intune, cloud file storage, etc."></textarea>
-        </div>
-      </div>
-    </section>
+      <section class="section" id="controlsSection"><div class="section-head"><div><div class="step">Step 2 of 5</div><h2>Evaluate HIPAA safeguards</h2><p class="help">Review every Security Rule standard and implementation specification. “Addressable” does not mean optional: document why the safeguard is reasonable and appropriate, or document an equivalent alternative. Use N/A only with a supported applicability determination.</p></div><div style="min-width:150px"><div class="progress"><span id="controlProgress"></span></div><div class="file-status" id="progressLabel">0 of 61 reviewed</div></div></div>
+        <div class="filters no-print" id="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="administrative">Administrative</button><button class="filter" data-filter="physical">Physical</button><button class="filter" data-filter="technical">Technical</button><button class="filter" data-filter="organization">Organizational</button><button class="filter" data-filter="documentation">Documentation</button><button class="filter" data-filter="gaps">Gaps only</button></div>
+        <div class="controls" id="controls" style="margin-top:16px"></div>
+      </section>
 
-    <section class="card">
-      <div class="flex" style="justify-content:space-between; align-items:center;">
-        <h2 style="margin:0">Controls Checklist</h2>
-        <div class="pill">Answer: <span style="color:var(--ok)">Yes</span> (2), <span style="color:var(--warn)">Partial</span> (1), <span style="color:var(--bad)">No</span> (0)</div>
-      </div>
-      <div id="questions" class="grid" style="margin-top:10px"></div>
-    </section>
+      <section class="section" id="risks"><div class="section-head"><div><div class="step">Step 3 of 5</div><h2>Risk register & remediation plan</h2><p class="help">Translate findings into owned actions. Score = likelihood × impact (1–25).</p></div><button class="btn primary no-print" id="addRisk">+ Add risk</button></div><div class="risk-scroll"><table class="risk-table"><thead><tr><th>Risk / affected assets</th><th>Likelihood</th><th>Impact</th><th>Score</th><th>Owner & target date</th><th>Remediation / residual risk</th><th class="no-print"></th></tr></thead><tbody id="riskRows"></tbody></table></div><div class="empty" id="riskEmpty">No risks recorded yet. Add risks identified during interviews, evidence review, or safeguard evaluation.</div></section>
 
-    <section class="card">
-      <div class="flex" style="justify-content:space-between; align-items:center;">
-        <h2 style="margin:0">Compliance Matrix</h2>
-        <div class="pill">Overview of HIPAA Security Rule families</div>
-      </div>
-      <div id="matrix" class="matrix"></div>
-    </section>
+      <section class="section" id="attestation"><div class="section-head"><div><div class="step">Step 4 of 5</div><h2>Review & management attestation</h2><p class="help">Document review, approval, and the accountable security official.</p></div></div><div class="form-grid"><div class="field"><label for="executive">Approver name & title</label><input class="input meta" id="executive" placeholder="Jane Doe, Practice Owner"></div><div class="field"><label for="signDate">Approval date</label><input class="input meta" id="signDate" type="date"></div><div class="field full"><label for="attestationText">Management statement</label><textarea class="meta" id="attestationText">Management has reviewed this security risk analysis, acknowledges the identified risks, and approves the documented remediation priorities and risk treatment decisions.</textarea></div></div></section>
 
-    <section class="card">
-      <h2 style="margin-top:0">Risk Register</h2>
-      <div class="sr">
-        <div class="q">
-          <label for="threats">Key Threats & Vulnerabilities</label>
-          <small>Summarize what could go wrong (e.g., lost laptop, phishing, misconfig, home Wi‑Fi)
-          </small>
-          <textarea id="threats"></textarea>
-        </div>
-        <div class="q">
-          <label for="likelihood">Likelihood (1–5)</label>
-          <input id="likelihood" type="number" min="1" max="5" value="3" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);"/>
-          <label for="impact" style="margin-top:8px; display:block;">Impact (1–5)</label>
-          <input id="impact" type="number" min="1" max="5" value="3" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);"/>
-          <div class="pill" style="margin-top:10px">Risk Score: <span id="riskScore" style="font-weight:700">9</span></div>
-        </div>
-        <div class="q">
-          <label for="remediation">Remediation Plan</label>
-          <small>Actions, owners, due dates (e.g., enable MFA on email by 2025‑10‑31; Intune MDM enforce BitLocker; BAA with vendors)
-          </small>
-          <textarea id="remediation"></textarea>
-        </div>
-        <div class="q">
-          <label for="residual">Residual Risk Acceptance</label>
-          <small>Document what risk remains and who approved it (if any)</small>
-          <textarea id="residual"></textarea>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2 style="margin-top:0">Management Attestation</h2>
-      <p class="sub">I attest that this assessment is accurate to the best of my knowledge, and I authorize the remediation plan.
-      </p>
-      <div class="two">
-        <div class="q">
-          <label>Executive Name / Title</label>
-          <input id="exec" placeholder="e.g., Privacy Officer – Jane Doe" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
-        </div>
-        <div class="q">
-          <label>Date</label>
-          <input id="signDate" type="date" style="width:100%; margin-top:8px; padding:10px; border-radius:10px; background:#0b1220; color:var(--ink); border:1px solid var(--border);" />
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <p><strong>Privacy:</strong> This app runs entirely in your browser. It sends <em>no data</em> to any server. Use your browser’s <em>Print</em> to save a PDF for your records. Optionally export/import a local <code>.json</code> of your responses.
-      </p>
-      <p><strong>Disclaimer:</strong> This tool is provided “as‑is” and does not constitute legal advice. You are responsible for validating results with counsel or a compliance professional.</p>
-    </footer>
+      <section class="section" id="report"><div class="section-head"><div><div class="step">Step 5 of 5</div><h2>Assessment summary</h2><p class="help">Use Print report to create a clean PDF, and Save local file to preserve editable evidence.</p></div></div><div class="report-grid"><div class="summary-card"><b id="metSummary">0</b><span>Safeguards fully met</span></div><div class="summary-card"><b id="gapSummary">0</b><span>Partial or unmet safeguards</span></div><div class="summary-card"><b id="highSummary">0</b><span>High risks (15–25)</span></div></div><div class="notice"><strong>Retention reminder:</strong> Keep the final analysis, supporting evidence, remediation records, and approvals according to your documentation-retention policy. The exported JSON may contain sensitive security information; store it only on an approved, encrypted device.</div><div class="file-status" id="saveStatus">Not saved during this session.</div><div class="print-only"><p><strong>Report generated:</strong> <span id="printedAt"></span></p></div></section>
+      <div class="footer">SaberGuard LLC · Local-first HIPAA SRA support · This tool is not legal advice and does not guarantee compliance.</div>
+    </main>
   </div>
-
-  <script>
-    // === Controls library (client-only) ===
-    const CATEGORIES = [
-      { key: 'admin',  title: 'Administrative Safeguards (164.308)' },
-      { key: 'physical', title: 'Physical Safeguards (164.310)' },
-      { key: 'technical', title: 'Technical Safeguards (164.312)' },
-      { key: 'docs', title: 'Policies, Procedures & Documentation (164.316)' },
-    ];
-
-    // Minimal but meaningful annual HIPAA SRA controls (editable)
-    const CONTROLS = [
-      { id:'risk-mgmt', cat:'admin', text:'Formal risk analysis performed within the last 12 months and documented', ref:'164.308(a)(1)(ii)(A)' },
-      { id:'risk-plan', cat:'admin', text:'Risk management plan with owners and deadlines is maintained', ref:'164.308(a)(1)(ii)(B)' },
-      { id:'assign-sec', cat:'admin', text:'Security official assigned with documented responsibilities', ref:'164.308(a)(2)' },
-      { id:'workforce-sec', cat:'admin', text:'Workforce security: auth, supervision, and termination procedures in place', ref:'164.308(a)(3)' },
-      { id:'info-access', cat:'admin', text:'Information access management follows role-based access (minimum necessary)', ref:'164.308(a)(4)' },
-      { id:'security-train', cat:'admin', text:'Security awareness & training conducted (incl. phishing) within 12 months', ref:'164.308(a)(5)' },
-      { id:'contingency', cat:'admin', text:'Contingency plans incl. backups, disaster recovery, and emergency mode ops', ref:'164.308(a)(7)' },
-      { id:'evals', cat:'admin', text:'Periodic technical & nontechnical evaluations performed (e.g., at changes)', ref:'164.308(a)(8)' },
-      { id:'baa', cat:'admin', text:'Business Associate Agreements in place for all vendors handling ePHI', ref:'164.308(b)(1)' },
-
-      { id:'facility-access', cat:'physical', text:'Facility access controls (badging/keys/visitor logs) are defined & enforced', ref:'164.310(a)(1)' },
-      { id:'workstation-use', cat:'physical', text:'Workstation use policies define acceptable use and secure locations', ref:'164.310(b)' },
-      { id:'workstation-sec', cat:'physical', text:'Workstation security: screen locks, cable locks or secure rooms', ref:'164.310(c)' },
-      { id:'device-media', cat:'physical', text:'Device & media controls: disposal, reuse, movement, and backup', ref:'164.310(d)(1)' },
-
-      { id:'access-control', cat:'technical', text:'Unique user IDs, MFA for remote/email/EHR; emergency access procedure', ref:'164.312(a)(1)' },
-      { id:'audit-controls', cat:'technical', text:'Audit logs enabled and reviewed (EHR, email, VPN, admin actions)', ref:'164.312(b)' },
-      { id:'integrity', cat:'technical', text:'Integrity controls (anti‑malware, allow‑listing, code signing) in place', ref:'164.312(c)(1)' },
-      { id:'transmission', cat:'technical', text:'Encryption in transit (TLS) for ePHI systems and email (or secure portal)', ref:'164.312(e)(1)' },
-      { id:'encryption-rest', cat:'technical', text:'Encryption at rest for laptops, servers, and cloud storage (e.g., BitLocker)', ref:'Addressable' },
-      { id:'mdm', cat:'technical', text:'Mobile/Endpoint management (MDM/Intune) enforces policies and updates', ref:'Good practice' },
-
-      { id:'policies', cat:'docs', text:'Written policies & procedures maintained and reviewed within 12 months', ref:'164.316(a)' },
-      { id:'sanctions', cat:'docs', text:'Sanction policy for violations is documented and applied', ref:'164.308(a)(1)(ii)(C)' },
-      { id:'incident', cat:'docs', text:'Incident response plan with roles, timelines, and breach notification steps', ref:'164.308(a)(6)' },
-      { id:'records-retain', cat:'docs', text:'SRA records & policy documentation retained for 6 years', ref:'164.316(b)(2)(i)' },
-    ];
-
-    const state = { responses: {}, notes: {} };
-
-    const qWrap = document.getElementById('questions');
-    const totalEl = document.getElementById('statTotal');
-    const answeredEl = document.getElementById('statAnswered');
-    const scoreEl = document.getElementById('statScore');
-    const riskEl = document.getElementById('statRisk');
-    const matrixWrap = document.getElementById('matrix');
-
-    function render(){
-      totalEl.textContent = CONTROLS.length;
-      answeredEl.textContent = Object.keys(state.responses).length;
-      const max = CONTROLS.length * 2;
-      const sum = Object.values(state.responses).reduce((a,b)=>a+b,0);
-      const pct = Math.round((sum / max) * 100) || 0;
-      scoreEl.textContent = pct + '%';
-      riskEl.textContent = pct >= 85 ? 'Low' : pct >= 60 ? 'Moderate' : 'Elevated';
-
-      renderMatrix();
-
-      qWrap.innerHTML = '';
-      CATEGORIES.forEach(cat => {
-        const group = document.createElement('div');
-        group.className = 'q';
-        const inCat = CONTROLS.filter(c => c.cat === cat.key);
-        const yes = inCat.filter(c => state.responses[c.id] === 2).length;
-        const part = inCat.filter(c => state.responses[c.id] === 1).length;
-        const no = inCat.filter(c => state.responses[c.id] === 0).length;
-
-        group.innerHTML = `\n          <div class="flex" style="justify-content:space-between; align-items:flex-start;">\n            <div>\n              <h3>${cat.title}</h3>\n              <small>${yes} Yes • ${part} Partial • ${no} No</small>\n            </div>\n            <div class="pill">${inCat.length} controls</div>\n          </div>\n          <div id="${cat.key}-list"></div>\n        `;
-        qWrap.appendChild(group);
-
-        const list = group.querySelector(`#${cat.key}-list`);
-        inCat.forEach(ctrl => {
-          const row = document.createElement('div');
-          row.className = 'q';
-          row.innerHTML = `\n            <div class="flex" style="justify-content:space-between; align-items:center;">\n              <div>\n                <h3 style="margin-bottom:4px">${ctrl.text}</h3>\n                <small>Ref: ${ctrl.ref}</small>\n              </div>\n              <div class="options" role="radiogroup" aria-label="${ctrl.text}">\n                <div class="opt ${state.responses[ctrl.id]===2?'active':''}" data-id="${ctrl.id}" data-v="2" title="Meets the control">Yes</div>\n                <div class="opt ${state.responses[ctrl.id]===1?'active':''}" data-id="${ctrl.id}" data-v="1" title="Partially meets the control">Partial</div>\n                <div class="opt ${state.responses[ctrl.id]===0?'active':''}" data-id="${ctrl.id}" data-v="0" title="Does not meet the control">No</div>\n              </div>\n            </div>\n            <div style="margin-top:8px">\n              <label for="note-${ctrl.id}">Notes / Evidence (optional)</label>\n              <textarea id="note-${ctrl.id}" placeholder="Describe how this is met, list systems/evidence, or note planned actions."></textarea>\n            </div>\n          `;
-          list.appendChild(row);
-
-          row.querySelectorAll('.opt').forEach(el => {
-            el.addEventListener('click', () => {
-              const id = el.dataset.id; const v = Number(el.dataset.v);
-              state.responses[id] = v; render();
-            });
-          });
-
-          const ta = row.querySelector('textarea');
-          ta.value = state.notes[ctrl.id] || '';
-          ta.addEventListener('input', e => { state.notes[ctrl.id] = e.target.value; });
-        });
-      });
-    }
-
-    function renderMatrix(){
-      matrixWrap.innerHTML='';
-      CATEGORIES.forEach(cat=>{
-        const inCat = CONTROLS.filter(c=>c.cat===cat.key);
-        const yes = inCat.filter(c => state.responses[c.id]===2).length;
-        const part = inCat.filter(c => state.responses[c.id]===1).length;
-        const no = inCat.filter(c => state.responses[c.id]===0).length;
-        const total = inCat.length || 1;
-        const yesPct = Math.round((yes/total)*100);
-
-        const row = document.createElement('div');
-        row.className='row';
-        row.innerHTML = `\n          <div>\n            <h4>${cat.title}</h4>\n            <div class="mini"><span class="swatch y"></span>${yes} Yes <span class="swatch p"></span>${part} Partial <span class="swatch n"></span>${no} No</div>\n          </div>\n          <div>\n            <div class="bar" aria-label="${yesPct}% yes">\n              <span class="yes" style="width:${yesPct}%"></span>\n            </div>\n            <small class="sub">${yesPct}% controls fully met</small>\n          </div>\n          <div class="gridDots" title="Each square is one control">\n            ${inCat.map(c=>`<span class="dot" data-s="${state.responses[c.id] ?? ''}" title="${c.text} (Ref: ${c.ref})"></span>`).join('')}\n          </div>\n        `;
-        matrixWrap.appendChild(row);
-      });
-    }
-
-    function updateRiskScore(){
-      const L = Number(document.getElementById('likelihood').value||0);
-      const I = Number(document.getElementById('impact').value||0);
-      document.getElementById('riskScore').textContent = (L*I).toString();
-    }
-    document.getElementById('likelihood').addEventListener('input', updateRiskScore);
-    document.getElementById('impact').addEventListener('input', updateRiskScore);
-
-    document.getElementById('btnPrint').addEventListener('click', () => window.print());
-
-    document.getElementById('btnExport').addEventListener('click', () => {
-      const payload = {
-        meta: {
-          orgName: document.getElementById('orgName').value,
-          assessDate: document.getElementById('assessDate').value,
-          assessor: document.getElementById('assessor').value,
-          scope: document.getElementById('scope').value,
-          threats: document.getElementById('threats').value,
-          likelihood: document.getElementById('likelihood').value,
-          impact: document.getElementById('impact').value,
-          remediation: document.getElementById('remediation').value,
-          residual: document.getElementById('residual').value,
-          exec: document.getElementById('exec').value,
-          signDate: document.getElementById('signDate').value,
-          score: document.getElementById('statScore').textContent,
-          riskLevel: document.getElementById('statRisk').textContent,
-        },
-        responses: state.responses,
-        notes: state.notes,
-        version: '1.0.0'
-      };
-      const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `hipaa-sra_${(payload.meta.orgName||'org').replace(/\s+/g,'-').toLowerCase()}_${payload.meta.assessDate||'date'}.json`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    });
-
-    document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
-    document.getElementById('fileImport').addEventListener('change', (evt) => {
-      const file = evt.target.files[0]; if(!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try{
-          const data = JSON.parse(e.target.result);
-          document.getElementById('orgName').value = data.meta?.orgName||'';
-          document.getElementById('assessDate').value = data.meta?.assessDate||'';
-          document.getElementById('assessor').value = data.meta?.assessor||'';
-          document.getElementById('scope').value = data.meta?.scope||'';
-          document.getElementById('threats').value = data.meta?.threats||'';
-          document.getElementById('likelihood').value = data.meta?.likelihood||3;
-          document.getElementById('impact').value = data.meta?.impact||3;
-          document.getElementById('remediation').value = data.meta?.remediation||'';
-          document.getElementById('residual').value = data.meta?.residual||'';
-          document.getElementById('exec').value = data.meta?.exec||'';
-          document.getElementById('signDate').value = data.meta?.signDate||'';
-          state.responses = data.responses||{};
-          state.notes = data.notes||{};
-          updateRiskScore();
-          render();
-        }catch(err){
-          alert('Invalid JSON file.');
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    updateRiskScore();
-    render();
-  </script>
-</body>
-</html>
+</div>
+<script>
+const CATEGORIES={administrative:'Administrative safeguards · 45 CFR 164.308',physical:'Physical safeguards · 45 CFR 164.310',technical:'Technical safeguards · 45 CFR 164.312',organization:'Organizational requirements · 45 CFR 164.314',documentation:'Policies & documentation · 45 CFR 164.316'};
+const CONTROLS=[
+['A01','administrative','Security management process','Implement policies and procedures to prevent, detect, contain, and correct security violations.','Confirm the program operates across the full assessed environment.','164.308(a)(1)','Standard'],
+['A02','administrative','Risk analysis','Conduct an accurate and thorough assessment of potential risks and vulnerabilities to ePHI.','Verify scope, data flows, threats, vulnerabilities, existing controls, likelihood, impact, and conclusions.','164.308(a)(1)(ii)(A)','Required'],
+['A03','administrative','Risk management','Implement measures sufficient to reduce risks and vulnerabilities to a reasonable and appropriate level.','Trace analyzed risks to treatment, owners, dates, validation, and acceptance.','164.308(a)(1)(ii)(B)','Required'],
+['A04','administrative','Sanction policy','Apply appropriate sanctions against workforce members who fail to comply with security policies.','Review the approved policy and de-identified evidence of consistent application.','164.308(a)(1)(ii)(C)','Required'],
+['A05','administrative','Information system activity review','Regularly review records of information system activity, including audit logs, access reports, and incident tracking.','Identify responsible reviewers, coverage, frequency, escalation, and retained evidence.','164.308(a)(1)(ii)(D)','Required'],
+['A06','administrative','Assigned security responsibility','Identify the security official responsible for developing and implementing required policies and procedures.','Confirm formal assignment, authority, role description, and accountability.','164.308(a)(2)','Standard'],
+['A07','administrative','Workforce security','Ensure workforce members have appropriate ePHI access and prevent access by those without authorization.','Test the control across employees, volunteers, contractors, and other workforce members.','164.308(a)(3)','Standard'],
+['A08','administrative','Authorization and/or supervision','Implement authorization or supervision procedures for workforce members who work with ePHI or in locations where it may be accessed.','Sample approvals and supervision for new, temporary, transferred, and remote workers.','164.308(a)(3)(ii)(A)','Addressable'],
+['A09','administrative','Workforce clearance procedure','Determine whether workforce access to ePHI is appropriate.','Review role criteria, screening where appropriate, approvals, and periodic reevaluation.','164.308(a)(3)(ii)(B)','Addressable'],
+['A10','administrative','Termination procedures','Terminate ePHI access when employment or another workforce arrangement ends.','Sample timely account, badge, key, device, token, and remote-access revocation.','164.308(a)(3)(ii)(C)','Addressable'],
+['A11','administrative','Information access management','Authorize access to ePHI consistently with the Privacy Rule.','Confirm least-privilege governance covers all systems, facilities, and support access.','164.308(a)(4)','Standard'],
+['A12','administrative','Isolating health care clearinghouse functions','Protect clearinghouse ePHI from access by the larger organization when applicable.','Document applicability; if applicable, verify technical and organizational separation.','164.308(a)(4)(ii)(A)','Required'],
+['A13','administrative','Access authorization','Implement policies for granting access to ePHI, including through workstations, transactions, programs, processes, or other mechanisms.','Sample requests, approvals, role mappings, privileged access, and emergency access.','164.308(a)(4)(ii)(B)','Addressable'],
+['A14','administrative','Access establishment and modification','Implement policies that establish, document, review, and modify access rights.','Test joins, transfers, elevated access, recertification, and removals.','164.308(a)(4)(ii)(C)','Addressable'],
+['A15','administrative','Security awareness and training','Implement a security awareness and training program for all workforce members, including management.','Confirm onboarding, periodic training, role-based content, completion, and follow-up.','164.308(a)(5)','Standard'],
+['A16','administrative','Security reminders','Provide periodic security updates.','Review cadence, topics, delivery channels, and retained communications.','164.308(a)(5)(ii)(A)','Addressable'],
+['A17','administrative','Protection from malicious software','Use procedures for guarding against, detecting, and reporting malicious software.','Review endpoint/email defenses, updates, alert handling, user reporting, and coverage.','164.308(a)(5)(ii)(B)','Addressable'],
+['A18','administrative','Log-in monitoring','Monitor log-in attempts and report discrepancies.','Inspect authentication logging, alert thresholds, investigation, and escalation.','164.308(a)(5)(ii)(C)','Addressable'],
+['A19','administrative','Password management','Create, change, and safeguard passwords through documented procedures.','Review identity standards, compromised-password response, MFA, vaulting, and service accounts.','164.308(a)(5)(ii)(D)','Addressable'],
+['A20','administrative','Security incident procedures','Implement policies and procedures to address security incidents.','Verify scope, roles, contacts, triage, legal/privacy coordination, and exercises.','164.308(a)(6)','Standard'],
+['A21','administrative','Response and reporting','Identify and respond to suspected or known incidents; mitigate harmful effects; document incidents and outcomes.','Sample tickets or exercises from detection through lessons learned.','164.308(a)(6)(ii)','Required'],
+['A22','administrative','Contingency plan','Establish policies and procedures for emergencies that damage systems containing ePHI.','Confirm the plan addresses cyber, technology, utility, facility, and regional events.','164.308(a)(7)','Standard'],
+['A23','administrative','Data backup plan','Establish and implement procedures to create and maintain retrievable exact copies of ePHI.','Inspect scope, monitoring, encryption, isolation, retention, failures, and restore results.','164.308(a)(7)(ii)(A)','Required'],
+['A24','administrative','Disaster recovery plan','Establish procedures to restore lost data.','Verify recovery steps, dependencies, responsibilities, recovery objectives, and testing.','164.308(a)(7)(ii)(B)','Required'],
+['A25','administrative','Emergency mode operation plan','Enable continuation of critical business processes while protecting ePHI during emergency operations.','Review downtime workflows, minimum security controls, alternate sites, and communications.','164.308(a)(7)(ii)(C)','Required'],
+['A26','administrative','Testing and revision procedures','Periodically test and revise contingency plans.','Review exercise dates, scenarios, participants, results, corrective actions, and retesting.','164.308(a)(7)(ii)(D)','Addressable'],
+['A27','administrative','Applications and data criticality analysis','Assess the relative criticality of applications and data for contingency planning.','Reconcile business impact results to recovery tiers, RTOs, RPOs, and dependencies.','164.308(a)(7)(ii)(E)','Addressable'],
+['A28','administrative','Evaluation','Perform periodic technical and nontechnical evaluations in response to environmental or operational changes affecting ePHI security.','Review evaluation cadence, change triggers, scope, independence, findings, and follow-up.','164.308(a)(8)','Standard'],
+['A29','administrative','Business associate contracts and arrangements','Obtain satisfactory assurances that business associates appropriately safeguard ePHI.','Reconcile ePHI vendors to executed agreements, due diligence, monitoring, and termination.','164.308(b)(1)','Standard'],
+['P01','physical','Facility access controls','Limit physical access to electronic information systems and facilities while ensuring authorized access.','Review all offices, server rooms, records areas, colocations, and remote work locations.','164.310(a)(1)','Standard'],
+['P02','physical','Contingency operations','Allow facility access supporting data restoration and emergency-mode operations under the contingency plan.','Validate emergency authorization, alternate access, and restoration-site procedures.','164.310(a)(2)(i)','Addressable'],
+['P03','physical','Facility security plan','Safeguard facilities and equipment from unauthorized physical access, tampering, and theft.','Inspect boundaries, locks, badges, alarms, cameras, server rooms, and response.','164.310(a)(2)(ii)','Addressable'],
+['P04','physical','Access control and validation procedures','Control and validate facility access based on role or function, including visitor control and software testing areas.','Sample access lists, visitor logs, approvals, reviews, and revoked access.','164.310(a)(2)(iii)','Addressable'],
+['P05','physical','Maintenance records','Document repairs and modifications to physical security components.','Review records for locks, doors, walls, cameras, alarms, and related hardware.','164.310(a)(2)(iv)','Addressable'],
+['P06','physical','Workstation use','Specify proper workstation functions, manner of use, and physical attributes of surroundings.','Observe clinical, administrative, shared, kiosk, and remote-work settings.','164.310(b)','Standard'],
+['P07','physical','Workstation security','Implement physical safeguards restricting access to workstations that access ePHI.','Check placement, privacy, locking, secure rooms, unattended use, and portable devices.','164.310(c)','Standard'],
+['P08','physical','Device and media controls','Govern receipt and removal of hardware and electronic media containing ePHI, and their movement within facilities.','Verify the lifecycle from acquisition and inventory through transfer and destruction.','164.310(d)(1)','Standard'],
+['P09','physical','Disposal','Implement policies for final disposal of ePHI and the hardware or media on which it is stored.','Sample destruction certificates, vendor custody, approved methods, and verification.','164.310(d)(2)(i)','Required'],
+['P10','physical','Media re-use','Remove ePHI before media is made available for reuse.','Validate sanitization standards, records, verification, and handling of failed media.','164.310(d)(2)(ii)','Required'],
+['P11','physical','Accountability','Maintain records of hardware and electronic media movements and the responsible person.','Review inventory accuracy, assignment, transfer, return, and loss investigation.','164.310(d)(2)(iii)','Addressable'],
+['P12','physical','Data backup and storage','Create a retrievable exact copy of ePHI before equipment movement when needed.','Sample moves and verify backup decisions, completion, protection, and restoration.','164.310(d)(2)(iv)','Addressable'],
+['T01','technical','Access control','Allow access only to persons or software programs granted access rights.','Validate enforcement across applications, infrastructure, databases, endpoints, integrations, and support tools.','164.312(a)(1)','Standard'],
+['T02','technical','Unique user identification','Assign a unique name and/or number for identifying and tracking user identity.','Find shared accounts and verify identity lifecycle, traceability, and service-account governance.','164.312(a)(2)(i)','Required'],
+['T03','technical','Emergency access procedure','Establish procedures for obtaining necessary ePHI during an emergency.','Test break-glass access, authorization, monitoring, review, and credential availability.','164.312(a)(2)(ii)','Required'],
+['T04','technical','Automatic logoff','Terminate electronic sessions after a predetermined period of inactivity.','Validate timeout decisions and configuration by system, device, risk, and workflow.','164.312(a)(2)(iii)','Addressable'],
+['T05','technical','Encryption and decryption','Implement a mechanism to encrypt and decrypt ePHI.','Assess ePHI at rest on endpoints, servers, databases, backups, removable media, and cloud services.','164.312(a)(2)(iv)','Addressable'],
+['T06','technical','Audit controls','Record and examine activity in systems that contain or use ePHI.','Validate event coverage, identity, timestamps, integrity, retention, alerting, and review.','164.312(b)','Standard'],
+['T07','technical','Integrity','Protect ePHI from improper alteration or destruction.','Review authorization, change control, malware protection, backups, and integrity monitoring.','164.312(c)(1)','Standard'],
+['T08','technical','Mechanism to authenticate ePHI','Implement electronic mechanisms to corroborate that ePHI has not been altered or destroyed improperly.','Evaluate checksums, signatures, validation rules, reconciliation, and tamper evidence where reasonable.','164.312(c)(2)','Addressable'],
+['T09','technical','Person or entity authentication','Verify that a person or entity seeking ePHI access is the one claimed.','Review authentication assurance, MFA, federation, service identities, and identity proofing.','164.312(d)','Standard'],
+['T10','technical','Transmission security','Guard against unauthorized access to ePHI transmitted over electronic communications networks.','Map transmission paths including email, portals, APIs, VPN, wireless, fax services, and vendors.','164.312(e)(1)','Standard'],
+['T11','technical','Integrity controls for transmission','Ensure electronically transmitted ePHI is not improperly modified without detection.','Assess secure protocols, message integrity, certificates, file validation, and transfer monitoring.','164.312(e)(2)(i)','Addressable'],
+['T12','technical','Encryption for transmission','Encrypt ePHI whenever deemed appropriate.','Validate current cryptography and configuration for every internal and external transmission path.','164.312(e)(2)(ii)','Addressable'],
+['O01','organization','Business associate contract requirements','Contracts require permitted uses, safeguards, incident reporting, subcontractor protections, return/destruction, and authorization to terminate.','Review agreement language and confirm the operational relationship matches it.','164.314(a)','Standard'],
+['O02','organization','Other arrangements','Government entities and covered entities in certain organizational structures use arrangements that satisfy applicable assurances.','Document applicability and review the memorandum, law, or organizational documentation used.','164.314(a)(2)','Standard'],
+['O03','organization','Group health plan requirements','Plan documents require the plan sponsor to reasonably and appropriately safeguard ePHI when applicable.','Document applicability and inspect plan amendments, separation, reporting, and access restrictions.','164.314(b)','Standard'],
+['D01','documentation','Policies and procedures','Implement reasonable and appropriate policies and procedures that comply with the Security Rule.','Verify that documented requirements match actual operations and current risks.','164.316(a)','Standard'],
+['D02','documentation','Documentation','Maintain required policies, procedures, actions, activities, and assessments in written or electronic form.','Confirm the assessment evidence supports conclusions and required actions are recorded.','164.316(b)(1)','Standard'],
+['D03','documentation','Time limit','Retain required documentation for six years from creation or last effective date, whichever is later.','Review retention schedules, repositories, disposition controls, and sample availability.','164.316(b)(2)(i)','Required'],
+['D04','documentation','Availability','Make documentation available to persons responsible for implementing the procedures to which it pertains.','Validate access, workforce awareness, outage access, and appropriate restrictions.','164.316(b)(2)(ii)','Required'],
+['D05','documentation','Updates','Review documentation periodically and update it in response to environmental or operational changes affecting ePHI security.','Inspect review dates, change triggers, revision history, approvals, and communication.','164.316(b)(2)(iii)','Required']];
+const state={meta:{},controls:{},risks:[],savedAt:null};let activeFilter='all';
+const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function controlState(id){return state.controls[id]||(state.controls[id]={status:'',notes:'',evidence:[]});}
+function renderControls(){const wrap=$('controls');wrap.innerHTML='';let last='';CONTROLS.forEach(c=>{const [id,cat,title,text,explain,ref]=c,s=controlState(id);if(activeFilter!=='all'&&activeFilter!=='gaps'&&cat!==activeFilter)return;if(activeFilter==='gaps'&&!['partial','not-met'].includes(s.status))return;if(cat!==last){const head=document.createElement('div');head.innerHTML=`<h3 style="color:var(--navy);margin:12px 0 0">${CATEGORIES[cat]}</h3>`;wrap.appendChild(head);last=cat}const card=document.createElement('article');card.className='control-card';card.dataset.id=id;card.innerHTML=`<div class="control-top"><div><div class="control-id">${id} · ${ref} · ${esc(c[6])}</div><h3>${title} — ${text}</h3><p class="explain">Assessor prompt: ${explain}</p><button class="toggle-detail no-print" type="button">${s.notes||s.evidence.length?'Edit documentation':'Add implementation notes & evidence'} ↓</button></div><div class="choices" role="radiogroup" aria-label="${esc(title)} status">${[['met','Met'],['partial','Partial'],['not-met','Not met'],['na','N/A']].map(x=>`<button type="button" class="choice ${s.status===x[0]?'selected':''}" data-value="${x[0]}">${x[1]}</button>`).join('')}</div></div><div class="control-detail"><div class="field"><label>Implementation notes / finding</label><textarea class="control-notes" placeholder="Describe what was verified, any gap, and the evidence source...">${esc(s.notes)}</textarea></div><div class="field"><label>Supporting evidence</label><div class="evidence-box"><input class="evidence-input no-print" type="file" multiple><div class="evidence-list">${s.evidence.length?s.evidence.map(e=>`${esc(e.name)} (${formatBytes(e.size)})`).join('<br>'):'No files attached. Files stay in memory until you save the assessment.'}</div></div></div></div>`;wrap.appendChild(card);card.querySelector('.toggle-detail').onclick=()=>card.classList.toggle('open');card.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{s.status=b.dataset.value;renderControls();updateDashboard()});card.querySelector('.control-notes').oninput=e=>{s.notes=e.target.value;updateDashboard()};card.querySelector('.evidence-input').onchange=async e=>{for(const file of e.target.files)s.evidence.push({name:file.name,type:file.type,size:file.size,data:await toDataUrl(file)});renderControls();updateDashboard()}});if(!wrap.children.length)wrap.innerHTML='<div class="empty">No safeguards match this filter.</div>'}
+function formatBytes(n){return n<1024?`${n} B`:n<1048576?`${(n/1024).toFixed(1)} KB`:`${(n/1048576).toFixed(1)} MB`}function toDataUrl(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+function addRisk(r={}){state.risks.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+Math.random(),description:'',likelihood:3,impact:3,owner:'',target:'',treatment:'',...r});renderRisks();updateDashboard()}
+function renderRisks(){$('riskRows').innerHTML='';$('riskEmpty').style.display=state.risks.length?'none':'block';state.risks.forEach((r,i)=>{const score=Number(r.likelihood)*Number(r.impact),level=score>=15?'high':score>=8?'medium':'low',tr=document.createElement('tr');tr.innerHTML=`<td><textarea data-k="description" placeholder="Threat, vulnerability, affected ePHI/assets">${esc(r.description)}</textarea></td><td><select data-k="likelihood">${[1,2,3,4,5].map(n=>`<option ${+r.likelihood===n?'selected':''}>${n}</option>`).join('')}</select></td><td><select data-k="impact">${[1,2,3,4,5].map(n=>`<option ${+r.impact===n?'selected':''}>${n}</option>`).join('')}</select></td><td><span class="score-chip score-${level}">${score} · ${level}</span></td><td><input class="input" data-k="owner" placeholder="Owner" value="${esc(r.owner)}"><input class="input" data-k="target" type="date" value="${esc(r.target)}" style="margin-top:5px"></td><td><textarea data-k="treatment" placeholder="Treatment, milestones, and residual risk">${esc(r.treatment)}</textarea></td><td class="no-print"><button class="btn danger remove" title="Remove risk">×</button></td>`;$('riskRows').appendChild(tr);tr.querySelectorAll('[data-k]').forEach(el=>el.oninput=e=>{r[e.target.dataset.k]=e.target.value;if(['likelihood','impact'].includes(e.target.dataset.k))renderRisks();updateDashboard()});tr.querySelector('.remove').onclick=()=>{state.risks.splice(i,1);renderRisks();updateDashboard()}})}
+function collectMeta(){document.querySelectorAll('.meta').forEach(el=>state.meta[el.id]=el.value)}function hydrateMeta(){document.querySelectorAll('.meta').forEach(el=>{if(state.meta[el.id]!=null)el.value=state.meta[el.id]})}
+function updateDashboard(){collectMeta();const reviewed=CONTROLS.filter(c=>controlState(c[0]).status).length,met=CONTROLS.filter(c=>controlState(c[0]).status==='met').length,gaps=CONTROLS.filter(c=>['partial','not-met'].includes(controlState(c[0]).status)).length,evidence=CONTROLS.reduce((n,c)=>n+controlState(c[0]).evidence.length,0),high=state.risks.filter(r=>r.likelihood*r.impact>=15).length,pct=Math.round(reviewed/CONTROLS.length*100);$('completeMetric').textContent=pct+'%';$('answeredMetric').textContent=`${reviewed} / ${CONTROLS.length}`;$('openRiskMetric').textContent=state.risks.length;$('evidenceMetric').textContent=evidence;$('controlProgress').style.width=pct+'%';$('mobileProgress').style.width=pct+'%';$('progressLabel').textContent=`${reviewed} of ${CONTROLS.length} reviewed`;$('metSummary').textContent=met;$('gapSummary').textContent=gaps;$('highSummary').textContent=high}
+function exportAssessment(){collectMeta();const payload={format:'SaberGuard HIPAA SRA',version:2,exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob),slug=(state.meta.orgName||'organization').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase();a.href=url;a.download=`${slug}-hipaa-sra-${state.meta.assessmentDate||'draft'}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);state.savedAt=new Date().toISOString();$('saveStatus').textContent=`Local assessment file created ${new Date(state.savedAt).toLocaleString()}.`}
+async function importAssessment(file){try{const data=JSON.parse(await file.text());if(data.format!=='SaberGuard HIPAA SRA'&&!data.responses)throw Error();state.meta=data.meta||{};state.controls=data.controls||{};if(data.responses){Object.entries(data.responses).forEach(([id,v])=>state.controls[id]={status:v===2?'met':v===1?'partial':'not-met',notes:data.notes?.[id]||'',evidence:[]})}state.risks=Array.isArray(data.risks)?data.risks:[];state.savedAt=data.savedAt||null;hydrateMeta();renderControls();renderRisks();updateDashboard();$('saveStatus').textContent=`Opened ${file.name}. Changes remain in memory until saved.`}catch{$('saveStatus').textContent='Could not open that file. Choose a valid SaberGuard assessment JSON file.'}}
+document.querySelectorAll('.meta').forEach(el=>el.addEventListener('input',updateDashboard));$('filters').onclick=e=>{if(!e.target.dataset.filter)return;activeFilter=e.target.dataset.filter;document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b===e.target));renderControls()};$('addRisk').onclick=()=>addRisk();$('exportBtn').onclick=exportAssessment;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=e=>{if(e.target.files[0])importAssessment(e.target.files[0]);e.target.value=''};$('printBtn').onclick=()=>{$('printedAt').textContent=new Date().toLocaleString();window.print()};window.addEventListener('beforeunload',e=>{const hasWork=Object.values(state.meta).some(Boolean)||Object.values(state.controls).some(x=>x.status||x.notes||x.evidence.length)||state.risks.length;if(hasWork&&!state.savedAt){e.preventDefault();e.returnValue=''}});
+$('assessmentDate').value=new Date().toISOString().slice(0,10);renderControls();renderRisks();updateDashboard();
+</script>
+</body></html>
