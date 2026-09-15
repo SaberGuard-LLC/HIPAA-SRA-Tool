@@ -1,0 +1,599 @@
+{
+  "format": "SaberGuard HIPAA SRA",
+  "version": 3,
+  "exportedAt": "2026-09-06T18:40:00.000Z",
+  "savedAt": "2026-09-06T18:40:00.000Z",
+  "meta": {
+    "orgName": "Example Health Clinic",
+    "orgType": "Covered entity · Outpatient family practice · Austin, TX",
+    "assessmentDate": "2026-09-06",
+    "period": "September 1, 2025 – August 31, 2026",
+    "assessor": "Alex Rivera, Principal Consultant, SaberGuard LLC",
+    "securityOfficial": "Maria Torres, Practice Administrator & HIPAA Security Official",
+    "reportVersion": "1.0",
+    "classification": "Confidential",
+    "scope": "This analysis covers Example Health Clinic's single outpatient location, the remote billing team (3 workforce members), and all systems that create, receive, maintain, or transmit ePHI: the vendor-hosted EHR and patient portal, Microsoft 365 (email, Teams, SharePoint), the on-premises file share, 24 managed endpoints, the secure fax service, and the practice management/billing clearinghouse interface. Business associates providing IT management, EHR hosting, billing, shredding, and backup services are in scope for contract and assurance review. Excluded: the fully insured employee benefits plan and the landlord-managed building systems, which do not touch ePHI.",
+    "environment": "Vendor-hosted EHR with patient portal; Microsoft 365 tenant with Intune device management; one Windows file server hosting scanned records; 20 desktops and 4 laptops (BitLocker); cloud backup of the file server and Microsoft 365; managed firewall and Wi-Fi provided by the MSP; secure cloud fax; badge-controlled clinic with a keyed server closet.",
+    "methodology": "Interviews with the practice owner, practice administrator (Security Official), billing lead, and MSP account engineer; review of the policy manual, BAAs, training records, incident records, backup and restore logs, and the 2025 risk analysis; configuration review of Microsoft 365 conditional access, Intune compliance, EHR user roles and audit settings, and firewall rules; physical walkthrough of the clinic on 2026-08-27. Sampling covered onboarding, termination, and access-request records for the review period.",
+    "executiveSummary": "",
+    "executive": "Dr. Samuel Reyes, Owner & Medical Director",
+    "signDate": "2026-09-12",
+    "attestationText": "Management has reviewed this security risk analysis, acknowledges the identified risks, and approves the documented remediation priorities and risk treatment decisions. The organization commits to implementing the remediation plan and to updating this analysis in response to environmental or operational changes affecting the security of ePHI."
+  },
+  "assets": [
+    {
+      "id": "a1",
+      "name": "Vendor-hosted EHR & patient portal",
+      "data": "Full clinical record, demographics, scheduling, e-prescribing; primary system of record",
+      "owner": "Practice Administrator · EHR vendor (BAA)",
+      "flow": "Clinicians and front desk via browser; portal for patients; HL7/API to billing clearinghouse; e-prescribing network",
+      "protection": "Vendor SOC 2 Type II; role-based access; MFA for remote access; vendor-managed encrypted backups"
+    },
+    {
+      "id": "a2",
+      "name": "Microsoft 365 (Exchange, Teams, SharePoint)",
+      "data": "Referral correspondence, scanned documents, internal communications containing ePHI",
+      "owner": "Practice Administrator · MSP",
+      "flow": "Inbound/outbound email with referring providers and patients; SharePoint shared with billing team",
+      "protection": "Conditional access with MFA; encrypted email for ePHI; Intune-managed devices only; 90-day cloud backup"
+    },
+    {
+      "id": "a3",
+      "name": "On-premises file server (scanned records)",
+      "data": "Legacy scanned charts, signed consents, insurance cards",
+      "owner": "Practice Administrator · MSP",
+      "flow": "Accessed from clinic workstations over the LAN; nightly cloud backup",
+      "protection": "NTFS permissions by role; server closet keyed; nightly encrypted backup; no external access"
+    },
+    {
+      "id": "a4",
+      "name": "Managed endpoints (20 desktops, 4 laptops)",
+      "data": "Cached ePHI in browser sessions and downloaded documents",
+      "owner": "MSP",
+      "flow": "Clinic LAN and VPN for remote billing staff",
+      "protection": "BitLocker; EDR; Intune compliance; 15-minute screen lock; privacy screens in clinical areas"
+    },
+    {
+      "id": "a5",
+      "name": "Secure cloud fax service",
+      "data": "Inbound referrals, prior authorizations, lab results",
+      "owner": "Front desk lead · Fax vendor (BAA)",
+      "flow": "Inbound faxes delivered to a restricted mailbox and uploaded to the EHR",
+      "protection": "TLS in transit; restricted mailbox; 30-day retention in the fax portal"
+    },
+    {
+      "id": "a6",
+      "name": "Billing clearinghouse interface",
+      "data": "Claims (837), remittances (835), eligibility data",
+      "owner": "Billing lead · Clearinghouse (BAA)",
+      "flow": "SFTP batch from the practice management module to the clearinghouse",
+      "protection": "SFTP with key authentication; clearinghouse SOC 2 report reviewed"
+    }
+  ],
+  "controls": {
+    "A01": {
+      "status": "met",
+      "notes": "Reviewed the Information Security Program Charter (rev. 2026-01) and quarterly security committee minutes. The program covers the clinic, the billing office, and the managed IT vendor.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A02": {
+      "status": "met",
+      "notes": "This risk analysis fulfills the annual requirement. Prior analysis dated 2025-08-14 was reviewed and open items were reconciled against the current risk register.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A03": {
+      "status": "met",
+      "notes": "Risk treatment decisions are tracked in this register with owners and target dates; the 2025 register shows 9 of 11 items closed with validation evidence.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A04": {
+      "status": "met",
+      "notes": "Sanction policy (HR-07) approved 2025-03; two de-identified sanction records reviewed and found consistent with policy.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A05": {
+      "status": "partial",
+      "notes": "Audit logs are retained for the EHR and Microsoft 365, but reviews are informal and undocumented. No evidence of a scheduled review or escalation criteria.",
+      "recommendation": "Establish a monthly log review procedure with named reviewers, defined alert thresholds, and a retained review record. Consider MSP-delivered log monitoring for the EHR audit trail.",
+      "evidence": []
+    },
+    "A06": {
+      "status": "met",
+      "notes": "The Practice Administrator is formally designated HIPAA Security Official in the policy manual and job description; authority confirmed by the owner.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A07": {
+      "status": "met",
+      "notes": "Workforce access reviewed for 24 employees and 3 contractors; all accounts mapped to an active workforce member with a documented role.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A08": {
+      "status": "met",
+      "notes": "Onboarding checklist requires supervisor authorization before EHR access is granted; sample of 5 new hires showed approvals in place.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A09": {
+      "status": "met",
+      "notes": "Background screening performed for all clinical and billing roles; access reviewed at hire and during annual review.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A10": {
+      "status": "met",
+      "notes": "Termination checklist reviewed; sample of 4 separations in the period showed EHR and Microsoft 365 access disabled within one business day.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A11": {
+      "status": "met",
+      "notes": "Role-based access matrix (IT-03) defines EHR, billing, and file-share access by job function; matrix reviewed 2026-02.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A12": {
+      "status": "na",
+      "notes": "The organization does not operate health care clearinghouse functions; no clearinghouse ePHI is created or maintained.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A13": {
+      "status": "met",
+      "notes": "Access requests flow through the ticketing system with administrator approval; 6 sampled tickets contained approvals before provisioning.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A14": {
+      "status": "partial",
+      "notes": "Access is provisioned and removed reliably, but no periodic recertification of existing access has been performed since 2024.",
+      "recommendation": "Perform a semi-annual access recertification for the EHR, Microsoft 365, and file shares; document reviewer sign-off and resulting changes.",
+      "evidence": []
+    },
+    "A15": {
+      "status": "met",
+      "notes": "All workforce members completed annual security awareness training (KnowBe4 completion report, 27 of 27, 2026-03-31).",
+      "recommendation": "",
+      "evidence": [
+        {
+          "name": "KnowBe4-training-completion-2026-03.txt",
+          "type": "text/plain",
+          "size": 64,
+          "data": "data:text/plain;base64,VHJhaW5pbmcgY29tcGxldGlvbiBleHBvcnQ6IDI3IG9mIDI3IHdvcmtmb3JjZSBtZW1iZXJzIGNvbXBsZXRlLg=="
+        }
+      ]
+    },
+    "A16": {
+      "status": "met",
+      "notes": "Monthly security reminders issued by email; 11 of 12 monthly reminders retained for the period.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A17": {
+      "status": "met",
+      "notes": "Endpoint detection and response deployed to all 24 managed devices; email filtering enabled; alerts triaged by the MSP within 4 hours per SLA report.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A18": {
+      "status": "partial",
+      "notes": "Failed log-in alerts are available in Microsoft 365 but not in the EHR; no one is assigned to review discrepancies.",
+      "recommendation": "Enable EHR failed-login reporting and assign review to the Security Official with an escalation path in IR-01.",
+      "evidence": []
+    },
+    "A19": {
+      "status": "partial",
+      "notes": "A password standard exists, but a breached-password check is not enabled and three service accounts have passwords older than two years.",
+      "recommendation": "Enable Entra ID password protection, rotate service-account credentials into the MSP vault, and document a rotation schedule.",
+      "evidence": []
+    },
+    "A20": {
+      "status": "met",
+      "notes": "Incident response plan (IR-01) reviewed; defines roles, contact tree, breach risk assessment, and legal escalation.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A21": {
+      "status": "met",
+      "notes": "Two phishing incidents in the period were documented from detection through lessons learned; breach risk assessments completed and retained.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A22": {
+      "status": "met",
+      "notes": "Contingency plan (BC-01) addresses ransomware, EHR vendor outage, facility loss, and regional weather events.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A23": {
+      "status": "met",
+      "notes": "EHR is vendor-hosted with contractual backup; local file shares and Microsoft 365 are backed up nightly to encrypted cloud storage with 90-day retention. Restore test completed 2026-04-12.",
+      "recommendation": "",
+      "evidence": [
+        {
+          "name": "restore-test-2026-04-12.txt",
+          "type": "text/plain",
+          "size": 80,
+          "data": "data:text/plain;base64,UmVzdG9yZSB0ZXN0IGxvZzogZmlsZSBzaGFyZSByZXN0b3JlIGNvbXBsZXRlZCBpbiA0MiBtaW51dGVzLCBjaGVja3N1bSB2ZXJpZmllZC4="
+        }
+      ]
+    },
+    "A24": {
+      "status": "met",
+      "notes": "Disaster recovery runbook reviewed; recovery objectives documented (RTO 24h, RPO 24h) for the EHR, file share, and phone system.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A25": {
+      "status": "met",
+      "notes": "Downtime procedures include paper charting forms, minimum access controls, and a communications plan; staff briefed during the 2026-02 tabletop.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A26": {
+      "status": "partial",
+      "notes": "A tabletop exercise was held in 2026-02, but the disaster recovery runbook has not been tested end to end and no revisions were recorded.",
+      "recommendation": "Schedule an annual restoration test of the file share and Microsoft 365 backups and record results and revisions in BC-01.",
+      "evidence": []
+    },
+    "A27": {
+      "status": "met",
+      "notes": "Business impact analysis ranks the EHR, e-prescribing, and billing systems as critical with dependencies mapped.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A28": {
+      "status": "met",
+      "notes": "Annual evaluation performed through this assessment; change-triggered evaluations were completed for the 2025 EHR upgrade and the office relocation.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "A29": {
+      "status": "met",
+      "notes": "Business associate inventory lists 9 vendors; executed BAAs on file for all 9 with expiration tracking.",
+      "recommendation": "",
+      "evidence": [
+        {
+          "name": "BAA-inventory-2026.txt",
+          "type": "text/plain",
+          "size": 65,
+          "data": "data:text/plain;base64,QnVzaW5lc3MgYXNzb2NpYXRlIGludmVudG9yeSB3aXRoIGV4ZWN1dGlvbiBhbmQgZXhwaXJhdGlvbiBkYXRlcy4="
+        }
+      ]
+    },
+    "P01": {
+      "status": "met",
+      "notes": "Clinic entrance uses badge readers; server closet is keyed with access limited to two administrators; records room locked outside business hours.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P02": {
+      "status": "na",
+      "notes": "The EHR is vendor-hosted and no on-premises restoration site exists; facility access during contingency operations is addressed under P01 and BC-01. Determination reviewed by the Security Official.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P03": {
+      "status": "met",
+      "notes": "Facility security plan documents locks, alarm system, camera coverage, and after-hours procedures; alarm tested monthly by the vendor.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P04": {
+      "status": "met",
+      "notes": "Visitor sign-in log maintained at reception; contractor access escorted; badge access list reviewed quarterly.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P05": {
+      "status": "partial",
+      "notes": "Repair records exist for the alarm system, but lock re-keying after the 2025 relocation was not documented.",
+      "recommendation": "Maintain a physical security maintenance log covering locks, doors, cameras, and alarms, and backfill the 2025 re-keying record.",
+      "evidence": []
+    },
+    "P06": {
+      "status": "met",
+      "notes": "Workstation use policy defines acceptable use, screen positioning, and remote work requirements; reviewed with staff during training.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P07": {
+      "status": "met",
+      "notes": "Workstations in clinical areas use privacy screens and auto-lock; laptops issued to remote staff are managed and encrypted.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P08": {
+      "status": "met",
+      "notes": "Device and media policy covers issuance, transfer, and disposal; asset inventory reconciled 2026-05 with no unaccounted devices.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P09": {
+      "status": "met",
+      "notes": "Certified destruction vendor used for retired drives and paper; 3 certificates of destruction retained for the period.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P10": {
+      "status": "met",
+      "notes": "Devices are wiped with NIST 800-88 purge before reuse; wipe logs retained in the MSP ticketing system.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P11": {
+      "status": "met",
+      "notes": "Asset inventory records custodian, location, and transfer history for all devices that store ePHI.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "P12": {
+      "status": "not-met",
+      "notes": "No procedure exists to back up ePHI before equipment is moved or serviced; two workstations were sent for repair in 2025 without a documented backup decision.",
+      "recommendation": "Add a pre-move backup step to the device and media procedure and require MSP tickets to record the backup decision before hardware leaves the facility.",
+      "evidence": []
+    },
+    "T01": {
+      "status": "met",
+      "notes": "EHR and Microsoft 365 access enforced through role-based permissions and conditional access; infrastructure access limited to the MSP with MFA.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T02": {
+      "status": "met",
+      "notes": "All users have unique accounts; no shared clinical accounts observed. One shared front-desk account was retired in 2025.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T03": {
+      "status": "met",
+      "notes": "Break-glass EHR access documented; emergency credentials sealed and audited after each use.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T04": {
+      "status": "partial",
+      "notes": "Workstations lock after 15 minutes, but the EHR web session timeout is set to 8 hours and exam-room kiosks do not auto-lock.",
+      "recommendation": "Reduce the EHR session timeout to 15 minutes or less and enable auto-lock on exam-room kiosks.",
+      "evidence": []
+    },
+    "T05": {
+      "status": "met",
+      "notes": "BitLocker enforced on all laptops and desktops via Intune; EHR data encrypted at rest by the vendor (SOC 2 report reviewed).",
+      "recommendation": "",
+      "evidence": [
+        {
+          "name": "intune-bitlocker-compliance.txt",
+          "type": "text/plain",
+          "size": 50,
+          "data": "data:text/plain;base64,SW50dW5lIGNvbXBsaWFuY2UgcmVwb3J0OiAyNC8yNCBkZXZpY2VzIGVuY3J5cHRlZC4="
+        }
+      ]
+    },
+    "T06": {
+      "status": "partial",
+      "notes": "EHR audit logging is enabled, but file-share access auditing is not configured and log retention is 30 days.",
+      "recommendation": "Enable file-share access auditing and extend log retention to at least one year, consistent with the incident response plan.",
+      "evidence": []
+    },
+    "T07": {
+      "status": "met",
+      "notes": "Change control and malware protection in place; integrity of backups validated through restore testing.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T08": {
+      "status": "not-met",
+      "notes": "No mechanism corroborates that ePHI in the local file share has not been improperly altered; integrity relies solely on backups.",
+      "recommendation": "Enable file integrity monitoring or versioning with alerting on the ePHI file share, and document the reasonable-and-appropriate analysis for this addressable specification.",
+      "evidence": []
+    },
+    "T09": {
+      "status": "met",
+      "notes": "MFA enforced for Microsoft 365, VPN, and MSP administrative access; EHR uses vendor MFA for remote access.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T10": {
+      "status": "met",
+      "notes": "Transmission paths mapped: EHR portal (TLS 1.2+), Microsoft 365 encrypted email for ePHI, secure fax service, VPN for remote access.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T11": {
+      "status": "met",
+      "notes": "TLS enforced on all external interfaces; email DKIM/DMARC configured; file transfers to the billing clearinghouse use SFTP.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "T12": {
+      "status": "met",
+      "notes": "Encryption is applied to all identified transmission paths; decision documented in the transmission security standard (IT-09).",
+      "recommendation": "",
+      "evidence": []
+    },
+    "O01": {
+      "status": "met",
+      "notes": "BAA template reviewed by counsel in 2025 and includes all required elements; all 9 executed BAAs use the current template.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "O02": {
+      "status": "na",
+      "notes": "The organization is not a government entity and has no arrangements requiring an alternative to a business associate contract.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "O03": {
+      "status": "na",
+      "notes": "The organization does not sponsor a self-funded group health plan; employee benefits are fully insured with no plan-sponsor access to ePHI.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "D01": {
+      "status": "met",
+      "notes": "Policy manual covers each Security Rule standard; policies map to safeguard IDs in this assessment.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "D02": {
+      "status": "met",
+      "notes": "Policies, procedures, risk analyses, and training records are maintained electronically in the compliance repository.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "D03": {
+      "status": "met",
+      "notes": "Retention schedule sets a 7-year retention for security documentation, exceeding the 6-year requirement.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "D04": {
+      "status": "met",
+      "notes": "Policies are available to all staff on the intranet; downtime copies kept in the operations binder.",
+      "recommendation": "",
+      "evidence": []
+    },
+    "D05": {
+      "status": "met",
+      "notes": "Policies carry review dates; 100% of policies reviewed within the last 12 months per the revision log.",
+      "recommendation": "",
+      "evidence": []
+    }
+  },
+  "risks": [
+    {
+      "id": "r1",
+      "description": "Unauthorized or inappropriate access to ePHI goes undetected because audit logs for the EHR and file share are not regularly reviewed and file-share auditing is not enabled.",
+      "assets": "EHR, on-premises file server",
+      "controls": "A05, T06, A18",
+      "existing": "EHR audit logging enabled; Microsoft 365 alerts",
+      "likelihood": 4,
+      "impact": 4,
+      "decision": "Mitigate",
+      "owner": "Maria Torres (Security Official) with MSP",
+      "target": "2026-11-30",
+      "treatment": "Implement a monthly documented log review for the EHR and Microsoft 365; enable file-share access auditing with one-year retention; define escalation criteria in IR-01; validate with the first two monthly review records.",
+      "status": "In progress",
+      "residualLikelihood": 2,
+      "residualImpact": 4
+    },
+    {
+      "id": "r2",
+      "description": "Credential compromise of a service or privileged account because service-account passwords are not rotated and breached-password protection is not enabled.",
+      "assets": "Microsoft 365, MSP remote management",
+      "controls": "A19, T09",
+      "existing": "MFA on user accounts; EDR",
+      "likelihood": 3,
+      "impact": 5,
+      "decision": "Mitigate",
+      "owner": "MSP account engineer",
+      "target": "2026-10-31",
+      "treatment": "Enable Entra ID password protection; move service-account credentials to the MSP vault with 90-day rotation; review privileged role assignments quarterly.",
+      "status": "Open",
+      "residualLikelihood": 1,
+      "residualImpact": 5
+    },
+    {
+      "id": "r3",
+      "description": "An unattended EHR session in an exam room or kiosk exposes patient records because the EHR session timeout is set to 8 hours and kiosks do not auto-lock.",
+      "assets": "EHR, exam-room kiosks",
+      "controls": "T04, P07",
+      "existing": "Workstation lock at 15 minutes; privacy screens",
+      "likelihood": 3,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "Practice Administrator",
+      "target": "2026-10-15",
+      "treatment": "Reduce the EHR session timeout to 15 minutes; configure kiosk auto-lock at 5 minutes via Intune; verify with a walkthrough.",
+      "status": "Open",
+      "residualLikelihood": 1,
+      "residualImpact": 3
+    },
+    {
+      "id": "r4",
+      "description": "Loss of scanned records on the file server during hardware repair or relocation because no pre-move backup procedure exists.",
+      "assets": "On-premises file server, workstations",
+      "controls": "P12, A23",
+      "existing": "Nightly cloud backup",
+      "likelihood": 2,
+      "impact": 4,
+      "decision": "Mitigate",
+      "owner": "MSP account engineer",
+      "target": "2026-10-31",
+      "treatment": "Add a mandatory backup verification step to the device and media procedure and MSP repair ticket template.",
+      "status": "Open",
+      "residualLikelihood": 1,
+      "residualImpact": 3
+    },
+    {
+      "id": "r5",
+      "description": "Improper alteration or deletion of scanned records on the file share goes unnoticed because no integrity monitoring or versioning is in place.",
+      "assets": "On-premises file server",
+      "controls": "T08, T07",
+      "existing": "Backups; NTFS permissions",
+      "likelihood": 2,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "MSP account engineer",
+      "target": "2026-12-31",
+      "treatment": "Enable volume shadow copies and file integrity monitoring with alerting; document the reasonable-and-appropriate analysis.",
+      "status": "Open",
+      "residualLikelihood": 1,
+      "residualImpact": 2
+    },
+    {
+      "id": "r6",
+      "description": "Former workforce members or role changes retain excess access because periodic access recertification has not been performed since 2024.",
+      "assets": "EHR, Microsoft 365, file share",
+      "controls": "A14, A11",
+      "existing": "Termination checklist; role matrix",
+      "likelihood": 3,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "Practice Administrator",
+      "target": "2026-11-15",
+      "treatment": "Complete a full access recertification for all systems and adopt a semi-annual schedule with documented sign-off.",
+      "status": "Open",
+      "residualLikelihood": 1,
+      "residualImpact": 3
+    },
+    {
+      "id": "r7",
+      "description": "Extended outage of the file share or Microsoft 365 because the recovery runbook has never been tested end to end.",
+      "assets": "File server, Microsoft 365",
+      "controls": "A26, A24",
+      "existing": "Tabletop exercise; documented runbook; successful single-file restore",
+      "likelihood": 2,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "MSP account engineer",
+      "target": "2027-01-31",
+      "treatment": "Perform an annual full restoration test and record results and runbook revisions in BC-01.",
+      "status": "Open",
+      "residualLikelihood": 1,
+      "residualImpact": 3
+    },
+    {
+      "id": "r8",
+      "description": "Physical intrusion after the 2025 relocation because lock re-keying and other physical maintenance were not documented.",
+      "assets": "Clinic facility, server closet",
+      "controls": "P05, P01",
+      "existing": "Badge readers; alarm; keyed server closet",
+      "likelihood": 1,
+      "impact": 3,
+      "decision": "Accept",
+      "owner": "Practice Administrator",
+      "target": "2026-09-30",
+      "treatment": "Backfill the re-keying record and maintain a physical security maintenance log going forward. Residual risk accepted by management given badge and alarm coverage.",
+      "status": "In progress",
+      "residualLikelihood": 1,
+      "residualImpact": 2
+    }
+  ]
+}
