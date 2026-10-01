@@ -31,9 +31,10 @@ const BANNED = [
   ["whether you're", /\bwhether you're\b/i]
 ];
 /* Extended_Pictographic covers emoji. The three text symbols below carry that
-   property but are ordinary typography, so they are allowed. */
+   property but are ordinary typography, and plain arrows (U+2190 to U+21FF)
+   are allowed in tables by the style rules, so they pass. */
 const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|️|[\u{1F3FB}-\u{1F3FF}]/u;
-const EMOJI_ALLOWED = /[©®™]/;
+const EMOJI_ALLOWED = /[\u00A9\u00AE\u2122\u2190-\u21FF]/;
 
 function listFiles(path) {
   if (!existsSync(path)) return [];

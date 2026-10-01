@@ -62,12 +62,15 @@
 
       <section class="section" id="profile">
         <div class="section-head">
-          <div><div class="step">Step 1 of 6</div><h2>Organization &amp; assessment scope</h2><p class="help">Define who, what, and where is included before reviewing the catalog. These details populate the report cover, document control block, and scope section.</p></div>
+          <div><div class="step">Step 1 of 6</div><h2>Organization &amp; assessment scope</h2><p class="help">Define who, what, and where is included before reviewing the catalog. The entity profile decides which business associate duty applies and marks the clearinghouse and group health plan rows Not applicable with the basis recorded. These details populate the report cover, document control block, and scope section.</p></div>
           <span class="badge">Required foundation</span>
         </div>
         <div class="form-grid">
+          <div class="field"><label for="entityType">Entity type</label><small>Covered entity, business associate, or both.</small><select class="meta" id="entityType"><option value="">Not answered</option><option value="covered-entity">Covered entity</option><option value="business-associate">Business associate</option><option value="both">Both</option></select></div>
+          <div class="field"><label for="clearinghouse">Health care clearinghouse that is part of a larger organization</label><small>No marks 45 CFR 164.308(a)(4)(ii)(A) Not applicable with the basis recorded.</small><select class="meta" id="clearinghouse"><option value="">Not answered</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+          <div class="field"><label for="groupHealthPlan">Group health plan</label><small>No marks 45 CFR 164.314(b)(1) and (b)(2) Not applicable with the basis recorded.</small><select class="meta" id="groupHealthPlan"><option value="">Not answered</option><option value="yes">Yes</option><option value="no">No</option></select></div>
           <div class="field"><label for="orgName">Organization name</label><input class="input meta" id="orgName" placeholder="Example Health Clinic" autocomplete="organization"></div>
-          <div class="field"><label for="orgType">Entity type &amp; location</label><input class="input meta" id="orgType" placeholder="Covered entity · Outpatient clinic · Austin, TX"></div>
+          <div class="field"><label for="orgType">Entity description &amp; location</label><input class="input meta" id="orgType" placeholder="Outpatient clinic · Austin, TX"></div>
           <div class="field"><label for="assessmentDate">Assessment date</label><input class="input meta" id="assessmentDate" type="date"></div>
           <div class="field"><label for="period">Review period</label><input class="input meta" id="period" placeholder="January 1 to December 31, 2026"></div>
           <div class="field"><label for="assessor">Lead assessor</label><small>Name, title, and firm as it should appear on the report. The report names this person or firm as its preparer.</small><input class="input meta" id="assessor" placeholder="Name, title, firm"></div>
@@ -83,16 +86,20 @@
 
       <section class="section" id="inventory">
         <div class="section-head">
-          <div><div class="step">Step 2 of 6</div><h2>ePHI systems &amp; data-flow inventory</h2><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every system, location, and vendor that stores, receives, maintains, or transmits ePHI, including backups and remote work.</p></div>
+          <div><div class="step">Step 2 of 6</div><h2>ePHI systems &amp; data-flow inventory</h2><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, then record the flows between them. Record electronic PHI only; paper records are not ePHI. Unknown is a recorded gap, not a no: a row left unclassified fails a completeness check.</p></div>
           <button class="btn primary no-print" id="addAsset" type="button">+ Add system or location</button>
         </div>
-        <div class="table-scroll"><table class="data-table"><thead><tr><th class="w18">System / location</th><th class="w20">ePHI &amp; purpose</th><th class="w16">Owner / vendor</th><th class="w20">Flow &amp; connections</th><th>Protection / notes</th><th class="no-print w36px"></th></tr></thead><tbody id="assetRows"></tbody></table></div>
-        <div class="empty" id="assetEmpty">No ePHI systems or locations recorded. Include EHRs, email, endpoints, file shares, backups, medical devices, cloud vendors, and physical locations.</div>
+        <div class="assets" id="assetRows"></div>
+        <div class="empty" id="assetEmpty">No ePHI systems or locations recorded. Include people, EHRs, email, endpoints, file shares, backups, medical devices, cloud vendors, outside parties, and physical locations.</div>
+        <div class="sub-head"><h3>Data flows</h3><p class="help">One row per connection that carries ePHI between two inventory rows. "Fax" means an electronic fax service. Direct entry is a person typing into a device. Unknown transport or encryption is a recorded gap.</p></div>
+        <div class="table-scroll"><table class="data-table flows-table"><thead><tr><th class="w4">#</th><th class="w16">From</th><th class="w10">Direction</th><th class="w16">To</th><th class="w16">ePHI carried</th><th class="w12">Transport</th><th class="w11">Encrypted in transit</th><th>Notes</th><th class="no-print w36px"></th></tr></thead><tbody id="flowRows"></tbody></table></div>
+        <div class="empty" id="flowEmpty">No data flows recorded. Add the connections between people, devices, systems, vendors, outside parties, and backups.</div>
+        <div class="output-actions no-print"><button class="btn" id="addFlow" type="button">+ Add data flow</button></div>
       </section>
 
       <section class="section" id="controlsSection">
         <div class="section-head">
-          <div><div class="step">Step 3 of 6</div><h2>Review the Security Rule catalog</h2><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis.</p></div>
+          <div><div class="step">Step 3 of 6</div><h2>Review the Security Rule catalog</h2><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis. Record for each row how the status was verified: observed, document reviewed, or stated by the client.</p></div>
           <div class="progress-block"><div class="progress"><span id="controlProgress"></span></div><div class="file-status" id="progressLabel"></div></div>
         </div>
         <div class="filters no-print" id="filters">
@@ -104,13 +111,14 @@
           <button class="filter" data-filter="documentation" type="button">Documentation</button>
           <button class="filter" data-filter="gaps" type="button">Gaps only<span class="count" id="gapCount"></span></button>
           <button class="filter" data-filter="unreviewed" type="button">Not yet reviewed<span class="count" id="unreviewedCount"></span></button>
+          <button class="filter" data-filter="carried" type="button">Carried from version 3<span class="count" id="carriedCount"></span></button>
         </div>
         <div class="controls" id="controls"></div>
       </section>
 
       <section class="section" id="risks">
         <div class="section-head">
-          <div><div class="step">Step 4 of 6</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
+          <div><div class="step">Step 4 of 6</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
           <div class="risk-toolbar no-print">
             <select id="scenarioPick" aria-label="Add a risk from the risk scenario library"><option value="">Add from risk scenario library</option></select>
             <button class="btn primary" id="addRisk" type="button">+ Add risk</button>
@@ -133,7 +141,7 @@
 
       <section class="section" id="report">
         <div class="section-head">
-          <div><div class="step">Step 6 of 6</div><h2>Report &amp; completeness checks</h2><p class="help">Preview the report on screen, then use Print / PDF to produce the deliverable. Save the JSON file to keep an editable record with evidence attachments. The checks below test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough.</p></div>
+          <div><div class="step">Step 6 of 6</div><h2>Report &amp; completeness checks</h2><p class="help">Preview the report on screen, then use Print / PDF to produce the deliverable. Save the JSON file to keep an editable record. The checks below test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough.</p></div>
           <span class="badge" id="readinessBadge">Draft</span>
         </div>
         <div class="summary-grid">
@@ -151,7 +159,9 @@
           <button class="btn" id="previewBtn2" type="button">Preview report</button>
           <button class="btn primary" id="printBtn2" type="button">Print / Save as PDF</button>
           <button class="btn" id="exportBtn2" type="button">Save assessment file</button>
+          <button class="btn" id="exportNoEvidenceBtn" type="button">Save file without evidence</button>
         </div>
+        <p class="help">"Save file without evidence" writes the same file with the names and sizes of attached evidence but not the files themselves, for sharing the assessment without the attachments. Evidence stays in this tab until you save the full file.</p>
         <div class="notice"><strong>Print tips:</strong> in the print dialog choose <em>Save as PDF</em>, paper size <em>Letter</em>, and turn off <em>Headers and footers</em> so the browser's URL and timestamp do not print. Backgrounds and status colors are forced on by the report styles.</div>
         <div class="notice"><strong>Retention:</strong> the Security Rule requires documentation to be kept for 6 years from the date it was created or the date it was last in effect, whichever is later (45 CFR 164.316(b)(2)(i)). Keep the final analysis and the records that support it at least that long. State law or contracts may require longer. The saved JSON file can contain sensitive security information. Store it only on an approved, encrypted device.</div>
         <div class="file-status" id="saveStatus">Not saved during this session.</div>
@@ -170,6 +180,7 @@
   </div>
 </div>
 <script src="assets/catalog.js"></script>
+<script src="assets/format.js"></script>
 <script src="assets/report.js"></script>
 <script src="assets/app.js"></script>
 </body>
