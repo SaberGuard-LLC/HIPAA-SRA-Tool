@@ -306,6 +306,28 @@
     });
   }
 
+  /* ---- ePHI flow map ------------------------------------------------------ */
+  function renderMap(S) {
+    const box = $('mapBox');
+    box.innerHTML = '';
+    if (!state.assets.length) {
+      box.innerHTML = '<div class="empty">No inventory rows yet. Add systems and locations in step 2 to draw the map.</div>';
+      $('mapFacts').innerHTML = ''; $('mapLegend').innerHTML = ''; $('mapAttention').innerHTML = '';
+      return;
+    }
+    const built = SRAMap.build(state);
+    box.appendChild(SRAMap.toElement(built.tree));
+    $('mapLegend').innerHTML = SRAMap.legendHtml();
+    const f = built.facts;
+    const stat = (n, label, flag) => `<div class="${flag && n > 0 ? 'flag' : ''}"><b>${n}</b><span>${esc(label)}</span></div>`;
+    $('mapFacts').innerHTML = stat(f.systems, 'systems, people and parties') + stat(f.flows, 'data flows') + stat(f.out, 'reach a vendor or outside party') + stat(f.weak, 'not encrypted or not checked in transit', true) + stat(f.noBaa, 'vendors without a confirmed BAA', true) + stat(f.unclassified, 'rows not yet classified', true);
+    const open = [...S.risks].filter(r => r.status !== 'Closed').sort((a, b) => (b.score || 0) - (a.score || 0) || a.ref.localeCompare(b.ref));
+    const chip = r => `<span class="score-chip ${r.level ? 'score-' + r.level.key : 'score-na'}">${r.ref}${r.level ? ' · ' + r.level.label : ' · not rated'}</span>`;
+    const items = open.map(r => `<li>${chip(r)}<span>${esc(r.description || 'No description')}${r.treatment ? `<span class="next"><b>Next:</b> ${esc(r.treatment)}${r.target ? ` By ${esc(r.target)}.` : ''}</span>` : ''}</span></li>`)
+      .concat(built.unlinked.map(u => `<li><span class="score-chip none">No linked risk</span><span>${esc(u.ref)} ${esc(u.what)}<span class="next">${esc(u.why)}. Flagged on the map but nothing in the risk register points at it, so the report stays in draft. Add a risk in step 5 and link this ${u.type === 'flow' ? 'flow' : 'row'}, or correct the inventory.</span></span></li>`));
+    $('mapAttention').innerHTML = `<h3>What needs attention</h3><p class="help">Tags on the map are risk register references. This list is the key, highest rated first.</p><ul>${items.join('') || '<li><span class="muted">Nothing flagged.</span></li>'}</ul>`;
+  }
+
   /* ---- Metadata, dashboard, completeness checks -------------------------- */
   function collectMeta() { document.querySelectorAll('.meta').forEach(el => state.meta[el.id] = el.value); }
   function hydrateMeta() { document.querySelectorAll('.meta').forEach(el => { el.value = state.meta[el.id] != null ? state.meta[el.id] : ''; }); }
@@ -329,6 +351,7 @@
     $('gapCount').textContent = S.partial + S.notMet ? ` ${S.partial + S.notMet}` : '';
     $('unreviewedCount').textContent = S.total - S.reviewed ? ` ${S.total - S.reviewed}` : '';
     $('carriedCount').textContent = S.carried ? ` ${S.carried}` : '';
+    renderMap(S);
     $('filters').querySelector('[data-filter="carried"]').hidden = !S.carried && activeFilter !== 'carried';
 
     $('readinessList').innerHTML = S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mark" aria-hidden="true">${c.ok ? '&#10003;' : '&#8226;'}</span><span>${esc(c.label)}<span class="sr-only">: ${c.ok ? 'complete' : 'open'}</span></span></li>`).join('');
@@ -345,6 +368,7 @@
     const dots = {
       profile: ok('profile') ? 'done' : (state.meta.orgName ? 'partial' : ''),
       inventory: ok('inventory') && ok('flows') ? 'done' : (state.assets.length ? 'partial' : ''),
+      map: state.assets.length ? (ok('linked') && ok('inventory') ? 'done' : 'partial') : '',
       controls: S.reviewed === S.total ? 'done' : (S.reviewed ? 'partial' : ''),
       risks: ok('risksExist') && ok('risks') ? 'done' : (S.risks.length ? 'partial' : ''),
       attestation: ok('approval') ? 'done' : '',

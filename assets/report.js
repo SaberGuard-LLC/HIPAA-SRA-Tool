@@ -110,10 +110,12 @@ const SRAReport = (function () {
       unclassified: assets.filter(a => a.kind === 'unknown' || a.zone === 'unknown').length
     };
 
+    const unlinked = SRAMap.unlinked(state);
     const checkResults = {
       profile: !!(meta.orgName && meta.assessmentDate && meta.assessor && meta.scope && meta.entityType && meta.clearinghouse && meta.groupHealthPlan),
       inventory: assets.length > 0 && assets.every(a => a.name.trim() && a.data.trim() && a.kind !== 'unknown' && a.zone !== 'unknown' && a.lifecycle.length > 0),
       flows: flows.every(flowOk),
+      linked: unlinked.length === 0,
       reviewed: all.reviewed === CONTROLS.length,
       basis: controls.every(c => !c.status || c.derivedNA || c.basis),
       gapnotes: controls.every(c => !c.status || !STATUSES[c.status].needsNote || c.notes.trim()),
@@ -128,7 +130,7 @@ const SRAReport = (function () {
     const isDraft = missing.length > 0 || !finalRequested;
 
     return { total: CONTROLS.length, reviewed: all.reviewed, met: all.met, partial: all.partial, notMet: all['not-met'], alt: all.alt, doc: all.doc, na: all.na,
-      applicable: all.applicable, score: all.score, evidence, carried, derived, byCategory, controls, assets, flows, facts, assetRef, flowRef, risks, risksByAsset, risksByFlow,
+      applicable: all.applicable, score: all.score, evidence, carried, derived, byCategory, controls, assets, flows, facts, unlinked, assetRef, flowRef, risks, risksByAsset, risksByFlow,
       high, medium, low, unrated, open, checks, missing, finalRequested, isDraft };
   }
 
@@ -301,23 +303,42 @@ const SRAReport = (function () {
     const lifecycle = a => INVENTORY.lifecycle.map(([k, l]) => `<span class="lc ${a.lifecycle.includes(k) ? 'on' : ''}" title="${esc(l)}">${l.charAt(0)}</span>`).join('');
     const kindZone = a => (a.kind === 'unknown' || a.zone === 'unknown') ? '<span class="t-warn">Unclassified</span>' : `${esc(label('kind', a.kind))} · ${esc(label('zone', a.zone))}`;
     const systemsTable = S.assets.length ? `<table class="tbl compact rec"><thead><tr><th class="c4">#</th><th class="c20">System / location</th><th class="c24">ePHI held</th><th class="c10">Lifecycle</th><th class="c17">Vendor / BAA</th><th class="c11">At rest</th><th class="c7">MFA</th><th class="c7">Ref</th></tr></thead><tbody>
-      ${S.assets.map((a, i) => `<tr><td class="id">${i + 1}</td><td class="strong">${plain(a.name, 'Unnamed row')}${a.count > 1 ? ` ×${a.count}` : ''}<span class="sub">${kindZone(a)}</span></td><td>${text(a.data)}</td><td class="nw">${lifecycle(a)}</td><td>${a.vendor ? `${esc(a.vendor)}<span class="sub">${baaState(a.baa)}</span>` : `<span class="t-na">${a.zone === 'external' ? 'Outside party' : 'In-house'}</span>${a.baa !== 'not-required' && a.zone === 'external' ? `<span class="sub">${baaState(a.baa)}</span>` : ''}`}</td><td class="keep">${fact(a.atRest, 'Encrypted', 'Not encrypted')}</td><td class="keep">${fact(a.mfa, 'On', 'Off')}</td><td class="id">${refs(S.risksByAsset[a.id])}</td></tr>`).join('')}
+      ${S.assets.map((a, i) => `<tr><td class="id">${i + 1}</td><td class="strong">${plain(a.name, 'Unnamed row')}${a.count > 1 ? ` ×${a.count}` : ''}<span class="sub">${kindZone(a)}</span></td><td>${text(a.data)}</td><td class="nw">${lifecycle(a)}</td><td>${a.vendor ? `${esc(a.vendor)}<span class="sub">${baaState(a.baa)}</span>` : `<span class="t-na">${a.zone === 'external' ? 'Outside party' : 'In-house'}</span>${a.baa !== 'not-required' && a.zone === 'external' ? `<span class="sub">${baaState(a.baa)}</span>` : ''}`}</td><td class="keep">${fact(a.atRest, 'Encrypted', 'Not encrypted')}</td><td class="keep">${fact(a.mfa, 'On', 'Off')}</td><td class="id wrap">${refs(S.risksByAsset[a.id])}</td></tr>`).join('')}
       </tbody></table>
       <p class="small muted">Lifecycle: C create · R receive · M maintain · T transmit. Ref is the risk register entry that addresses the row. "Not checked" means the fact could not be confirmed during the assessment and is treated as a gap until it is.</p>` : '';
-    const hasNotes = S.assets.some(a => a.owner || a.accountable || a.protection || a.flow || a.location !== 'unknown');
-    const notesTable = S.assets.length && hasNotes ? `<h3>Inventory notes</h3><table class="tbl compact rec"><thead><tr><th class="c4">#</th><th class="c16">Row</th><th class="c12">Location</th><th class="c14">Owner</th><th class="c14">Accountable</th><th>Protection and notes</th><th class="c18">Flow notes (version 3)</th></tr></thead><tbody>
-      ${S.assets.map((a, i) => `<tr><td class="id">${i + 1}</td><td class="strong">${plain(a.name, 'Unnamed row')}</td><td>${a.location === 'unknown' ? '<span class="t-warn">Unknown</span>' : esc(label('location', a.location))}</td><td>${plain(a.owner, 'Not recorded')}</td><td>${plain(a.accountable, 'Not recorded')}</td><td>${text(a.protection, 'None')}</td><td>${text(a.flow, 'None')}</td></tr>`).join('')}
+    const hasOwner = S.assets.some(a => a.owner.trim()), hasLegacy = S.assets.some(a => a.flow.trim());
+    const notesTable = S.assets.length ? `<h3>Inventory notes</h3><table class="tbl compact rec"><thead><tr><th class="c4">#</th><th class="c18">Row</th><th class="c13">Location</th>${hasOwner ? '<th class="c14">Owner</th>' : ''}<th class="c16">Accountable</th><th>Protection and notes</th>${hasLegacy ? '<th class="c18">Flow notes (version 3)</th>' : ''}</tr></thead><tbody>
+      ${S.assets.map((a, i) => `<tr><td class="id">${i + 1}</td><td class="strong">${plain(a.name, 'Unnamed row')}</td><td>${a.location === 'unknown' ? '<span class="t-warn">Unknown</span>' : esc(label('location', a.location))}</td>${hasOwner ? `<td>${plain(a.owner, 'Not recorded')}</td>` : ''}<td>${plain(a.accountable, 'Not recorded')}</td><td>${text(a.protection, 'None')}</td>${hasLegacy ? `<td>${text(a.flow, 'None')}</td>` : ''}</tr>`).join('')}
       </tbody></table>` : '';
-    const flowsTable = S.flows.length ? `<table class="tbl compact rec"><thead><tr><th class="c5">#</th><th class="c18">From</th><th class="c20">To</th><th class="c22">ePHI</th><th class="c12">Transport</th><th class="c13">In transit</th><th class="c7">Ref</th></tr></thead><tbody>
-      ${S.flows.map((f, i) => `<tr><td class="id">F-${pad2(i + 1)}</td><td>${esc(assetName(f.from))}</td><td>${f.twoWay ? '↔ ' : '→ '}${esc(assetName(f.to))}</td><td>${text(f.data)}</td><td class="keep">${esc(label('transport', f.transport))}</td><td class="keep">${fact(f.inTransit, 'Encrypted', 'Not encrypted')}</td><td class="id">${refs(S.risksByFlow[f.id])}</td></tr>`).join('')}
+    const flowsTable = S.flows.length ? `<table class="tbl compact rec"><thead><tr><th class="c5">#</th><th class="c18">From</th><th class="c20">To</th><th class="c20">ePHI</th><th class="c12">Transport</th><th class="c13">In transit</th><th class="c9">Ref</th></tr></thead><tbody>
+      ${S.flows.map((f, i) => `<tr><td class="id">F-${pad2(i + 1)}</td><td>${esc(assetName(f.from))}</td><td>${f.twoWay ? '↔ ' : '→ '}${esc(assetName(f.to))}</td><td>${text(f.data)}</td><td class="keep">${esc(label('transport', f.transport))}</td><td class="keep">${fact(f.inTransit, 'Encrypted', 'Not encrypted')}</td><td class="id wrap">${refs(S.risksByFlow[f.id])}</td></tr>`).join('')}
       </tbody></table>` : '<div class="rpt-callout warn">No data flows have been recorded. Record each connection that carries ePHI between two inventory rows.</div>';
+    const map = SRAMap.build(state);
+    const mapSvg = SRAMap.toString(map.tree);
+    const attention = [...S.risks].filter(r => r.status !== 'Closed').sort((a, b) => (b.score || 0) - (a.score || 0) || a.ref.localeCompare(b.ref));
+    const attentionTable = attention.length ? `<table class="tbl compact rec"><thead><tr><th class="c6">Ref</th><th class="c35">Finding</th><th class="c13">Rating</th><th class="c33">Next step</th><th class="c13">Target</th></tr></thead><tbody>
+      ${attention.map(r => `<tr><td class="id">${r.ref}</td><td>${text(r.description, 'No description')}</td><td>${levelChip(r.level)}</td><td>${text(r.treatment, 'Not provided')}</td><td class="keep">${fmtShort(r.target, 'Not set')}</td></tr>`).join('')}
+      </tbody></table>` : '<div class="rpt-callout">No open risks point at the inventory. Flagged rows and flows with no linked risk are listed in Appendix B.</div>';
+    const assessedOn = m.assessmentDate ? fmtDate(m.assessmentDate) : '<span class="placeholder">assessment date not set</span>';
     const inventory = `
-      <section class="rpt-section">
+      <section class="rpt-section pb">
         ${head('04', 'ePHI systems & data-flow inventory')}
         <p class="small muted">Systems, locations, people, and outside parties within scope that store, receive, maintain, or transmit ePHI, the flows between them, and the protections currently applied.</p>
-        ${S.assets.length ? `<p class="small">${F.systems} system${F.systems === 1 ? '' : 's'}, people and locations and ${F.flows} data flow${F.flows === 1 ? '' : 's'} are in scope. ${F.out} flow${F.out === 1 ? '' : 's'} reach a vendor or outside party. ${F.weak} flow${F.weak === 1 ? ' is' : 's are'} not encrypted or not checked in transit, and ${F.noBaa} vendor${F.noBaa === 1 ? ' has' : 's have'} no confirmed business associate agreement.${F.unclassified ? ` ${F.unclassified} row${F.unclassified === 1 ? ' is' : 's are'} not yet classified by kind and zone.` : ''}</p><h3>Systems and locations</h3>${systemsTable}${notesTable}` : '<div class="rpt-callout warn">No ePHI systems or locations have been inventoried. The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)), so the inventory sets its scope.</div>'}
+        ${S.assets.length ? `
+        <h3>Where ePHI lives and moves</h3>
+        <figure class="map-fig"><div class="rpt-map">${mapSvg}</div></figure>
+        <div class="rpt-legend map">${SRAMap.legendHtml()}</div>
+        <p class="muted small">Figure 1. Where ePHI lives and moves, as of the assessment dated ${assessedOn}. Tags refer to the risk register.</p>
+        <h3>What needs attention</h3>
+        ${attentionTable}
+        <p class="small">${F.systems} system${F.systems === 1 ? '' : 's'}, people and locations and ${F.flows} data flow${F.flows === 1 ? '' : 's'} are in scope. ${F.out} flow${F.out === 1 ? '' : 's'} reach a vendor or outside party. ${F.weak} flow${F.weak === 1 ? ' is' : 's are'} not encrypted or not checked in transit, and ${F.noBaa} vendor${F.noBaa === 1 ? ' has' : 's have'} no confirmed business associate agreement.${F.unclassified ? ` ${F.unclassified} row${F.unclassified === 1 ? ' is' : 's are'} not yet classified by kind and zone.` : ''}</p>
+        <h3>Systems and locations</h3>${systemsTable}${notesTable}` : '<div class="rpt-callout warn">No ePHI systems or locations have been inventoried. The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)), so the inventory sets its scope.</div>'}
         <h3>Data flows</h3>
         ${flowsTable}
+        ${S.assets.length && S.flows.length ? `<p class="small muted">Figure 1 leaves out ${map.view.entry.length} direct-entry flow${map.view.entry.length === 1 ? '' : 's'} and shows ${map.view.absorbed.length} backup flow${map.view.absorbed.length === 1 ? '' : 's'} as "copies kept" inside their source. All ${S.flows.length} flows are listed in the data flows table.</p>` : ''}
+        <h3>About this map</h3>
+        <div class="rpt-callout"><p>Figure 1 and the tables in this section record where ePHI is created, received, maintained, or transmitted, as identified during the assessment dated ${assessedOn}. They rest on information the organization provided and the assessor observed, not on a network scan. They support the risk analysis required by 45 CFR 164.308(a)(1)(ii)(A).</p></div>
+        <p class="small muted">Update this section when a system, vendor, or way of working changes. The Security Rule sets no fixed interval.</p>
       </section>`;
 
     /* 05 Catalog review ------------------------------------------------- */
@@ -466,6 +487,7 @@ const SRAReport = (function () {
         <p class="small muted">Checks the workspace applies to the report fields before removing the DRAFT watermark. They test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough. ${S.missing.length ? 'Items marked open were outstanding when this report was generated.' : 'All checks passed when this report was generated.'}</p>
         <ul class="rpt-checks">${S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? '&#10003;' : '&#8226;'}</span><span>${esc(c.label)}${c.ok ? '' : ' <span class="placeholder">(open)</span>'}</span></li>`).join('')}</ul>
         ${S.facts.unclassified ? `<p class="small muted">Inventory rows not yet classified by kind and zone: ${S.assets.map((a, i) => (a.kind === 'unknown' || a.zone === 'unknown') ? `#${i + 1} ${esc(a.name.trim() || 'Unnamed row')}` : null).filter(Boolean).join(', ')}.</p>` : ''}
+        ${S.unlinked.length ? `<p class="small muted">Flagged on the map with no linked risk: ${S.unlinked.map(u => `${esc(u.ref)} ${esc(u.what)} (${esc(u.why)})`).join('; ')}.</p>` : ''}
         <div class="rpt-kv three">
           <div><span>Catalog rows reviewed</span><b>${S.reviewed} of ${S.total}</b></div>
           <div><span>Answers carried from version 3 awaiting confirmation</span><b>${S.carried}</b></div>

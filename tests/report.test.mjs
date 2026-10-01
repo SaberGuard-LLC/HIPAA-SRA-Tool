@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadContext, globalsOf, read } from './helpers.mjs';
 
-const ctx = loadContext(['assets/catalog.js', 'assets/format.js', 'assets/report.js']);
+const ctx = loadContext();
 const { CONTROLS, SRAReport, SRAFormat } = globalsOf(ctx, ['CONTROLS', 'SRAReport', 'SRAFormat']);
 
 const fullMeta = { orgName: 'Test Org', assessmentDate: '2026-09-30', assessor: 'A. Assessor, Example Firm', scope: 'Everything.', executive: 'E. Exec, Owner', reportStatus: 'Draft', entityType: 'covered-entity', clearinghouse: 'no', groupHealthPlan: 'no' };
