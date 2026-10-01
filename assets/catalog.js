@@ -13,8 +13,65 @@ const CATALOG_SOURCE = {
   checked: null
 };
 
-/* Saved-file format. The name is the import check, so it stays unchanged. */
-const FILE_FORMAT = { name: 'SaberGuard HIPAA SRA', version: 3 };
+/* Saved-file format. The name is the import check, so it stays unchanged.
+   Version 4 adds the entity profile, typed inventory rows, the flows table,
+   id-based risk links, the verification basis and evidence without data. */
+const FILE_FORMAT = { name: 'SaberGuard HIPAA SRA', version: 4 };
+
+/* Opening a version 3 file: the three old 164.314 rows move to the rows that
+   hold the same subject under the current regulation. Old ids are never
+   reused, so a version 3 file can only be read, not written. */
+const V3_ID_MAP = { O01: 'O12', O02: 'O13', O03: 'O15' };
+
+/* Rows whose citation or regulation text changed between the version 3
+   catalog and this one. A carried answer on one of these rows is marked
+   "carried from version 3, review again" and counts as not reviewed until
+   the assessor confirms it. Rows the audit marked verbatim, OK or minor keep
+   their answer without a flag. */
+const V3_REVIEW_IDS = ['A01', 'A02', 'A05', 'A07', 'A10', 'A11', 'A12', 'A15', 'A20', 'A21', 'A22', 'A25', 'A28', 'A29', 'P04', 'O12', 'O13', 'O15'];
+
+/* Entity profile. Answers mark rows Not applicable with the basis recorded. */
+const ENTITY_TYPES = [['covered-entity', 'Covered entity'], ['business-associate', 'Business associate'], ['both', 'Both']];
+const YES_NO = [['yes', 'Yes'], ['no', 'No']];
+function profileApplicability(meta) {
+  const out = {};
+  const m = meta || {};
+  if (m.clearinghouse === 'no') out.A12 = 'Not applicable from the entity profile: the organization is not a health care clearinghouse that is part of a larger organization. 45 CFR 164.308(a)(4)(ii)(A) applies only to such a clearinghouse.';
+  if (m.entityType === 'covered-entity') out.O14 = 'Not applicable from the entity profile: the organization is a covered entity and not a business associate. 45 CFR 164.314(a)(2)(iii) applies to the contract or other arrangement between a business associate and a subcontractor.';
+  if (m.groupHealthPlan === 'no') {
+    out.O15 = 'Not applicable from the entity profile: the organization is not a group health plan. 45 CFR 164.314(b)(1) applies to a group health plan.';
+    out.O16 = 'Not applicable from the entity profile: the organization is not a group health plan. 45 CFR 164.314(b)(2) applies to the plan documents of a group health plan.';
+  }
+  return out;
+}
+/* Which paragraph of 164.308(b) applies to this entity, for the A29 row. */
+function businessAssociateDuty(meta) {
+  const t = (meta || {}).entityType;
+  if (t === 'covered-entity') return 'Entity profile: covered entity. Paragraph (b)(1) applies: obtain satisfactory assurances from each business associate. Paragraph (b)(2) applies only to a business associate.';
+  if (t === 'business-associate') return 'Entity profile: business associate. Paragraph (b)(2) applies: obtain satisfactory assurances from each subcontractor. Paragraph (b)(1) applies only to a covered entity.';
+  if (t === 'both') return 'Entity profile: covered entity and business associate. Paragraph (b)(1) applies to the organization\'s business associates and paragraph (b)(2) to its subcontractors.';
+  return '';
+}
+
+/* Inventory and flow vocabularies. The stored value is the first element.
+   "unknown" is a recorded gap, not a no: a row with an unknown kind or zone
+   is shown as unclassified and fails a completeness check. The inventory
+   holds ePHI only; there is no paper kind or paper transport. "fax" means an
+   electronic fax service. */
+const INVENTORY = {
+  kind: [['person', 'Person'], ['device', 'Device'], ['application', 'Application'], ['datastore', 'Data store'], ['unknown', 'Unknown (not yet classified)']],
+  zone: [['people', 'People in the practice'], ['devices', 'Devices in the practice'], ['systems', 'Systems that hold ePHI'], ['external', 'Outside parties'], ['backup', 'Backups and copies'], ['unknown', 'Unknown (not yet classified)']],
+  lifecycle: [['create', 'Create'], ['receive', 'Receive'], ['maintain', 'Maintain'], ['transmit', 'Transmit']],
+  baa: [['yes', 'Yes, on file'], ['no', 'No'], ['not-required', 'Not required (not a business associate)'], ['unknown', 'Unknown, not confirmed']],
+  location: [['on-site', 'On site'], ['home-remote', 'Home or remote'], ['vendor-hosted', 'Vendor hosted'], ['unknown', 'Unknown']],
+  yesNo: [['yes', 'Yes'], ['no', 'No'], ['unknown', 'Unknown, not checked'], ['n/a', 'Not applicable']],
+  transport: [['https', 'HTTPS'], ['sftp', 'SFTP'], ['email', 'Email'], ['fax', 'Fax service (electronic)'], ['vpn', 'VPN'], ['phone-sms', 'Phone or SMS'], ['removable-media', 'Removable media'], ['direct-entry', 'Direct entry'], ['vendor-internal', 'Inside the vendor'], ['unknown', 'Unknown']]
+};
+const INVENTORY_LABELS = Object.fromEntries(Object.entries(INVENTORY).map(([k, list]) => [k, Object.fromEntries(list)]));
+
+/* How the assessor verified a catalog row's status. Printed beside the status. */
+const BASIS = [['observed', 'Observed'], ['document', 'Document reviewed'], ['stated', 'Stated by the client']];
+const BASIS_LABELS = Object.fromEntries(BASIS);
 
 const CATEGORIES = {
   administrative: { label: 'Administrative safeguards', cite: '45 CFR 164.308', short: 'Administrative' },
@@ -414,9 +471,11 @@ const RISK_SCENARIOS = [
    not test whether the risk analysis is accurate or thorough. Each returns
    true when the field is complete for that item. */
 const READINESS_CHECKS = [
-  { key: 'profile',     label: 'Organization, assessment date, lead assessor, and scope statement recorded' },
-  { key: 'inventory',   label: 'At least one ePHI system or location inventoried with data and flow details' },
-  { key: 'reviewed',    label: 'Every catalog row reviewed' },
+  { key: 'profile',     label: 'Organization, assessment date, lead assessor, scope statement, and entity profile recorded' },
+  { key: 'inventory',   label: 'At least one ePHI system or location inventoried, and every row has a name, the ePHI held, a kind, a zone, and at least one lifecycle stage' },
+  { key: 'flows',       label: 'Every data flow names two different inventory rows' },
+  { key: 'reviewed',    label: 'Every catalog row reviewed, including answers carried from version 3' },
+  { key: 'basis',       label: 'Verification basis recorded for every reviewed row' },
   { key: 'gapnotes',    label: 'Assessment notes recorded for every row rated Partially met, Not met, Not applicable, Alternative measure in place, or Not implemented, decision documented' },
   { key: 'recs',        label: 'Recommendation recorded for every row rated Partially met or Not met' },
   { key: 'risksExist',  label: 'At least one risk recorded in the risk register' },
