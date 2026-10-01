@@ -1,0 +1,16 @@
+{
+  "name": "saberguard-sra-workspace",
+  "version": "4.0.0",
+  "private": true,
+  "description": "A workspace for documenting a HIPAA Security Rule risk analysis.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "lint": "node scripts/lint-text.mjs",
+    "check": "npm run lint && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
