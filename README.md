@@ -1,95 +1,87 @@
-# HIPAA Security Risk Assessment (SRA) Tool
+# SaberGuard SRA Workspace
 
-![SaberGuard Logo](SaberGuard_1.png)
+A workspace for documenting a HIPAA Security Rule risk analysis. Published by SaberGuard LLC.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Live tool](https://img.shields.io/badge/Live-GitHub%20Pages-blue)](https://saberguard-llc.github.io/HIPAA-SRA-Tool/)
-[![Compliance](https://img.shields.io/badge/HIPAA-Security%20Rule%20SRA-teal)]()
+This is not the HHS Security Risk Assessment (SRA) Tool, is not affiliated with or endorsed by HHS, OCR, or ONC, and does not replace the HHS SRA Tool (https://www.healthit.gov/topic/privacy-security-and-hipaa/security-risk-assessment-tool). HHS states that use of its own tool is neither required by nor guarantees compliance with federal, state or local laws.
 
-A **local-first HIPAA Security Risk Assessment workspace** created by [SaberGuard](https://saberguard.tech). It runs entirely in the browser with no backend, trackers, cookies, or browser storage. Work exists only in the current tab until the assessor downloads a portable JSON assessment file or prints the report.
+## What it is
 
-This is the same tool SaberGuard uses for its own annual risk analysis and for client engagements. It is open source so anyone can see exactly how the assessment is structured, what is tested, and how the report is produced.
+A static page that runs in the browser. There is nothing to install and no account. It has no backend, trackers, cookies, or browser storage. Work exists only in the current tab until the assessor saves a JSON file or prints the report.
 
-## What it produces
+With it an assessor can:
 
-**Print / Save as PDF** generates a formal risk assessment report, not a printout of the entry form:
+- record the organization, scope, environment, and method;
+- inventory the systems, locations, and vendors that store, receive, maintain, or transmit ePHI;
+- review the Security Rule standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316, with notes, recommendations, and attached evidence;
+- build a risk register with likelihood and impact ratings, treatment decisions, owners, target dates, and residual ratings, starting from a risk scenario library where useful;
+- print a formatted report, or save as PDF, with a draft watermark until the completeness checks pass and the status is set to Final.
 
-| Section | Contents |
-|---|---|
-| Cover | Organization, review period, assessment date, assessor, security official, approver, version, classification |
-| 01 Document control | Version history block, contents, distribution and handling, next review due, six-year retention note |
-| 02 Executive summary | Assessor narrative (or auto-generated summary), implementation score, safeguard status by category, priority gaps, highest-rated risks |
-| 03 Scope, environment & methodology | Organization profile, scope statement, environment, methodology, five-step approach, rating definitions for status, likelihood, impact, and risk level |
-| 04 ePHI inventory | Systems, locations, and vendors that create, receive, maintain, or transmit ePHI |
-| 05 Safeguard evaluation results | Summary by category and the full matrix of all 61 safeguards with citation, type, status, notes, and evidence count |
-| 06 Findings & recommendations | One finding per partial or unmet safeguard with finding, recommendation, evidence, and linked risks; applicability basis for every N/A |
-| 07 Risk register & analysis | 5×5 heat map, register sorted by score, and a detail card per risk with affected assets, linked safeguards, existing controls, treatment, and residual rating |
-| 08 Remediation roadmap | Open actions in priority order with owner, target date, and status |
-| 09 Management review & attestation | Assessor statement, management statement, signature blocks for assessor, security official, and executive approver |
-| Appendix A | Evidence index |
-| Appendix B | Assessment completeness checks |
+## What it is not
 
-The report carries a running header and footer, a **DRAFT** watermark until all readiness checks pass, and forces status colors to print.
-
-## Features
-- Guided, plain-language review of all 61 Security Rule standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316
-- ePHI system and data-flow inventory to establish assessment scope
-- Per-safeguard status, assessment notes, recommendation, and local evidence attachments
-- Filterable gap review, live progress, and six readiness checks
-- Risk register with likelihood × impact scoring, treatment decision, owner, target date, status, residual rating, and links to safeguards; a threat library pre-fills common scenarios
-- Management attestation block for executive sign-off
-- On-screen report preview that matches the printed output
-- Portable JSON export/import (responses, risk records, and attached evidence); older export formats still open
-- **No data leaves the tab unless the assessor chooses to download or print it**
+It is not a scanner, it does not test systems, and it does not decide anything. It records the assessor's work and judgment. Using it does not by itself make a risk analysis complete, and it does not establish compliance with the HIPAA Security Rule. It is not legal advice.
 
 ## Quick start
+
 ```bash
 git clone https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool.git
 cd HIPAA-SRA-Tool
-open index.html   # or double-click in Finder/Explorer
+open index.html   # or double-click the file
 ```
-Or use the hosted copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/>. Open `samples/example-health-clinic-hipaa-sra-2026-09-06.json` with the **Open** button to see a completed assessment and its report.
 
-### Printing a clean PDF
+Or use the hosted copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/>. Open `samples/example-health-clinic-hipaa-sra-2026-09-06.json` with the **Open** button to see a filled-in assessment and its report. The sample is fictitious.
+
+### Printing a PDF
+
 1. Click **Print / PDF** (or press Ctrl/Cmd+P from anywhere in the workspace).
 2. Choose **Save as PDF**, paper size **Letter**.
-3. Turn **off** "Headers and footers" so the browser's URL and timestamp do not print. Background colors are forced on by the report styles.
+3. Turn off "Headers and footers" so the browser's URL and timestamp do not print. Background colors are forced on by the report styles.
 
-### Deploying
-- **GitHub Pages:** Settings → Pages → Deploy from branch → `main` → `/ (root)`.
-- **Vercel:** import the repository and deploy as-is. `vercel.json` serves the static app with a strict Content Security Policy. No environment variables, database, or server functions are required.
+## The catalog
+
+The catalog has one row per standard, one row per titled implementation specification, and one row for the untitled implementation specifications paragraph at 45 CFR 164.314(b)(2). 164.308(b)(1) is counted as a standard because Appendix A to Subpart C lists it as one; 164.308(b)(2) has no heading and is shown with it. Under this convention there are 65 catalog rows: 22 standards, 21 Required implementation specifications, and 22 Addressable implementation specifications. The regulation itself states no total. The count is SaberGuard's convention. Every displayed count is derived from the catalog.
+
+Each row carries the regulation's own wording and, separately, a plain-language summary labelled as SaberGuard's. A test compares the regulation wording on every row with the official text kept in `tests/fixtures/`.
+
+An addressable implementation specification is not optional. The covered entity or business associate must assess whether it is reasonable and appropriate in its environment; implement it if it is; and if it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). The workspace records this with two statuses available on addressable rows only: "Alternative measure in place" and "Not implemented, decision documented". Both need a note. A Not applicable response likewise needs a recorded basis, which the report prints.
+
+## Scoring
+
+Likelihood and impact are each rated 1 to 5. Inherent risk is likelihood multiplied by impact: Low 1 to 7, Medium 8 to 14, High 15 to 25. The implementation score is (met + alternative measure + half of partial) divided by the applicable rows reviewed; rows rated Not applicable or Not implemented, decision documented are left out. These scales and thresholds are SaberGuard's own. The implementation score is a progress measure, not a compliance score.
+
+## Review frequency
+
+The HIPAA Security Rule sets no fixed interval for a risk analysis. It requires the security measures to be reviewed and modified as needed (45 CFR 164.306(e)), documentation to be reviewed periodically and updated in response to environmental or operational changes (45 CFR 164.316(b)(2)(iii)), and periodic evaluation (45 CFR 164.308(a)(8)). The workspace has a "Next planned review" field that the organization sets.
+
+## Data handling
+
+- The application does not use `localStorage`, `sessionStorage`, IndexedDB, cookies, analytics, or network APIs. A Content Security Policy meta tag in `index.html` blocks network connections from the page; `vercel.json` sets the same policy and related headers on a Vercel deployment. GitHub Pages does not apply the headers.
+- Unsaved work is held in memory and is lost when the tab is closed or reloaded. The browser warns before you leave if there are edits since the last save or open.
+- Evidence attachments are limited to 10 MB per file and 25 MB per assessment.
+- Saved JSON files and printed reports contain sensitive security details. Store them only in an approved encrypted location.
+- The Security Rule requires documentation, including the risk analysis, to be retained for 6 years from the date of its creation or the date when it last was in effect, whichever is later (45 CFR 164.316(b)(2)(i)). State law or contracts may require longer.
 
 ## Project layout
+
 ```
 index.html            Workspace markup
 assets/styles.css     Workspace, report preview, and print styles
-assets/catalog.js     Security Rule catalog, rating scales, threat library, readiness checks
-assets/app.js         Workspace logic, JSON save/open, print handling
+assets/catalog.js     Security Rule catalog, statuses, rating scales, risk scenario library, completeness checks
+assets/app.js         Workspace logic, JSON save and open, print handling
 assets/report.js      Metrics and the report renderer
-samples/              Example completed assessment
+samples/              Fictitious example assessment
+scripts/lint-text.mjs Text lint run in CI
+tests/                Tests (node --test) and the regulation fixture
+VERIFICATION.md       Every regulatory statement that ships, with its source and the date checked
 ```
 
-## Data handling
-- The application does not use `localStorage`, `sessionStorage`, IndexedDB, cookies, analytics, or network APIs.
-- Unsaved work is held in JavaScript memory and is lost when the tab is closed or refreshed. The browser warns before you leave with unsaved work.
-- Evidence attachments are limited to 10 MB per file and 25 MB per assessment to avoid exhausting browser memory.
-- JSON files and printed reports contain sensitive security details. Store them only in an approved encrypted location and follow the client's retention and access-control policies.
+Run `npm run check` to run the text lint and the tests. There are no runtime dependencies.
 
-## Scope and interpretation
-The catalog includes the Security Rule's standards and required/addressable implementation specifications, including organizational requirements and applicability-dependent provisions. An **addressable** specification is not optional: assessors must determine whether it is reasonable and appropriate, implement an equivalent alternative when appropriate, and document the decision. An **N/A** response likewise needs a documented applicability basis, which the report prints.
+## References
 
-Risk scoring uses a 1–5 likelihood and 1–5 impact scale (definitions are printed in the report). Inherent risk = likelihood × impact: Low 1–7, Medium 8–14, High 15–25. The implementation score is (met + ½ partial) ÷ applicable safeguards reviewed.
-
-The Security Rule requires risk analysis and periodic evaluation; it does not prescribe one universal annual checklist. SaberGuard presents the catalog as an annual workflow because annual reassessment is a practical baseline, but organizations must also reassess when environmental or operational changes affect ePHI security. This tool supports, but cannot by itself establish, a complete risk analysis: assessors must identify all ePHI, threats, vulnerabilities, existing measures, likelihood, impact, and risk treatment within the organization's actual scope.
-
-Authoritative references: [45 CFR Part 164, Subpart C](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C), [HHS Security Risk Assessment guidance](https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html), and [HHS Security Rule guidance](https://www.hhs.gov/hipaa/for-professionals/security/guidance/index.html).
-
-## Disclaimer
-This tool is provided **"as-is"** for educational and compliance support purposes. It does **not** constitute legal advice. Covered Entities and Business Associates are responsible for validating results with legal/compliance professionals. HIPAA requires SRA documentation retention for **6 years**.
+- [45 CFR Part 164, Subpart C](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C)
+- [HHS OCR Guidance on Risk Analysis](https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html)
+- [HHS Security Risk Assessment (SRA) Tool](https://www.healthit.gov/topic/privacy-security-and-hipaa/security-risk-assessment-tool)
 
 ## License
-Open-sourced under the MIT License. See [LICENSE](LICENSE) for details.
 
----
-
-💜 Made with care by **SaberGuard** - empowering small teams and HIPAA-regulated providers with transparent, secure tools.
+Code is released under the MIT License. See [LICENSE](LICENSE). The SaberGuard name and logo are not covered by that license.

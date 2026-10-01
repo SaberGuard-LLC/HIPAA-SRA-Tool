@@ -5,10 +5,10 @@
   "savedAt": "2026-09-06T18:40:00.000Z",
   "meta": {
     "orgName": "Example Health Clinic",
-    "orgType": "Covered entity · Outpatient family practice · Austin, TX",
+    "orgType": "Fictitious sample · Covered entity · Outpatient family practice · Austin, TX",
     "assessmentDate": "2026-09-06",
-    "period": "September 1, 2025 – August 31, 2026",
-    "assessor": "Alex Rivera, Principal Consultant, SaberGuard LLC",
+    "period": "September 1, 2025 to August 31, 2026",
+    "assessor": "Alex Rivera, Security Consultant, Example Advisory Group (fictitious)",
     "securityOfficial": "Maria Torres, Practice Administrator & HIPAA Security Official",
     "reportVersion": "1.0",
     "classification": "Confidential",
@@ -18,7 +18,8 @@
     "executiveSummary": "",
     "executive": "Dr. Samuel Reyes, Owner & Medical Director",
     "signDate": "2026-09-12",
-    "attestationText": "Management has reviewed this security risk analysis, acknowledges the identified risks, and approves the documented remediation priorities and risk treatment decisions. The organization commits to implementing the remediation plan and to updating this analysis in response to environmental or operational changes affecting the security of ePHI."
+    "attestationText": "Management has reviewed this security risk analysis, acknowledges the identified risks, and approves the documented remediation priorities and risk treatment decisions. The organization commits to implementing the remediation plan and to updating this analysis in response to environmental or operational changes affecting the security of ePHI.",
+    "reportStatus": "Draft"
   },
   "assets": [
     {
@@ -79,7 +80,7 @@
     },
     "A02": {
       "status": "met",
-      "notes": "This risk analysis fulfills the annual requirement. Prior analysis dated 2025-08-14 was reviewed and open items were reconciled against the current risk register.",
+      "notes": "This is the organization's yearly risk analysis under its own policy. The prior analysis dated 2025-08-14 was reviewed and open items were reconciled against the current risk register.",
       "recommendation": "",
       "evidence": []
     },
@@ -249,7 +250,7 @@
     },
     "A28": {
       "status": "met",
-      "notes": "Annual evaluation performed through this assessment; change-triggered evaluations were completed for the 2025 EHR upgrade and the office relocation.",
+      "notes": "A technical and nontechnical evaluation of the security policies and procedures was performed as part of this assessment. Change-triggered evaluations were completed for the 2025 EHR upgrade and the office relocation.",
       "recommendation": "",
       "evidence": []
     },
