@@ -8,7 +8,7 @@ Status values:
 - **Pending fixture**: the statement rests on 45 CFR Part 164, Subpart C, and will be confirmed by `tests/fixture.test.mjs` once the official XML is in `tests/fixtures/`. Until then the wording comes from `handoff/reference/catalog-audit.md` (two independent sources agreed on September 30, 2026, read through a summarizing fetch tool).
 - **Unconfirmed**: the primary source could not be reached from the build environment, which denies ecfr.gov, govinfo.gov, hhs.gov, healthit.gov, cms.gov, nist.gov, federalregister.gov and reginfo.gov. The text is paraphrased, cited, and taken from the reference files dated September 30, 2026. These rows are re-checked in Phase 6.
 
-Last updated: 2026-10-01 (Phase 2 rows S19 to S23 added).
+Last updated: 2026-10-01 (Phase 3: no new regulatory statements; the section 04 map callout and figure note reuse S5 and S6).
 
 ## Statements
 

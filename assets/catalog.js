@@ -474,6 +474,7 @@ const READINESS_CHECKS = [
   { key: 'profile',     label: 'Organization, assessment date, lead assessor, scope statement, and entity profile recorded' },
   { key: 'inventory',   label: 'At least one ePHI system or location inventoried, and every row has a name, the ePHI held, a kind, a zone, and at least one lifecycle stage' },
   { key: 'flows',       label: 'Every data flow names two different inventory rows' },
+  { key: 'linked',      label: 'Every inventory row or data flow flagged for a missing or unconfirmed business associate agreement, encryption, or multi-factor authentication is linked to a risk' },
   { key: 'reviewed',    label: 'Every catalog row reviewed, including answers carried from version 3' },
   { key: 'basis',       label: 'Verification basis recorded for every reviewed row' },
   { key: 'gapnotes',    label: 'Assessment notes recorded for every row rated Partially met, Not met, Not applicable, Alternative measure in place, or Not implemented, decision documented' },

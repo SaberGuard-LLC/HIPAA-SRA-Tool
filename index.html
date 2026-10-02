@@ -34,10 +34,11 @@
         <a href="#overview" data-nav="overview"><span class="num">00</span>Overview</a>
         <a href="#profile" data-nav="profile"><span class="num">01</span>Organization &amp; scope<span class="dot" data-dot="profile"></span></a>
         <a href="#inventory" data-nav="inventory"><span class="num">02</span>ePHI inventory<span class="dot" data-dot="inventory"></span></a>
-        <a href="#controlsSection" data-nav="controlsSection"><span class="num">03</span>Catalog review<span class="dot" data-dot="controls"></span></a>
-        <a href="#risks" data-nav="risks"><span class="num">04</span>Risk register<span class="dot" data-dot="risks"></span></a>
-        <a href="#attestation" data-nav="attestation"><span class="num">05</span>Summary &amp; attestation<span class="dot" data-dot="attestation"></span></a>
-        <a href="#report" data-nav="report"><span class="num">06</span>Report &amp; checks<span class="dot" data-dot="report"></span></a>
+        <a href="#map" data-nav="map"><span class="num">03</span>ePHI flow map<span class="dot" data-dot="map"></span></a>
+        <a href="#controlsSection" data-nav="controlsSection"><span class="num">04</span>Catalog review<span class="dot" data-dot="controls"></span></a>
+        <a href="#risks" data-nav="risks"><span class="num">05</span>Risk register<span class="dot" data-dot="risks"></span></a>
+        <a href="#attestation" data-nav="attestation"><span class="num">06</span>Summary &amp; attestation<span class="dot" data-dot="attestation"></span></a>
+        <a href="#report" data-nav="report"><span class="num">07</span>Report &amp; checks<span class="dot" data-dot="report"></span></a>
       </nav>
       <div class="sidebar-foot">
         <div class="side-progress"><b id="sideProgressLabel"></b> catalog rows reviewed<div class="progress"><span id="sideProgress"></span></div></div>
@@ -62,7 +63,7 @@
 
       <section class="section" id="profile">
         <div class="section-head">
-          <div><div class="step">Step 1 of 6</div><h2>Organization &amp; assessment scope</h2><p class="help">Define who, what, and where is included before reviewing the catalog. The entity profile decides which business associate duty applies and marks the clearinghouse and group health plan rows Not applicable with the basis recorded. These details populate the report cover, document control block, and scope section.</p></div>
+          <div><div class="step">Step 1 of 7</div><h2>Organization &amp; assessment scope</h2><p class="help">Define who, what, and where is included before reviewing the catalog. The entity profile decides which business associate duty applies and marks the clearinghouse and group health plan rows Not applicable with the basis recorded. These details populate the report cover, document control block, and scope section.</p></div>
           <span class="badge">Required foundation</span>
         </div>
         <div class="form-grid">
@@ -86,7 +87,7 @@
 
       <section class="section" id="inventory">
         <div class="section-head">
-          <div><div class="step">Step 2 of 6</div><h2>ePHI systems &amp; data-flow inventory</h2><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, then record the flows between them. Record electronic PHI only; paper records are not ePHI. Unknown is a recorded gap, not a no: a row left unclassified fails a completeness check.</p></div>
+          <div><div class="step">Step 2 of 7</div><h2>ePHI systems &amp; data-flow inventory</h2><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, then record the flows between them. Record electronic PHI only; paper records are not ePHI. Unknown is a recorded gap, not a no: a row left unclassified fails a completeness check.</p></div>
           <button class="btn primary no-print" id="addAsset" type="button">+ Add system or location</button>
         </div>
         <div class="assets" id="assetRows"></div>
@@ -97,9 +98,19 @@
         <div class="output-actions no-print"><button class="btn" id="addFlow" type="button">+ Add data flow</button></div>
       </section>
 
+      <section class="section" id="map">
+        <div class="section-head">
+          <div><div class="step">Step 3 of 7</div><h2>ePHI flow map</h2><p class="help">Drawn from the inventory and data flows above. Three columns: people and devices in the practice, the systems that hold ePHI with their backups listed inside, and the outside parties ePHI is shared with. Direct-entry flows are not drawn. A line carries a label only when it is not encrypted or not checked. Tags are risk register references. Every row or flow flagged for a missing or unconfirmed business associate agreement, encryption, or multi-factor authentication needs a linked risk before the report leaves draft.</p></div>
+        </div>
+        <div class="map-facts" id="mapFacts"></div>
+        <div class="map-box" id="mapBox"></div>
+        <div class="map-legend" id="mapLegend"></div>
+        <div class="map-attention" id="mapAttention"></div>
+      </section>
+
       <section class="section" id="controlsSection">
         <div class="section-head">
-          <div><div class="step">Step 3 of 6</div><h2>Review the Security Rule catalog</h2><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis. Record for each row how the status was verified: observed, document reviewed, or stated by the client.</p></div>
+          <div><div class="step">Step 4 of 7</div><h2>Review the Security Rule catalog</h2><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis. Record for each row how the status was verified: observed, document reviewed, or stated by the client.</p></div>
           <div class="progress-block"><div class="progress"><span id="controlProgress"></span></div><div class="file-status" id="progressLabel"></div></div>
         </div>
         <div class="filters no-print" id="filters">
@@ -118,7 +129,7 @@
 
       <section class="section" id="risks">
         <div class="section-head">
-          <div><div class="step">Step 4 of 6</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
+          <div><div class="step">Step 5 of 7</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
           <div class="risk-toolbar no-print">
             <select id="scenarioPick" aria-label="Add a risk from the risk scenario library"><option value="">Add from risk scenario library</option></select>
             <button class="btn primary" id="addRisk" type="button">+ Add risk</button>
@@ -130,7 +141,7 @@
 
       <section class="section" id="attestation">
         <div class="section-head">
-          <div><div class="step">Step 5 of 6</div><h2>Executive summary &amp; management attestation</h2><p class="help">Write the narrative that opens the report, then name the accountable approver. If the narrative is left blank, the report generates a factual summary from the results.</p></div>
+          <div><div class="step">Step 6 of 7</div><h2>Executive summary &amp; management attestation</h2><p class="help">Write the narrative that opens the report, then name the accountable approver. If the narrative is left blank, the report generates a factual summary from the results.</p></div>
         </div>
         <div class="form-grid">
           <div class="field full"><label for="executiveSummary">Executive summary narrative</label><small>Overall posture, most significant risks, notable strengths, and the recommended priorities for leadership.</small><textarea class="meta tall" id="executiveSummary" placeholder="Leave blank to generate a summary from the assessment results, or write the assessor's narrative here."></textarea></div>
@@ -141,7 +152,7 @@
 
       <section class="section" id="report">
         <div class="section-head">
-          <div><div class="step">Step 6 of 6</div><h2>Report &amp; completeness checks</h2><p class="help">Preview the report on screen, then use Print / PDF to produce the deliverable. Save the JSON file to keep an editable record. The checks below test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough.</p></div>
+          <div><div class="step">Step 7 of 7</div><h2>Report &amp; completeness checks</h2><p class="help">Preview the report on screen, then use Print / PDF to produce the deliverable. Save the JSON file to keep an editable record. The checks below test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough.</p></div>
           <span class="badge" id="readinessBadge">Draft</span>
         </div>
         <div class="summary-grid">
@@ -181,6 +192,7 @@
 </div>
 <script src="assets/catalog.js"></script>
 <script src="assets/format.js"></script>
+<script src="assets/ephi-map.js"></script>
 <script src="assets/report.js"></script>
 <script src="assets/app.js"></script>
 </body>

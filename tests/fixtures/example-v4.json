@@ -1,0 +1,1128 @@
+{
+  "format": "SaberGuard HIPAA SRA",
+  "version": 4,
+  "exportedAt": "2026-09-30T12:00:00.000Z",
+  "evidenceIncluded": true,
+  "meta": {
+    "reportVersion": "1.0",
+    "classification": "Confidential",
+    "reportStatus": "Draft",
+    "entityType": "covered-entity",
+    "clearinghouse": "no",
+    "groupHealthPlan": "no",
+    "orgName": "Example Counseling Practice",
+    "orgType": "Covered entity · solo outpatient therapy practice",
+    "assessmentDate": "2026-09-30",
+    "assessor": "Sample Assessor, Example Advisory Group (fictitious)"
+  },
+  "assets": [
+    {
+      "id": "p1",
+      "name": "Therapist (owner)",
+      "kind": "person",
+      "zone": "people",
+      "data": "Session notes, treatment plans, client communications",
+      "lifecycle": [
+        "create",
+        "maintain"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "on-site",
+      "atRest": "n/a",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "p2",
+      "name": "Contract biller",
+      "kind": "person",
+      "zone": "people",
+      "data": "Claims, demographics, diagnosis and procedure codes",
+      "lifecycle": [
+        "receive",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "Billing contractor",
+      "baa": "yes",
+      "location": "home-remote",
+      "atRest": "n/a",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "d1",
+      "name": "Therapist laptop",
+      "kind": "device",
+      "zone": "devices",
+      "data": "Cached records, downloaded documents, exported notes",
+      "lifecycle": [
+        "maintain",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "on-site",
+      "atRest": "yes",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "d2",
+      "name": "Therapist smartphone",
+      "kind": "device",
+      "zone": "devices",
+      "data": "Client texts, voicemail, call log",
+      "lifecycle": [
+        "receive",
+        "maintain"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "home-remote",
+      "atRest": "yes",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "d3",
+      "name": "Office printer and scanner",
+      "kind": "device",
+      "zone": "devices",
+      "data": "Scanned intake forms; images may stay on internal storage",
+      "lifecycle": [
+        "create",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "on-site",
+      "atRest": "unknown",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "s1",
+      "name": "EHR and client portal",
+      "kind": "application",
+      "zone": "systems",
+      "data": "Full clinical record, scheduling, billing; system of record",
+      "lifecycle": [
+        "create",
+        "receive",
+        "maintain",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "EHR vendor",
+      "baa": "yes",
+      "location": "vendor-hosted",
+      "atRest": "yes",
+      "mfa": "yes",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "s2",
+      "name": "Telehealth video",
+      "kind": "application",
+      "zone": "systems",
+      "data": "Live session audio and video; no recordings kept",
+      "lifecycle": [
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "Telehealth vendor",
+      "baa": "yes",
+      "location": "vendor-hosted",
+      "atRest": "n/a",
+      "mfa": "yes",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "s3",
+      "name": "Email and calendar",
+      "kind": "application",
+      "zone": "systems",
+      "data": "Scheduling messages, scanned forms, referral letters",
+      "lifecycle": [
+        "receive",
+        "maintain",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "Email provider",
+      "baa": "no",
+      "location": "vendor-hosted",
+      "atRest": "yes",
+      "mfa": "yes",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "s4",
+      "name": "Voicemail and text messages",
+      "kind": "application",
+      "zone": "systems",
+      "data": "Client voicemail and SMS threads",
+      "lifecycle": [
+        "receive",
+        "maintain"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "Mobile carrier",
+      "baa": "unknown",
+      "location": "vendor-hosted",
+      "atRest": "unknown",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "x1",
+      "name": "Clients",
+      "kind": "person",
+      "zone": "external",
+      "data": "Intake forms, messages, session audio and video",
+      "lifecycle": [
+        "create",
+        "receive"
+      ],
+      "owner": "",
+      "accountable": "",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "home-remote",
+      "atRest": "n/a",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "x2",
+      "name": "Claims clearinghouse",
+      "kind": "application",
+      "zone": "external",
+      "data": "Claims, remittances, eligibility responses",
+      "lifecycle": [
+        "receive",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "Contract biller",
+      "vendor": "Clearinghouse",
+      "baa": "yes",
+      "location": "vendor-hosted",
+      "atRest": "yes",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "x3",
+      "name": "Other treating providers",
+      "kind": "person",
+      "zone": "external",
+      "data": "Referral letters, records requests, coordination of care",
+      "lifecycle": [
+        "receive",
+        "transmit"
+      ],
+      "owner": "",
+      "accountable": "",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "unknown",
+      "atRest": "n/a",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "b1",
+      "name": "EHR vendor backups",
+      "kind": "datastore",
+      "zone": "backup",
+      "data": "Full copy of the clinical record",
+      "lifecycle": [
+        "maintain"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "EHR vendor",
+      "baa": "yes",
+      "location": "vendor-hosted",
+      "atRest": "yes",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "b2",
+      "name": "Laptop cloud backup",
+      "kind": "datastore",
+      "zone": "backup",
+      "data": "Documents folder, including exported notes",
+      "lifecycle": [
+        "maintain"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "Backup vendor",
+      "baa": "unknown",
+      "location": "vendor-hosted",
+      "atRest": "yes",
+      "mfa": "yes",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    },
+    {
+      "id": "b3",
+      "name": "USB drive",
+      "kind": "datastore",
+      "zone": "backup",
+      "data": "Quarterly export of session notes",
+      "lifecycle": [
+        "maintain"
+      ],
+      "owner": "",
+      "accountable": "Practice owner",
+      "vendor": "",
+      "baa": "not-required",
+      "location": "on-site",
+      "atRest": "no",
+      "mfa": "n/a",
+      "count": 1,
+      "flow": "",
+      "protection": ""
+    }
+  ],
+  "flows": [
+    {
+      "id": "f1",
+      "from": "p1",
+      "to": "d1",
+      "twoWay": false,
+      "data": "Session notes, treatment plans",
+      "transport": "direct-entry",
+      "inTransit": "n/a",
+      "notes": ""
+    },
+    {
+      "id": "f2",
+      "from": "p1",
+      "to": "d2",
+      "twoWay": false,
+      "data": "Calls and texts with clients",
+      "transport": "direct-entry",
+      "inTransit": "n/a",
+      "notes": ""
+    },
+    {
+      "id": "f3",
+      "from": "p2",
+      "to": "s1",
+      "twoWay": true,
+      "data": "Claims preparation and posting",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f4",
+      "from": "d1",
+      "to": "s1",
+      "twoWay": true,
+      "data": "Notes, scheduling, billing",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f5",
+      "from": "d1",
+      "to": "s2",
+      "twoWay": true,
+      "data": "Video sessions",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f6",
+      "from": "d1",
+      "to": "s3",
+      "twoWay": true,
+      "data": "Email with clients and providers",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f7",
+      "from": "d2",
+      "to": "s4",
+      "twoWay": true,
+      "data": "Voicemail retrieval and texts",
+      "transport": "phone-sms",
+      "inTransit": "unknown",
+      "notes": ""
+    },
+    {
+      "id": "f8",
+      "from": "d3",
+      "to": "s3",
+      "twoWay": false,
+      "data": "Scanned intake forms (scan to email)",
+      "transport": "email",
+      "inTransit": "no",
+      "notes": ""
+    },
+    {
+      "id": "f9",
+      "from": "s1",
+      "to": "x1",
+      "twoWay": true,
+      "data": "Intake forms, portal messages, statements",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f10",
+      "from": "s2",
+      "to": "x1",
+      "twoWay": true,
+      "data": "Video sessions",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f11",
+      "from": "s3",
+      "to": "x1",
+      "twoWay": true,
+      "data": "Scheduling emails, some clinical detail",
+      "transport": "email",
+      "inTransit": "no",
+      "notes": ""
+    },
+    {
+      "id": "f12",
+      "from": "x1",
+      "to": "s4",
+      "twoWay": false,
+      "data": "Voicemail and text messages",
+      "transport": "phone-sms",
+      "inTransit": "unknown",
+      "notes": ""
+    },
+    {
+      "id": "f13",
+      "from": "s1",
+      "to": "x2",
+      "twoWay": true,
+      "data": "Claims and eligibility checks",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f14",
+      "from": "s3",
+      "to": "x3",
+      "twoWay": true,
+      "data": "Referral letters, records requests",
+      "transport": "email",
+      "inTransit": "unknown",
+      "notes": ""
+    },
+    {
+      "id": "f15",
+      "from": "s1",
+      "to": "b1",
+      "twoWay": false,
+      "data": "Full record",
+      "transport": "vendor-internal",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f16",
+      "from": "d1",
+      "to": "b2",
+      "twoWay": false,
+      "data": "Documents folder, including exported notes",
+      "transport": "https",
+      "inTransit": "yes",
+      "notes": ""
+    },
+    {
+      "id": "f17",
+      "from": "d1",
+      "to": "b3",
+      "twoWay": false,
+      "data": "Exported session notes",
+      "transport": "removable-media",
+      "inTransit": "n/a",
+      "notes": ""
+    }
+  ],
+  "controls": {
+    "A01": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A02": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A03": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A04": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A05": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A06": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A07": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A08": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A09": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A10": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A11": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A12": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A13": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A14": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A15": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A16": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A17": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A18": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A19": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A20": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A21": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A22": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A23": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A24": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A25": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A26": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A27": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A28": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A29": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "A30": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P01": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P02": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P03": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P04": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P05": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P06": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P07": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P08": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P09": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P10": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P11": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "P12": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T01": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T02": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T03": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T04": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T05": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T06": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T07": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T08": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T09": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T10": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T11": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "T12": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "O11": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "O12": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "O13": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "O14": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "O15": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "O16": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "D01": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "D02": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "D03": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "D04": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    },
+    "D05": {
+      "status": "",
+      "notes": "",
+      "recommendation": "",
+      "basis": "",
+      "evidence": []
+    }
+  },
+  "risks": [
+    {
+      "id": "R1",
+      "description": "Email holds client messages and scanned forms. The provider has no BAA.",
+      "assetIds": [
+        "s3"
+      ],
+      "flowIds": [
+        "f11",
+        "f8",
+        "f14"
+      ],
+      "controlIds": [
+        "A29",
+        "A30",
+        "T12"
+      ],
+      "legacyAssets": "",
+      "legacyControls": "",
+      "existing": "",
+      "likelihood": 4,
+      "impact": 4,
+      "decision": "Mitigate",
+      "owner": "Practice owner",
+      "target": "2026-11-15",
+      "treatment": "Move to an email plan with a BAA. Send forms through the portal.",
+      "status": "Open",
+      "residualLikelihood": "",
+      "residualImpact": ""
+    },
+    {
+      "id": "R2",
+      "description": "Session notes are exported to a USB drive that is not encrypted.",
+      "assetIds": [
+        "b3"
+      ],
+      "flowIds": [
+        "f17"
+      ],
+      "controlIds": [
+        "P08",
+        "T05",
+        "P11"
+      ],
+      "legacyAssets": "",
+      "legacyControls": "",
+      "existing": "",
+      "likelihood": 3,
+      "impact": 5,
+      "decision": "Mitigate",
+      "owner": "Practice owner",
+      "target": "2026-10-31",
+      "treatment": "Stop the USB export, or use an encrypted drive and log where it is kept.",
+      "status": "Open",
+      "residualLikelihood": "",
+      "residualImpact": ""
+    },
+    {
+      "id": "R3",
+      "description": "The scanner emails scans unencrypted and may keep copies on its own storage.",
+      "assetIds": [
+        "d3"
+      ],
+      "flowIds": [
+        "f8"
+      ],
+      "controlIds": [
+        "T12",
+        "P09"
+      ],
+      "legacyAssets": "",
+      "legacyControls": "",
+      "existing": "",
+      "likelihood": 3,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "Practice owner",
+      "target": "2026-11-30",
+      "treatment": "Turn on TLS for scan to email and image overwrite. Change the admin password.",
+      "status": "Open",
+      "residualLikelihood": "",
+      "residualImpact": ""
+    },
+    {
+      "id": "R4",
+      "description": "The mobile carrier stores client voicemail and texts. Encryption not confirmed.",
+      "assetIds": [
+        "s4",
+        "d2"
+      ],
+      "flowIds": [
+        "f12",
+        "f7"
+      ],
+      "controlIds": [
+        "T12",
+        "A29"
+      ],
+      "legacyAssets": "",
+      "legacyControls": "",
+      "existing": "",
+      "likelihood": 3,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "Practice owner",
+      "target": "2026-12-31",
+      "treatment": "Check if the carrier keeps messages. If so, use a service that signs a BAA.",
+      "status": "Open",
+      "residualLikelihood": "",
+      "residualImpact": ""
+    },
+    {
+      "id": "R5",
+      "description": "The laptop backup includes exported notes. The vendor's BAA is not confirmed.",
+      "assetIds": [
+        "b2"
+      ],
+      "flowIds": [
+        "f16"
+      ],
+      "controlIds": [
+        "A29",
+        "A23"
+      ],
+      "legacyAssets": "",
+      "legacyControls": "",
+      "existing": "",
+      "likelihood": 2,
+      "impact": 4,
+      "decision": "Mitigate",
+      "owner": "Practice owner",
+      "target": "2026-10-31",
+      "treatment": "Get the signed BAA or change vendors. Exclude the notes folder until then.",
+      "status": "In progress",
+      "residualLikelihood": "",
+      "residualImpact": ""
+    },
+    {
+      "id": "R6",
+      "description": "The contract biller uses a personal computer the practice does not manage.",
+      "assetIds": [
+        "p2"
+      ],
+      "flowIds": [
+        "f3"
+      ],
+      "controlIds": [
+        "A29",
+        "O12"
+      ],
+      "legacyAssets": "",
+      "legacyControls": "",
+      "existing": "",
+      "likelihood": 2,
+      "impact": 3,
+      "decision": "Mitigate",
+      "owner": "Contract biller",
+      "target": "2027-01-31",
+      "treatment": "Require an encrypted, patched computer with a screen lock. Note it with the BAA.",
+      "status": "Open",
+      "residualLikelihood": "",
+      "residualImpact": ""
+    }
+  ],
+  "savedAt": "2026-09-30T12:00:00.000Z"
+}

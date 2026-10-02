@@ -8,7 +8,7 @@ import vm from 'node:vm';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const read = (rel) => readFileSync(join(ROOT, rel), 'utf8');
 
-export function loadContext(files = ['assets/catalog.js', 'assets/format.js', 'assets/report.js']) {
+export function loadContext(files = ['assets/catalog.js', 'assets/format.js', 'assets/ephi-map.js', 'assets/report.js']) {
   const sandbox = { console };
   sandbox.window = sandbox;
   sandbox.globalThis = sandbox;
