@@ -14,6 +14,7 @@ With it an assessor can:
 - inventory the people, devices, systems, outside parties, and backups that store, receive, maintain, or transmit ePHI, with kind, zone, lifecycle, vendor, business associate agreement, location, encryption at rest, and multi-factor authentication, and the data flows between them;
 - review the Security Rule standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316, with notes, recommendations, attached evidence, and the basis on which each status was verified (observed, document reviewed, or stated by the client);
 - see an ePHI flow map drawn from the inventory and flows: three columns (people and devices in the practice, the systems that hold ePHI with backups listed inside them, outside parties), direct-entry flows left out, a label only on flows that are not encrypted or not checked, and one tag per finding using the risk register reference. The same map prints in section 04 of the report. The layout is deterministic: the same file produces the same drawing;
+- attach a Ward evidence file (SaberGuard's Microsoft 365 configuration collector) in step 4: each safeguard in the file goes to the catalog row with the same 45 CFR citation as one JSON attachment, and rows with no notes get one line naming the collection, the rule outcome, and the facts. It never sets a status or a verification basis;
 - build a risk register with likelihood and impact ratings, treatment decisions, owners, target dates, and residual ratings, each risk linked to the inventory rows, data flows, and catalog rows it affects, starting from a risk scenario library where useful;
 - print a formatted report, or save as PDF, with a draft watermark until the completeness checks pass and the status is set to Final.
 
@@ -60,6 +61,7 @@ The HIPAA Security Rule sets no fixed interval for a risk analysis. It requires 
 - Evidence attachments are limited to 10 MB per file and 25 MB per assessment. Evidence must not show patient identifiers; the workspace warns at the attach control. "Save file without evidence" writes the assessment with the names and sizes of attachments but not the files themselves.
 - A row or flow flagged for a missing or unconfirmed business associate agreement, encryption at rest or in transit, or multi-factor authentication must be linked to a risk before the report leaves draft. Appendix B lists any that are not.
 - Saved files use format version 4. Files saved by earlier versions open without loss: the three old 164.314 rows (O01 to O03) move to the current rows O12, O13 and O15, free-text risk links are kept as legacy notes beside the new id lists, and answers on rows whose citation or regulation text changed are marked "carried from version 3, review again" and count as not reviewed until the assessor confirms them. Rows added since version 3 open as not reviewed, so a complete version 3 file opens as incomplete.
+- Attach Ward evidence reads the chosen file in the browser like Open does; nothing is uploaded. Attachments count toward the 25 MB limit, the same file attached twice adds nothing, citations the catalog does not carry are listed and skipped, and a file whose client name does not match the organization name in step 1 asks before attaching.
 - Saved JSON files and printed reports contain sensitive security details. Store them only in an approved encrypted location.
 - The Security Rule requires documentation, including the risk analysis, to be retained for 6 years from the date of its creation or the date when it last was in effect, whichever is later (45 CFR 164.316(b)(2)(i)). State law or contracts may require longer.
 
@@ -71,6 +73,7 @@ assets/styles.css     Workspace, report preview, and print styles
 assets/catalog.js     Security Rule catalog, statuses, rating scales, risk scenario library, completeness checks
 assets/app.js         Workspace logic, JSON save and open, print handling
 assets/report.js      Metrics and the report renderer
+assets/ward.js        Ward evidence import (read, plan, apply; no DOM)
 samples/              Fictitious example assessment
 scripts/lint-text.mjs Text lint run in CI
 tests/                Tests (node --test) and the regulation fixture

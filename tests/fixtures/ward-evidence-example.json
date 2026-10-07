@@ -1,0 +1,103 @@
+{
+  "format": "SaberGuard Ward evidence",
+  "version": 1,
+  "generated_at": "2026-10-07T14:02:11.000Z",
+  "client": {
+    "id": "example-clinic",
+    "name": "Example Health Clinic",
+    "entity_type": "covered_entity",
+    "tenant_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "collection": {
+    "id": "3f2a9c1b-0d4e-4f6a-9b7c-1e2d3f4a5b6c",
+    "source": "microsoft",
+    "collected_at": "2026-10-05T11:00:42.000Z",
+    "collector_version": "0.4.1",
+    "blob_ref": "evidence/example-clinic/microsoft/2026-10-05T11-00-42Z.json",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "engine_version": "0.3.0",
+  "rules_evaluated": 6,
+  "safeguards": [
+    {
+      "citation": "164.308(a)(3)(ii)(C)",
+      "state_citations": ["17.04(1)"],
+      "outcome": "finding",
+      "rules": [
+        { "rule_id": "ACCT-001", "title": "Enabled accounts with no recent sign-in", "status": "finding", "reason": null, "facts": ["accounts.inactive_count", "accounts.inactive_users", "accounts.inactive_window_days"] }
+      ],
+      "findings": [
+        {
+          "rule_id": "ACCT-001",
+          "rule_version": "aaaaaaaaaaaa",
+          "title": "Enabled accounts with no recent sign-in",
+          "severity": "medium",
+          "state_citations": ["17.04(1)"],
+          "narrative": "Enabled accounts with no recent sign-in (45 CFR 164.308(a)(3)(ii)(C)).\nObserved:\naccounts.inactive_count: 1\naccounts.inactive_users: former.staff@example.org\naccounts.inactive_window_days: 90",
+          "narrative_source": "template",
+          "review": null,
+          "facts": ["accounts.inactive_count", "accounts.inactive_users", "accounts.inactive_window_days"]
+        }
+      ],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "accounts.inactive_count", "value": 1, "observed_at": "2026-10-05T11:00:42.000Z", "source_ref": "GET /users", "sha256": "1111111111111111111111111111111111111111111111111111111111111111" },
+        { "key": "accounts.inactive_users", "value": ["former.staff@example.org"], "observed_at": "2026-10-05T11:00:42.000Z", "source_ref": "GET /users", "sha256": "1111111111111111111111111111111111111111111111111111111111111111" },
+        { "key": "accounts.inactive_window_days", "value": 90, "observed_at": "2026-10-05T11:00:42.000Z", "source_ref": "GET /users", "sha256": "1111111111111111111111111111111111111111111111111111111111111111" }
+      ]
+    },
+    {
+      "citation": "164.312(d)",
+      "state_citations": [],
+      "outcome": "met",
+      "rules": [
+        { "rule_id": "AUTH-001", "title": "Accounts without a second factor", "status": "met", "reason": null, "facts": ["auth.mfa.unregistered_count"] },
+        { "rule_id": "AUTH-002", "title": "Security defaults off and no MFA policy", "status": "not_applicable", "reason": "applies_when is false for fact 'auth.security_defaults.enabled'", "facts": ["auth.security_defaults.enabled"] }
+      ],
+      "findings": [],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "auth.mfa.unregistered_count", "value": 0, "observed_at": "2026-10-05T11:00:42.000Z", "source_ref": "GET /reports/authenticationMethods/userRegistrationDetails", "sha256": "1111111111111111111111111111111111111111111111111111111111111111" },
+        { "key": "auth.security_defaults.enabled", "value": true, "observed_at": "2026-10-05T11:00:42.000Z", "source_ref": "GET /policies/identitySecurityDefaultsEnforcementPolicy", "sha256": "1111111111111111111111111111111111111111111111111111111111111111" }
+      ]
+    },
+    {
+      "citation": "164.312(a)(1)",
+      "state_citations": [],
+      "outcome": "met",
+      "rules": [
+        { "rule_id": "SHARE-001", "title": "Anyone links allowed", "status": "met", "reason": null, "facts": ["sharing.sharepoint.anyone_links_allowed"] },
+        { "rule_id": "SHARE-002", "title": "Guests may reshare content they do not own", "status": "finding", "reason": null, "facts": ["sharing.sharepoint.resharing_by_external_users_enabled"] }
+      ],
+      "findings": [],
+      "rejected_findings": [
+        { "rule_id": "SHARE-002", "title": "Guests may reshare content they do not own", "reviewer": "assessor@example.org", "reviewed_at": "2026-10-06T09:15:00.000Z", "note": "No external users exist and sharing is limited to named people." }
+      ],
+      "facts": [
+        { "key": "sharing.sharepoint.resharing_by_external_users_enabled", "value": true, "observed_at": "2026-10-05T11:00:42.000Z", "source_ref": "GET /admin/sharepoint/settings", "sha256": "1111111111111111111111111111111111111111111111111111111111111111" }
+      ]
+    },
+    {
+      "citation": "164.310(b)",
+      "state_citations": [],
+      "outcome": "insufficient_evidence",
+      "rules": [
+        { "rule_id": "DEV-001", "title": "Managed devices out of compliance", "status": "insufficient_evidence", "reason": "fact 'devices.noncompliant_count' was not collected", "facts": [] }
+      ],
+      "findings": [],
+      "rejected_findings": [],
+      "facts": []
+    },
+    {
+      "citation": "164.999(z)",
+      "state_citations": [],
+      "outcome": "met",
+      "rules": [
+        { "rule_id": "TEST-001", "title": "A citation the catalog does not carry", "status": "met", "reason": null, "facts": [] }
+      ],
+      "findings": [],
+      "rejected_findings": [],
+      "facts": []
+    }
+  ]
+}

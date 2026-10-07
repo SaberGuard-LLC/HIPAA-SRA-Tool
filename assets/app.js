@@ -454,6 +454,37 @@
     }
   }
 
+  /* ---- Ward evidence ----------------------------------------------------- */
+  async function attachWardEvidence(file) {
+    const out = $('wardStatus');
+    let ward;
+    try {
+      ward = SRAWard.read(JSON.parse(await file.text()));
+    } catch (err) {
+      out.textContent = err instanceof SyntaxError ? 'Could not read that file. Choose the JSON file downloaded from Ward.' : err.message;
+      return;
+    }
+    collectMeta();
+    const plan = SRAWard.plan(state.controls, state.meta, ward);
+    if (plan.nameMismatch && !window.confirm(`This Ward file is for "${ward.client.name}", but the organization in step 1 is "${state.meta.orgName}". Attach it anyway?`)) {
+      out.textContent = 'Nothing attached.';
+      return;
+    }
+    const used = CONTROLS.reduce((n, x) => n + controlState(x.id).evidence.reduce((m, f) => m + (f.size || 0), 0), 0);
+    const result = SRAWard.apply(state.controls, plan, { budget: MAX_TOTAL - used });
+    renderControls(); updateDashboard();
+    const list = ids => ids.join(', ');
+    out.textContent = [
+      `Ward evidence for ${ward.client.name}, collected ${ward.collection.collected_at.slice(0, 10)}:`,
+      result.attached.length ? `attached to ${result.attached.length} row${result.attached.length === 1 ? '' : 's'} (${list(result.attached)}).` : 'nothing new attached.',
+      result.noted.length ? `Notes filled on rows that had none: ${list(result.noted)}.` : '',
+      result.skipped.length ? `Already attached, skipped: ${list(result.skipped)}.` : '',
+      result.overLimit.length ? `Not attached, over the 25 MB evidence limit: ${list(result.overLimit)}.` : '',
+      plan.unmatched.length ? `Citations not in this catalog, not attached: ${list(plan.unmatched)}.` : '',
+      'No status was changed.'
+    ].filter(Boolean).join(' ');
+  }
+
   /* ---- Wiring ------------------------------------------------------------ */
   document.querySelectorAll('.meta').forEach(el => {
     const h = () => { updateDashboard(); if (['entityType', 'clearinghouse', 'groupHealthPlan'].includes(el.id)) renderControls(); };
@@ -476,6 +507,8 @@
   $('exportNoEvidenceBtn').onclick = () => exportAssessment(false);
   $('importBtn').onclick = () => $('importFile').click();
   $('importFile').onchange = e => { if (e.target.files[0]) importAssessment(e.target.files[0]); e.target.value = ''; };
+  $('wardBtn').onclick = () => $('wardFile').click();
+  $('wardFile').onchange = e => { if (e.target.files[0]) attachWardEvidence(e.target.files[0]); e.target.value = ''; };
   ['printBtn', 'printBtn2', 'printBtn3'].forEach(id => $(id).onclick = printReport);
   $('previewBtn').onclick = () => reportMode ? hideReport() : showReport();
   $('previewBtn2').onclick = showReport;
@@ -500,5 +533,5 @@
   renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard({ keepClean: true });
 
   /* Exposed for testing and for automation hooks (for example loading a sample file). */
-  window.SRA = { state, importAssessment, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
+  window.SRA = { state, importAssessment, attachWardEvidence, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
 })();
