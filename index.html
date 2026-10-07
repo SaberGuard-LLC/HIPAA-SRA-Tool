@@ -113,6 +113,12 @@
           <div><div class="step">Step 4 of 7</div><h2>Review the Security Rule catalog</h2><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis. Record for each row how the status was verified: observed, document reviewed, or stated by the client.</p></div>
           <div class="progress-block"><div class="progress"><span id="controlProgress"></span></div><div class="file-status" id="progressLabel"></div></div>
         </div>
+        <div class="ward-import no-print">
+          <button class="btn" id="wardBtn" type="button" title="Attach a Ward evidence file (.json) to the matching catalog rows">Attach Ward evidence</button>
+          <input id="wardFile" type="file" accept="application/json,.json" hidden>
+          <p class="help">A Ward evidence file holds the rule outcomes and observed configuration from one SaberGuard Ward collection, grouped by citation. Each safeguard is attached as a JSON file to the row with the same citation, and rows with no notes get one line naming the collection, the rule outcome and the facts. Statuses and verification basis are not changed. Attaching the same file again adds nothing.</p>
+          <div class="file-status" id="wardStatus"></div>
+        </div>
         <div class="filters no-print" id="filters">
           <button class="filter active" data-filter="all" type="button">All</button>
           <button class="filter" data-filter="administrative" type="button">Administrative</button>
@@ -194,6 +200,7 @@
 <script src="assets/format.js"></script>
 <script src="assets/ephi-map.js"></script>
 <script src="assets/report.js"></script>
+<script src="assets/ward.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

@@ -572,3 +572,8 @@ body.report-mode .layout{display:block}
   .paper .rpt-watermark{position:fixed;top:0;height:auto}
   a{text-decoration:none;color:inherit}
 }
+.ward-import{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start;margin:0 0 16px}
+.ward-import .help{margin:2px 0 0;max-width:none}
+.ward-import .file-status{grid-column:1 / -1}
+.ward-import .file-status:empty{display:none}
+@media (max-width:640px){.ward-import{grid-template-columns:1fr}}
