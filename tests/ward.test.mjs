@@ -71,6 +71,10 @@ test('notes are filled with one line only where the row has none', () => {
   assert.match(line, /Status is the assessor's call\.$/);
   assert.match(controls.T01.notes, /1 finding rejected in review \(SHARE-002\)/);
   assert.match(controls.P06.notes, /Rule outcome: insufficient evidence\./);
+  const fresh = freshControls();
+  SRAWard.apply(fresh, SRAWard.plan(fresh, {}, SRAWard.read(fixture())));
+  assert.match(fresh.T09.notes, /AUTH-002 did not apply/);
+  assert.doesNotMatch(fresh.T09.notes, /not applicable/i);
 });
 
 test('attaching the same file twice adds nothing the second time', () => {
