@@ -24,7 +24,10 @@ const SRAWard = (function () {
     finding: 'finding',
     met: 'met',
     insufficient_evidence: 'insufficient evidence',
-    not_applicable: 'not applicable'
+    /* Not "not applicable": on a catalog row that reads like a status. The
+       rule's precondition was false (for example no device enrolled), so
+       the rule had nothing to evaluate. */
+    not_applicable: 'did not apply'
   };
   const SOURCES = { microsoft: 'Microsoft 365', google: 'Google Workspace' };
 
