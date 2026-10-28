@@ -116,7 +116,7 @@
         <div class="ward-import no-print">
           <button class="btn" id="wardBtn" type="button" title="Attach a Ward evidence file (.json) to the matching catalog rows">Attach Ward evidence</button>
           <input id="wardFile" type="file" accept="application/json,.json" hidden>
-          <p class="help">A Ward evidence file holds the rule outcomes and observed configuration from one SaberGuard Ward collection, grouped by citation. Each safeguard is attached as a JSON file to the row with the same citation, and rows with no notes get one line naming the collection, the rule outcome and the facts. Statuses and verification basis are not changed. Attaching the same file again adds nothing.</p>
+          <p class="help">A Ward evidence file holds the rule outcomes and observed configuration from a client's SaberGuard Ward collections (the tenant, RMM devices, mail-domain records, attestations), grouped by citation. Each safeguard is attached as a JSON file to the row with the same citation, and rows with no notes get one line naming the collection, the rule outcome and the facts. Statuses and verification basis are not changed. Attaching the same file again adds nothing.</p>
           <div class="file-status" id="wardStatus"></div>
         </div>
         <div class="filters no-print" id="filters">

@@ -5,6 +5,7 @@ import { loadContext, globalsOf, read } from './helpers.mjs';
 const ctx = loadContext(['assets/catalog.js', 'assets/format.js', 'assets/ward.js']);
 const { SRAWard, SRAFormat, CONTROLS } = globalsOf(ctx, ['SRAWard', 'SRAFormat', 'CONTROLS']);
 const fixture = () => JSON.parse(read('tests/fixtures/ward-evidence-example.json'));
+const fixture2 = () => JSON.parse(read('tests/fixtures/ward-evidence-example-v2.json'));
 const plain = v => JSON.parse(JSON.stringify(v));
 const freshControls = () => Object.fromEntries(CONTROLS.map(c => [c.id, SRAFormat.newControl()]));
 const decode = dataUrl => JSON.parse(decodeURIComponent(dataUrl.slice(dataUrl.indexOf(',') + 1)));
@@ -15,7 +16,8 @@ test('a Ward evidence file is read; anything else is refused with a reason', () 
   assert.equal(file.safeguards.length, 5);
 
   assert.throws(() => SRAWard.read({ format: 'SaberGuard HIPAA SRA', version: 4 }), /assessment file, not a Ward evidence file/);
-  assert.throws(() => SRAWard.read({ ...fixture(), version: 2 }), /version 2/);
+  assert.throws(() => SRAWard.read({ ...fixture(), version: 3 }), /version 3/);
+  assert.throws(() => SRAWard.read({ ...fixture(), version: 2 }), /collections list/);
   assert.throws(() => SRAWard.read({ ...fixture(), safeguards: 'x' }), /safeguards/);
   assert.throws(() => SRAWard.read({ ...fixture(), collection: {} }), /collection/);
   assert.throws(() => SRAWard.read(null), /not a Ward evidence file/);
@@ -118,4 +120,60 @@ test('Ward attachments survive saving and reopening the assessment', () => {
   const reopened = SRAFormat.upgrade(JSON.parse(JSON.stringify(saved)));
   assert.equal(reopened.controls.A10.evidence[0].name, controls.A10.evidence[0].name);
   assert.equal(decode(reopened.controls.A10.evidence[0].data).safeguard.citation, '164.308(a)(3)(ii)(C)');
+});
+
+test('a version 2 file carries one collection per source; a version 1 file still opens as before', () => {
+  const v1 = SRAWard.read(fixture());
+  assert.equal(v1.version, 1);
+  assert.deepEqual(plain(v1.collections.map(c => c.source)), ['microsoft']);
+
+  const file = SRAWard.read(fixture2());
+  assert.equal(file.version, 2);
+  assert.deepEqual(plain(file.collections.map(c => c.source)), ['dns', 'microsoft', 'attestation']);
+  assert.equal(file.collection.source, 'dns', 'the newest collection');
+  assert.deepEqual(plain(SRAWard.VERSIONS), [1, 2]);
+});
+
+test('a paragraph of a joined catalog cite matches that row on its own', () => {
+  const file = SRAWard.read(fixture());
+  file.safeguards = [{ ...file.safeguards[0], citation: '164.308(b)(2)' }, { ...file.safeguards[0], citation: '164.308(b)(1) and (b)(2)' }];
+  const plan = SRAWard.plan(freshControls(), {}, file);
+  assert.deepEqual(plain(plan.rows.map(r => r.id)), ['A29', 'A29']);
+  assert.deepEqual(plain(plan.unmatched), []);
+});
+
+test('version 2 safeguards land by citation, name the collections they draw on, and keep the basis of attested facts', () => {
+  const controls = freshControls();
+  const plan = SRAWard.plan(controls, {}, SRAWard.read(fixture2()));
+  assert.deepEqual(plain(plan.rows.map(r => [r.citation, r.id])), [
+    ['164.308(a)(3)(ii)(C)', 'A10'],
+    ['164.312(d)', 'T09'],
+    ['164.312(a)(1)', 'T01'],
+    ['164.310(b)', 'P06'],
+    ['164.308(a)(5)(ii)(B)', 'A17'],
+    ['164.308(b)(1)', 'A29']
+  ]);
+  const result = SRAWard.apply(controls, plan);
+  assert.deepEqual(plain(result.attached), ['A10', 'T09', 'T01', 'P06', 'A17', 'A29']);
+  for (const c of Object.values(controls)) {
+    assert.equal(c.status, '', 'status untouched');
+    assert.equal(c.basis, '', 'basis untouched');
+  }
+  // A Microsoft safeguard names only its own collection, not the newest one.
+  assert.match(controls.A10.notes, /^Ward, Microsoft 365 collection of 2026-10-05 \(3f2a9c1b\):/);
+  assert.doesNotMatch(controls.A10.notes, /mail domain/);
+  assert.match(controls.A17.notes, /^Ward, mail domain \(DNS\) collection of 2026-10-06 \(7b1d2e3f\):/);
+  assert.match(controls.A17.notes, /MAIL-001 finding \(medium\)/);
+  // The attested safeguard says how each fact was verified; status stays the assessor's.
+  assert.match(controls.A29.notes, /^Ward, attestation collection of 2026-10-04 \(9c8b7a6f\):/);
+  assert.match(controls.A29.notes, /Attested: document reviewed \(1\), stated by the client \(1\)\./);
+  assert.match(controls.A29.notes, /Status is the assessor's call\.$/);
+  assert.doesNotMatch(controls.A10.notes, /Attested:/);
+  // The attachment name uses the newest collection; the slice carries every collection.
+  const ev = controls.A17.evidence[0];
+  assert.equal(ev.name, 'ward-example-clinic-2026-10-06-7b1d2e3f-A17.json');
+  const slice = decode(ev.data);
+  assert.equal(slice.version, 2);
+  assert.deepEqual(plain(slice.collections.map(c => c.source)), ['dns', 'microsoft', 'attestation']);
+  assert.equal(slice.safeguard.facts[0].source, 'dns');
 });
