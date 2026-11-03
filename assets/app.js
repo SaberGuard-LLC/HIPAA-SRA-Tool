@@ -475,7 +475,7 @@
     renderControls(); updateDashboard();
     const list = ids => ids.join(', ');
     out.textContent = [
-      `Ward evidence for ${ward.client.name}, collected ${ward.collection.collected_at.slice(0, 10)}:`,
+      `Ward evidence for ${ward.client.name}, ${SRAWard.describe(ward)}:`,
       result.attached.length ? `attached to ${result.attached.length} row${result.attached.length === 1 ? '' : 's'} (${list(result.attached)}).` : 'nothing new attached.',
       result.noted.length ? `Notes filled on rows that had none: ${list(result.noted)}.` : '',
       result.skipped.length ? `Already attached, skipped: ${list(result.skipped)}.` : '',

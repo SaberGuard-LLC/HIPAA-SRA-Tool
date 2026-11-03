@@ -1,0 +1,176 @@
+{
+  "format": "SaberGuard Ward evidence",
+  "version": 2,
+  "generated_at": "2026-10-31T13:40:00.000Z",
+  "client": {
+    "id": "example-clinic",
+    "name": "Example Health Clinic",
+    "entity_type": "covered_entity",
+    "tenant_id": "00000000-0000-4000-8000-000000000001"
+  },
+  "collection": {
+    "id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d",
+    "source": "attestation",
+    "collected_at": "2026-10-30T15:20:00.000Z",
+    "collector_version": "0.1.0",
+    "blob_ref": "evidence/example-clinic/attestation/2026-10-30T15-20-00Z.json",
+    "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "collections": [
+    {
+      "id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d",
+      "source": "attestation",
+      "collected_at": "2026-10-30T15:20:00.000Z",
+      "collector_version": "0.1.0",
+      "blob_ref": "evidence/example-clinic/attestation/2026-10-30T15-20-00Z.json",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "id": "7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f",
+      "source": "level",
+      "collected_at": "2026-10-29T11:02:10.000Z",
+      "collector_version": "0.1.1",
+      "blob_ref": "evidence/example-clinic/level/2026-10-29T11-02-10Z.json",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "id": "5e6f7a8b-9c0d-4e1f-a2b3-c4d5e6f7a8b9",
+      "source": "dns",
+      "collected_at": "2026-10-29T11:01:30.000Z",
+      "collector_version": "0.1.0",
+      "blob_ref": "evidence/example-clinic/dns/2026-10-29T11-01-30Z.json",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "id": "b4c5d6e7-f8a9-4b0c-9d1e-2f3a4b5c6d7e",
+      "source": "microsoft",
+      "collected_at": "2026-10-29T11:00:42.000Z",
+      "collector_version": "0.5.0",
+      "blob_ref": "evidence/example-clinic/microsoft/2026-10-29T11-00-42Z.json",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ],
+  "engine_version": "0.4.0",
+  "rules_evaluated": 8,
+  "safeguards": [
+    {
+      "citation": "164.308(a)(5)(ii)(B)",
+      "state_citations": ["201 CMR 17.03(2)(b)"],
+      "outcome": "finding",
+      "rules": [
+        { "rule_id": "MAIL-001", "title": "Mail domains without a DMARC record", "status": "finding", "reason": null, "facts": ["mail.dns.dmarc_missing_count", "mail.dns.dmarc_missing_domains"], "source": "dns" },
+        { "rule_id": "RMM-005", "title": "Managed devices with unhealthy or missing malware protection", "status": "met", "reason": null, "facts": ["devices.rmm.antivirus_failing_count"], "source": "level" }
+      ],
+      "findings": [
+        {
+          "rule_id": "MAIL-001",
+          "rule_version": "bbbbbbbbbbbb",
+          "title": "Mail domains without a DMARC record",
+          "severity": "medium",
+          "state_citations": ["201 CMR 17.03(2)(b)"],
+          "narrative": "Mail domains without a DMARC record (45 CFR 164.308(a)(5)(ii)(B)).\nObserved:\nmail.dns.dmarc_missing_count: 1\nmail.dns.dmarc_missing_domains: example.org",
+          "narrative_source": "template",
+          "review": null,
+          "facts": ["mail.dns.dmarc_missing_count", "mail.dns.dmarc_missing_domains"],
+          "collection_id": "5e6f7a8b-9c0d-4e1f-a2b3-c4d5e6f7a8b9",
+          "source": "dns"
+        }
+      ],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "devices.rmm.antivirus_failing_count", "value": 0, "observed_at": "2026-10-29T11:02:10.000Z", "source_ref": "GET /v2/devices", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "collection_id": "7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f", "source": "level" },
+        { "key": "mail.dns.dmarc_missing_count", "value": 1, "observed_at": "2026-10-29T11:01:30.000Z", "source_ref": "dns TXT _dmarc.<domain>", "sha256": "2222222222222222222222222222222222222222222222222222222222222222", "collection_id": "5e6f7a8b-9c0d-4e1f-a2b3-c4d5e6f7a8b9", "source": "dns" },
+        { "key": "mail.dns.dmarc_missing_domains", "value": ["example.org"], "observed_at": "2026-10-29T11:01:30.000Z", "source_ref": "dns TXT _dmarc.<domain>", "sha256": "2222222222222222222222222222222222222222222222222222222222222222", "collection_id": "5e6f7a8b-9c0d-4e1f-a2b3-c4d5e6f7a8b9", "source": "dns" }
+      ]
+    },
+    {
+      "citation": "164.308(a)(7)(ii)(A)",
+      "state_citations": [],
+      "outcome": "met",
+      "rules": [
+        { "rule_id": "CONT-001", "title": "No backup of ePHI the practice could restore from", "status": "met", "reason": null, "facts": ["contingency.backup_exists", "identity.provider"], "source": "attestation" }
+      ],
+      "findings": [],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "contingency.backup_exists", "value": true, "observed_at": "2026-10-30T15:20:00.000Z", "source_ref": "attestation/contingency.backup_exists/observed", "sha256": "4444444444444444444444444444444444444444444444444444444444444444", "collection_id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d", "source": "attestation" },
+        { "key": "identity.provider", "value": "attestation", "observed_at": "2026-10-30T15:20:00.000Z", "source_ref": "attestation", "sha256": "4444444444444444444444444444444444444444444444444444444444444444", "collection_id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d", "source": "attestation" }
+      ]
+    },
+    {
+      "citation": "164.308(b)(1)",
+      "state_citations": ["201 CMR 17.03(2)(f)"],
+      "outcome": "finding",
+      "rules": [
+        { "rule_id": "BAA-001", "title": "Vendors handling ePHI without a business associate agreement", "status": "finding", "reason": null, "facts": ["baa.vendors_reviewed_count", "baa.vendors_without_agreement_count", "identity.provider"], "source": "attestation" }
+      ],
+      "findings": [
+        {
+          "rule_id": "BAA-001",
+          "rule_version": "cccccccccccc",
+          "title": "Vendors handling ePHI without a business associate agreement",
+          "severity": "high",
+          "state_citations": ["201 CMR 17.03(2)(f)"],
+          "narrative": "Vendors handling ePHI without a business associate agreement (45 CFR 164.308(b)(1)).\nObserved:\nbaa.vendors_without_agreement_count: 1\nbaa.vendors_without_agreement: Example Billing Service\nbaa.vendors_reviewed_count: 4",
+          "narrative_source": "template",
+          "review": null,
+          "facts": ["baa.vendors_reviewed_count", "baa.vendors_without_agreement_count", "identity.provider"],
+          "collection_id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d",
+          "source": "attestation"
+        }
+      ],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "baa.vendors_reviewed_count", "value": 4, "observed_at": "2026-10-30T15:20:00.000Z", "source_ref": "attestation/baa.vendors_reviewed/document", "sha256": "4444444444444444444444444444444444444444444444444444444444444444", "collection_id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d", "source": "attestation" },
+        { "key": "baa.vendors_without_agreement_count", "value": 1, "observed_at": "2026-10-30T15:20:00.000Z", "source_ref": "attestation/baa.vendors_without_agreement/stated", "sha256": "4444444444444444444444444444444444444444444444444444444444444444", "collection_id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d", "source": "attestation" },
+        { "key": "identity.provider", "value": "attestation", "observed_at": "2026-10-30T15:20:00.000Z", "source_ref": "attestation", "sha256": "4444444444444444444444444444444444444444444444444444444444444444", "collection_id": "9a8b7c6d-1e2f-4a3b-8c4d-5e6f7a8b9c0d", "source": "attestation" }
+      ]
+    },
+    {
+      "citation": "164.312(a)(2)(iv)",
+      "state_citations": ["201 CMR 17.04(5)"],
+      "outcome": "finding",
+      "rules": [
+        { "rule_id": "DEV-002", "title": "Managed devices without disk encryption", "status": "not_applicable", "reason": "applies_when is false for fact 'devices.managed_count'", "facts": ["devices.available", "devices.managed_count"], "source": "microsoft" },
+        { "rule_id": "RMM-001", "title": "Managed devices reporting no disk encryption (RMM)", "status": "met", "reason": null, "facts": ["devices.rmm.encryption_failing_count", "devices.rmm.managed_count"], "source": "level" },
+        { "rule_id": "RMM-002", "title": "Managed devices whose encryption state is not verified (RMM)", "status": "finding", "reason": null, "facts": ["devices.rmm.encryption_unverified_count", "devices.rmm.managed_count"], "source": "level" }
+      ],
+      "findings": [
+        {
+          "rule_id": "RMM-002",
+          "rule_version": "dddddddddddd",
+          "title": "Managed devices whose encryption state is not verified (RMM)",
+          "severity": "medium",
+          "state_citations": ["201 CMR 17.04(5)"],
+          "narrative": "Managed devices whose encryption state is not verified (RMM) (45 CFR 164.312(a)(2)(iv)).\nObserved:\ndevices.rmm.encryption_unverified_count: 1\ndevices.rmm.managed_count: 2\ndevices.rmm.devices: EXCLINIC-FD01, EXCLINIC-DR02",
+          "narrative_source": "template",
+          "review": null,
+          "facts": ["devices.rmm.encryption_unverified_count", "devices.rmm.managed_count"],
+          "collection_id": "7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f",
+          "source": "level"
+        }
+      ],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "devices.available", "value": true, "observed_at": "2026-10-29T11:00:42.000Z", "source_ref": "GET /deviceManagement/managedDevices", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "collection_id": "b4c5d6e7-f8a9-4b0c-9d1e-2f3a4b5c6d7e", "source": "microsoft" },
+        { "key": "devices.managed_count", "value": 0, "observed_at": "2026-10-29T11:00:42.000Z", "source_ref": "GET /deviceManagement/managedDevices", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "collection_id": "b4c5d6e7-f8a9-4b0c-9d1e-2f3a4b5c6d7e", "source": "microsoft" },
+        { "key": "devices.rmm.encryption_failing_count", "value": 0, "observed_at": "2026-10-29T11:02:10.000Z", "source_ref": "GET /v2/devices", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "collection_id": "7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f", "source": "level" },
+        { "key": "devices.rmm.encryption_unverified_count", "value": 1, "observed_at": "2026-10-29T11:02:10.000Z", "source_ref": "GET /v2/devices", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "collection_id": "7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f", "source": "level" },
+        { "key": "devices.rmm.managed_count", "value": 2, "observed_at": "2026-10-29T11:02:10.000Z", "source_ref": "GET /v2/devices", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "collection_id": "7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f", "source": "level" }
+      ]
+    },
+    {
+      "citation": "164.312(d)",
+      "state_citations": ["201 CMR 17.04(1)"],
+      "outcome": "met",
+      "rules": [
+        { "rule_id": "AUTH-001", "title": "Enabled accounts with no registered second factor", "status": "met", "reason": null, "facts": ["auth.mfa.unregistered_count"], "source": "microsoft" }
+      ],
+      "findings": [],
+      "rejected_findings": [],
+      "facts": [
+        { "key": "auth.mfa.unregistered_count", "value": 0, "observed_at": "2026-10-29T11:00:42.000Z", "source_ref": "GET /reports/authenticationMethods/userRegistrationDetails", "sha256": "1111111111111111111111111111111111111111111111111111111111111111", "collection_id": "b4c5d6e7-f8a9-4b0c-9d1e-2f3a4b5c6d7e", "source": "microsoft" }
+      ]
+    }
+  ]
+}
