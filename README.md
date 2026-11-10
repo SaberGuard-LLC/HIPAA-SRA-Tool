@@ -54,6 +54,10 @@ Likelihood and impact are each rated 1 to 5. Inherent risk is likelihood multipl
 
 The HIPAA Security Rule sets no fixed interval for a risk analysis. It requires the security measures to be reviewed and modified as needed (45 CFR 164.306(e)), documentation to be reviewed periodically and updated in response to environmental or operational changes (45 CFR 164.316(b)(2)(iii)), and periodic evaluation (45 CFR 164.308(a)(8)). The workspace has a "Next planned review" field that the organization sets.
 
+## Hosting
+
+The public page keeps nothing. A host that serves its own copy can keep the assessment for the assessor: `window.SRA.snapshot()` returns the assessment as the object a saved file holds, `window.SRA.importAssessment()` opens one, and `window.SRA.markSaved()` clears the unsaved-changes warning once the host has stored it. SaberGuard's Ward does this behind its own sign-in. Nothing in this repository calls those functions, and the page here still makes no network connection.
+
 ## Data handling
 
 - The application does not use `localStorage`, `sessionStorage`, IndexedDB, cookies, analytics, or network APIs. A Content Security Policy meta tag in `index.html` blocks network connections from the page; `vercel.json` sets the same policy and related headers on a Vercel deployment. GitHub Pages does not apply the headers.
