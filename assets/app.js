@@ -418,10 +418,16 @@
   window.addEventListener('afterprint', finishPrint);
 
   /* ---- Save / open ------------------------------------------------------- */
-  function exportAssessment(includeEvidence = true) {
+  /* The assessment as the object a file holds, without writing a file. The
+     host seam below uses it; so does saving a file. */
+  function snapshot(includeEvidence = true) {
     collectMeta();
     state.savedAt = new Date().toISOString();
-    const payload = SRAFormat.serialize(state, { includeEvidence });
+    return SRAFormat.serialize(state, { includeEvidence });
+  }
+
+  function exportAssessment(includeEvidence = true) {
+    const payload = snapshot(includeEvidence);
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'), url = URL.createObjectURL(blob);
     const slug = (state.meta.orgName || 'organization').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
@@ -532,6 +538,20 @@
   $('assessmentDate').value = localToday();
   renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard({ keepClean: true });
 
+  /* ---- Host seam ---------------------------------------------------------
+     This page keeps nothing and talks to nothing. A host that serves a copy
+     of it (SaberGuard's Ward does, behind its own sign-in) can keep the
+     assessment for the assessor instead: it reads the work with snapshot(),
+     stores it wherever it stores things, and calls markSaved() so the
+     unsaved-changes warning clears. Opening is importAssessment() with any
+     object that has name and text(). Nothing here runs unless a host calls
+     it, so the public page behaves exactly as before. */
+  function markSaved(message) {
+    state.dirty = false;
+    if (message) $('saveStatus').textContent = String(message);
+  }
+  const isDirty = () => !!state.dirty;
+
   /* Exposed for testing and for automation hooks (for example loading a sample file). */
-  window.SRA = { state, importAssessment, attachWardEvidence, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
+  window.SRA = { state, snapshot, markSaved, isDirty, importAssessment, attachWardEvidence, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
 })();
