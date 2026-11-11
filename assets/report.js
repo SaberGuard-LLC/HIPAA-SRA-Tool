@@ -14,6 +14,40 @@ const SRAReport = (function () {
   const pad2 = n => String(n).padStart(2, '0');
   const num = n => n == null ? '<span class="placeholder">No score</span>' : n + '%';
 
+  const BUNDLED_LOGO = 'SaberGuard_1.png';
+  const LOGO_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+  const LOGO_DATA = /^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
+  const LETTERHEAD_SPACES = ['15', '20', '25'];
+  const logoData = meta => (meta && typeof meta.letterheadLogoData === 'string' && LOGO_DATA.test(meta.letterheadLogoData)) ? meta.letterheadLogoData : '';
+  function letterheadOf(meta) {
+    const m = meta || {};
+    const mode = ['firm', 'preprinted'].includes(m.letterhead) ? m.letterhead : '';
+    const firm = mode === 'firm' ? String(m.firmName || '').trim() : '';
+    const logo = mode !== 'firm' ? '' : m.firmLogo === 'saberguard' ? BUNDLED_LOGO : m.firmLogo === 'custom' ? logoData(m) : '';
+    return {
+      mode,
+      firm,
+      address: mode === 'firm' ? String(m.firmAddress || '').trim() : '',
+      contact: mode === 'firm' ? String(m.firmContact || '').trim() : '',
+      logo,
+      space: LETTERHEAD_SPACES.includes(m.letterheadSpace) ? m.letterheadSpace : '20'
+    };
+  }
+  function pageStrings(state, S) {
+    const m = state.meta || {};
+    const org = String(m.orgName || '').trim();
+    const lh = letterheadOf(m);
+    const assessor = String(m.assessor || '').trim();
+    const classification = CLASSIFICATIONS.includes(m.classification) ? m.classification : 'Confidential';
+    const version = String(m.reportVersion || '1.0').trim() || '1.0';
+    const by = lh.firm || assessor;
+    return {
+      topLeft: `HIPAA Security Rule risk analysis${org ? ' · ' + trunc(org, 60) : ''}`,
+      topRight: `${classification} · v${version} ${S.isDraft ? 'Draft' : 'Final'}`,
+      bottomLeft: by ? `Prepared by ${trunc(by, 70)}` : 'Preparer not named'
+    };
+  }
+
   function parseDate(iso) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '').trim());
     return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
@@ -146,6 +180,12 @@ const SRAReport = (function () {
     const statusLabel = S.isDraft ? 'Draft' : 'Final';
     const assessor = (m.assessor || '').trim();
     const preparedBy = assessor ? esc(assessor) : '<span class="placeholder">Preparer not named</span>';
+    const lh = letterheadOf(m);
+    const pages = pageStrings(state, S);
+    const firmLines = [lh.address, lh.contact].filter(Boolean).map(esc).join('<br>');
+    const letterheadHtml = lh.mode === 'firm' && (lh.firm || lh.logo || firmLines)
+      ? `<div class="rpt-letterhead">${lh.logo ? `<img src="${esc(lh.logo)}" alt="${esc(lh.firm || 'Firm')} logo">` : ''}<div class="firm">${lh.firm ? `<b>${esc(lh.firm)}</b>` : ''}${firmLines}</div></div>`
+      : lh.mode === 'preprinted' ? `<div class="rpt-letterhead-space s${lh.space}" aria-hidden="true"></div>` : '';
     const risksByControl = {};
     S.risks.forEach(r => r.controlIds.forEach(id => (risksByControl[id] = risksByControl[id] || []).push(r)));
     const rowsLabel = 'standards and implementation specifications';
@@ -170,13 +210,14 @@ const SRAReport = (function () {
 
     /* Cover ------------------------------------------------------------- */
     const cover = `
-      <section class="rpt-cover">
-        <div class="rpt-grad"></div>
-        <div class="rpt-cover-top"><span class="rpt-tag">${esc(classification)}</span></div>
+      <section class="rpt-cover${lh.mode === 'preprinted' ? ' has-space' : letterheadHtml ? ' has-letterhead' : ''}">
+        ${letterheadHtml}
+        <div class="rpt-cover-top"><span class="doc-type">Report · ${statusLabel}</span><span class="rpt-tag">${esc(classification)}</span></div>
         <div class="rpt-cover-body">
           <div class="kicker">HIPAA Security Rule · 45 CFR Part 164, Subpart C</div>
-          <h1>Security Rule<br>Risk Analysis</h1>
+          <h1>Security Rule<br>risk analysis</h1>
           <p class="subtitle">Risk analysis under 45 CFR 164.308(a)(1)(ii)(A), with a review of the Security Rule ${rowsLabel}</p>
+          <div class="for">Prepared for</div>
           <div class="org">${orgLabel}</div>
           <div class="org-sub">${entityLabel ? esc(entityLabel) + ' · ' : ''}${m.orgType ? esc(m.orgType) + ' · ' : ''}Review period: ${plain(m.period, 'not specified')}</div>
           <div class="rpt-cover-meta">
@@ -187,10 +228,10 @@ const SRAReport = (function () {
             <div><span>Security official</span><b>${plain(m.securityOfficial)}</b></div>
             <div><span>Executive approver</span><b>${plain(m.executive, 'Not named')}</b><small class="muted">Signature in section 09</small></div>
           </div>
-          ${S.isDraft ? `<div class="rpt-draft-note"><b>Draft report${S.missing.length ? ` · ${S.missing.length} completeness ${S.missing.length === 1 ? 'check' : 'checks'} open` : ' · report status not set to Final'}</b>${S.missing.map(c => esc(c.label)).join(' · ')}</div>` : ''}
+          ${S.isDraft ? `<div class="rpt-draft-note"><b>Draft report${S.missing.length ? ` · ${S.missing.length} completeness ${S.missing.length === 1 ? 'check' : 'checks'} open` : ' · report status not set to Final'}</b>${S.missing.length ? 'The open checks are listed in Appendix B. This report is not ready for signature.' : 'Every completeness check passed. Set the report status to Final in the workspace before signing.'}</div>` : ''}
         </div>
         <div class="rpt-cover-foot">
-          <div><b>Prepared by</b><br>${preparedBy}</div>
+          <div><b>Prepared by</b><br>${preparedBy}${lh.firm ? `<br>${esc(lh.firm)}` : ''}</div>
           <div class="handling">This document contains sensitive security information about ${org ? esc(org) : 'the assessed organization'}. Distribute only to authorized personnel under the organization's access-control and documentation-retention policies.</div>
         </div>
       </section>`;
@@ -204,7 +245,7 @@ const SRAReport = (function () {
           <tr><td>Version / status</td><td>${esc(version)} · ${statusLabel}</td></tr>
           <tr><td>Assessment date</td><td>${fmtDate(m.assessmentDate)}</td></tr>
           <tr><td>Review period</td><td>${plain(m.period)}</td></tr>
-          <tr><td>Prepared by</td><td>${preparedBy}</td></tr>
+          <tr><td>Prepared by</td><td>${preparedBy}${lh.firm ? `, ${esc(lh.firm)}` : ''}</td></tr>
           <tr><td>Security official</td><td>${plain(m.securityOfficial)}</td></tr>
           <tr><td>Executive approver</td><td>${plain(m.executive, 'Not named')}. Approval is recorded by signature and date in section 09.</td></tr>
           <tr><td>Classification</td><td>${esc(classification)}</td></tr>
@@ -231,7 +272,7 @@ const SRAReport = (function () {
         ${head('02', 'Executive summary')}
         ${narrative}
         <div class="rpt-kpis">
-          <div class="rpt-kpi accent"><b>${num(S.score)}</b><span>Implementation score</span><small class="on-dark">met plus alternative, plus half of partial, over ${S.applicable} applicable rows reviewed. Not a compliance score.</small></div>
+          <div class="rpt-kpi accent"><b>${num(S.score)}</b><span>Implementation score</span><small>met plus alternative, plus half of partial, over ${S.applicable} applicable rows reviewed. Not a compliance score.</small></div>
           <div class="rpt-kpi"><b>${S.met}</b><span>Met</span><small>of ${S.total} rows${S.alt ? ` · ${S.alt} with an alternative measure` : ''}</small></div>
           <div class="rpt-kpi"><b>${S.partial}</b><span>Partially met</span><small>corrective action recommended</small></div>
           <div class="rpt-kpi"><b>${S.notMet}</b><span>Not met</span><small>open gaps</small></div>
@@ -464,10 +505,12 @@ const SRAReport = (function () {
         <p>This risk analysis was performed by ${plain(assessor, 'the preparer named in section 01')} for ${orgLabel} using the method in section 03. Conclusions reflect the policies, practices, configurations, and evidence made available during the assessment period${m.period ? ` (${esc(m.period)})` : ''}. The Security Rule does not set a fixed interval for updating a risk analysis. This analysis should be reviewed and updated when environmental or operational changes affect the security of ePHI, for example new systems, a move, a security incident, vendor changes, or turnover in key staff (45 CFR 164.306(e) and 164.316(b)(2)(iii)). The planned review date is in section 01.</p>
         <h3>Management statement</h3>
         <div class="rpt-statement prewrap">${esc((m.attestationText || '').trim() || 'Management has reviewed this security risk analysis, acknowledges the identified risks, and approves the documented remediation priorities and risk treatment decisions.')}</div>
-        <div class="rpt-sign">
-          <div><div class="role">Lead assessor</div><div class="line"></div><b>${plain(assessor, 'Name, title')}</b><div class="date">Date: ________________</div></div>
-          <div><div class="role">HIPAA security official</div><div class="line"></div><b>${plain(m.securityOfficial, 'Name, title')}</b><div class="date">Date: ________________</div></div>
-          <div><div class="role">Executive approver</div><div class="line"></div><b>${plain(m.executive, 'Name, title')}</b><div class="date">Date: ________________</div></div>
+        <div class="rpt-signoff">
+          <h3>Signatures</h3>
+          <p class="small muted">Signed by hand on the printed report. Each signer dates their own signature.</p>
+          <div class="rpt-sign">
+            ${[['Lead assessor', lh.firm, assessor], ['HIPAA security official', org, m.securityOfficial], ['Executive approver', org, m.executive]].map(([role, of, name]) => `<div><div class="role">${role}</div><div class="org">${esc(of || '')}</div><div class="line"></div><div class="cap">Signature</div><b>${plain(name, 'Name, title')}</b><div class="cap">Printed name and title</div><div class="date">Date: ________________</div></div>`).join('')}
+          </div>
         </div>
       </section>`;
 
@@ -484,8 +527,8 @@ const SRAReport = (function () {
     const appendixB = `
       <section class="rpt-section">
         ${head('B', 'Appendix B · Report completeness checks')}
-        <p class="small muted">Checks the workspace applies to the report fields before removing the DRAFT watermark. They test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough. ${S.missing.length ? 'Items marked open were outstanding when this report was generated.' : 'All checks passed when this report was generated.'}</p>
-        <ul class="rpt-checks">${S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? '&#10003;' : '&#8226;'}</span><span>${esc(c.label)}${c.ok ? '' : ' <span class="placeholder">(open)</span>'}</span></li>`).join('')}</ul>
+        <p class="small muted">Checks the workspace applies to the report fields before removing the Draft watermark. They test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough. ${S.missing.length ? 'Items marked open were outstanding when this report was generated.' : 'All checks passed when this report was generated.'}</p>
+        <ul class="rpt-checks">${S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? 'Done' : 'Open'}</span><span>${esc(c.label)}</span></li>`).join('')}</ul>
         ${S.facts.unclassified ? `<p class="small muted">Inventory rows not yet classified by kind and zone: ${S.assets.map((a, i) => (a.kind === 'unknown' || a.zone === 'unknown') ? `#${i + 1} ${esc(a.name.trim() || 'Unnamed row')}` : null).filter(Boolean).join(', ')}.</p>` : ''}
         ${S.unlinked.length ? `<p class="small muted">Flagged on the map with no linked risk: ${S.unlinked.map(u => `${esc(u.ref)} ${esc(u.what)} (${esc(u.why)})`).join('; ')}.</p>` : ''}
         <div class="rpt-kv three">
@@ -502,11 +545,11 @@ const SRAReport = (function () {
       </section>`;
 
     return `<div class="rpt ${S.isDraft ? 'is-draft' : ''}">
-      <div class="rpt-watermark" aria-hidden="true"><span>DRAFT</span></div>
+      <div class="rpt-watermark" aria-hidden="true"><span>Draft</span></div>
       ${cover}
       <table class="rpt-frame">
-        <thead><tr><td><div class="rpt-run-head"><span><b>HIPAA Security Rule risk analysis</b> · ${orgLabel}</span><span>${esc(classification)} · v${esc(version)} ${statusLabel}</span></div></td></tr></thead>
-        <tfoot><tr><td><div class="rpt-run-foot"><span>Generated ${generatedLabel}</span><span>${assessor ? 'Prepared by ' + esc(trunc(assessor, 70)) : 'Preparer not named'}</span></div></td></tr></tfoot>
+        <thead><tr><td><div class="rpt-run-head"><span>${esc(pages.topLeft)}</span><span>${esc(pages.topRight)}</span></div></td></tr></thead>
+        <tfoot><tr><td><div class="rpt-run-foot"><span>${esc(pages.bottomLeft)}</span><span>Generated ${generatedLabel}</span></div></td></tr></tfoot>
         <tbody><tr><td>${docControl}${execSummary}${scope}${inventory}${catalogSection}${findings}${riskSection}${roadmap}${attestation}${appendixA}${appendixB}</td></tr></tbody>
       </table>
     </div>`;
@@ -536,6 +579,6 @@ const SRAReport = (function () {
     return `<p class="lead">${parts.join(' ')}</p>`;
   }
 
-  return { stats, render, fmtDate };
+  return { stats, render, fmtDate, pageStrings, letterheadOf, logoData, LOGO_TYPES };
 })();
 if (typeof window !== 'undefined') window.SRAReport = SRAReport;

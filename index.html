@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="A browser-based workspace from SaberGuard for documenting a HIPAA Security Rule risk analysis. Record an ePHI inventory, review Security Rule standards and implementation specifications, build a risk register, and print a report. Not the HHS SRA Tool and not a replacement for it.">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>SaberGuard SRA Workspace</title>
   <link rel="icon" href="SaberGuard_1.png" type="image/png">
   <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/theme.js"></script>
 </head>
 <body>
+<a class="skip-link no-print" href="#workspace">Skip to the workspace</a>
 <div class="app" id="app">
   <header class="topbar no-print">
     <a class="brand" href="#overview" id="brandLink">
@@ -18,10 +20,12 @@
       <div><div class="brand-name">SaberGuard SRA Workspace</div><div class="brand-sub">Runs in your browser. No assessment data is sent to a server.</div></div>
     </a>
     <div class="top-actions">
-      <button class="btn ghost" id="importBtn" title="Open a saved assessment (.json)"><span class="label">Open</span></button>
-      <button class="btn ghost" id="exportBtn" title="Save this assessment as a local JSON file"><span class="label">Save file</span></button>
-      <button class="btn ghost" id="previewBtn" title="Preview the printed report"><span class="label">Preview report</span></button>
-      <button class="btn primary" id="printBtn" title="Print or save the report as PDF"><span class="label">Print / PDF</span></button>
+      <span class="top-status" id="dirtyStatus" role="status" aria-live="polite"></span>
+      <button class="btn ghost" id="themeBtn" type="button" aria-pressed="false" title="Switch between the light and dark theme">Dark mode</button>
+      <button class="btn" id="importBtn" type="button" title="Open a saved assessment (.json)"><span class="label">Open</span></button>
+      <button class="btn" id="exportBtn" type="button" title="Save this assessment as a local JSON file (Ctrl or Cmd + S)"><span class="label">Save file</span></button>
+      <button class="btn optional" id="previewBtn" type="button" title="Preview the printed report"><span class="label">Preview report</span></button>
+      <button class="btn primary" id="printBtn" type="button" title="Print or save the report as PDF"><span class="label">Print / PDF</span></button>
       <input id="importFile" type="file" accept="application/json,.json" hidden>
     </div>
   </header>
@@ -30,7 +34,7 @@
   <div class="layout">
     <aside class="sidebar no-print" id="sidebar">
       <div class="nav-label">Assessment workflow</div>
-      <nav class="nav" id="nav">
+      <nav class="nav" id="nav" aria-label="Assessment workflow">
         <a href="#overview" data-nav="overview"><span class="num">00</span>Overview</a>
         <a href="#profile" data-nav="profile"><span class="num">01</span>Organization &amp; scope<span class="dot" data-dot="profile"></span></a>
         <a href="#inventory" data-nav="inventory"><span class="num">02</span>ePHI inventory<span class="dot" data-dot="inventory"></span></a>
@@ -46,7 +50,7 @@
       </div>
     </aside>
 
-    <main class="main" id="workspace">
+    <main class="main" id="workspace" tabindex="-1">
       <section class="hero" id="overview">
         <div class="eyebrow">HIPAA Security Rule · 45 CFR Part 164, Subpart C</div>
         <h1>Document a HIPAA Security Rule risk analysis.</h1>
@@ -88,14 +92,14 @@
       <section class="section" id="inventory">
         <div class="section-head">
           <div><div class="step">Step 2 of 7</div><h2>ePHI systems &amp; data-flow inventory</h2><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, then record the flows between them. Record electronic PHI only; paper records are not ePHI. Unknown is a recorded gap, not a no: a row left unclassified fails a completeness check.</p></div>
-          <button class="btn primary no-print" id="addAsset" type="button">+ Add system or location</button>
+          <button class="btn primary no-print" id="addAsset" type="button">Add system or location</button>
         </div>
         <div class="assets" id="assetRows"></div>
         <div class="empty" id="assetEmpty">No ePHI systems or locations recorded. Include people, EHRs, email, endpoints, file shares, backups, medical devices, cloud vendors, outside parties, and physical locations.</div>
         <div class="sub-head"><h3>Data flows</h3><p class="help">One row per connection that carries ePHI between two inventory rows. "Fax" means an electronic fax service. Direct entry is a person typing into a device. Unknown transport or encryption is a recorded gap.</p></div>
         <div class="table-scroll"><table class="data-table flows-table"><thead><tr><th class="w4">#</th><th class="w16">From</th><th class="w10">Direction</th><th class="w16">To</th><th class="w16">ePHI carried</th><th class="w12">Transport</th><th class="w11">Encrypted in transit</th><th>Notes</th><th class="no-print w36px"></th></tr></thead><tbody id="flowRows"></tbody></table></div>
         <div class="empty" id="flowEmpty">No data flows recorded. Add the connections between people, devices, systems, vendors, outside parties, and backups.</div>
-        <div class="output-actions no-print"><button class="btn" id="addFlow" type="button">+ Add data flow</button></div>
+        <div class="output-actions no-print"><button class="btn" id="addFlow" type="button">Add data flow</button></div>
       </section>
 
       <section class="section" id="map">
@@ -138,7 +142,7 @@
           <div><div class="step">Step 5 of 7</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
           <div class="risk-toolbar no-print">
             <select id="scenarioPick" aria-label="Add a risk from the risk scenario library"><option value="">Add from risk scenario library</option></select>
-            <button class="btn primary" id="addRisk" type="button">+ Add risk</button>
+            <button class="btn primary" id="addRisk" type="button">Add risk</button>
           </div>
         </div>
         <div class="risks" id="riskRows"></div>
@@ -172,6 +176,18 @@
         <div class="form-grid status-grid">
           <div class="field"><label for="reportStatus">Report status</label><small>The report prints as Draft, with a watermark, until every check passes and you set Final here.</small><select class="meta" id="reportStatus"><option>Draft</option><option>Final</option></select></div>
         </div>
+        <div class="sub-head"><h3>Letterhead and signatures</h3><p class="help">The report prints with no letterhead unless you choose one here. A firm letterhead prints the firm's name, contact details and logo at the top of the cover and names the firm beside the assessor's signature line. Choose pre-printed paper to leave the top of the cover blank for letterhead stock. Signatures are made by hand on the printed report in section 09.</p></div>
+        <div class="form-grid">
+          <div class="field"><label for="letterhead">Letterhead</label><select class="meta" id="letterhead"><option value="">None</option><option value="firm">Firm letterhead, printed by the report</option><option value="preprinted">Pre-printed letterhead paper, leave space</option></select></div>
+          <div class="field" data-letterhead="preprinted"><label for="letterheadSpace">Space to leave at the top of the cover</label><select class="meta" id="letterheadSpace"><option value="15">1.5 inches</option><option value="20" selected>2 inches</option><option value="25">2.5 inches</option></select></div>
+          <div class="field" data-letterhead="firm"><label for="firmName">Firm name</label><input class="input meta" id="firmName" placeholder="SaberGuard LLC" autocomplete="organization"></div>
+          <div class="field" data-letterhead="firm"><label for="firmAddress">Firm address</label><input class="input meta" id="firmAddress" placeholder="Street, city, state, ZIP" autocomplete="off"></div>
+          <div class="field" data-letterhead="firm"><label for="firmContact">Firm contact line</label><small>Phone, email, and website as they should print.</small><input class="input meta" id="firmContact" placeholder="Phone · email · website" autocomplete="off"></div>
+          <div class="field" data-letterhead="firm"><label for="firmLogo">Logo</label><small>The SaberGuard name and logo are for reports prepared by SaberGuard LLC only.</small><select class="meta" id="firmLogo"><option value="">No logo</option><option value="saberguard">SaberGuard logo</option><option value="custom">Image file from this computer</option></select>
+            <div class="logo-row no-print" id="logoRow" hidden><input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" aria-label="Letterhead logo image"><img class="logo-preview" id="logoPreview" alt="Letterhead logo preview" hidden><button class="btn small danger" id="logoRemove" type="button" hidden>Remove image</button></div>
+            <div class="file-status" id="logoStatus"></div>
+          </div>
+        </div>
         <div class="output-actions no-print">
           <button class="btn" id="previewBtn2" type="button">Preview report</button>
           <button class="btn primary" id="printBtn2" type="button">Print / Save as PDF</button>
@@ -179,7 +195,7 @@
           <button class="btn" id="exportNoEvidenceBtn" type="button">Save file without evidence</button>
         </div>
         <p class="help">"Save file without evidence" writes the same file with the names and sizes of attached evidence but not the files themselves, for sharing the assessment without the attachments. Evidence stays in this tab until you save the full file.</p>
-        <div class="notice"><strong>Print tips:</strong> in the print dialog choose <em>Save as PDF</em>, paper size <em>Letter</em>, and turn off <em>Headers and footers</em> so the browser's URL and timestamp do not print. Backgrounds and status colors are forced on by the report styles.</div>
+        <div class="notice"><strong>Print tips:</strong> in the print dialog choose <em>Save as PDF</em> or your printer, paper size <em>Letter</em>, margins <em>Default</em>, and turn off <em>Headers and footers</em> so the browser's URL and timestamp do not print. Chrome and Edge print the running header, footer, and "Page 1 of N" numbering in the page margins. Other browsers print the header and footer without page numbers. Backgrounds and status colors are forced on by the report styles. The report always prints on white, whichever theme the workspace is using.</div>
         <div class="notice"><strong>Retention:</strong> the Security Rule requires documentation to be kept for 6 years from the date it was created or the date it was last in effect, whichever is later (45 CFR 164.316(b)(2)(i)). Keep the final analysis and the records that support it at least that long. State law or contracts may require longer. The saved JSON file can contain sensitive security information. Store it only on an approved, encrypted device.</div>
         <div class="file-status" id="saveStatus">Not saved during this session.</div>
       </section>
@@ -189,7 +205,7 @@
     <main class="main report-main" id="reportMain" hidden>
       <div class="report-toolbar no-print">
         <button class="btn" id="backBtn" type="button">Back to workspace</button>
-        <span class="hint">This preview matches the printed report. Turn off browser headers and footers in the print dialog for a clean PDF.</span>
+        <span class="hint">This preview matches the printed report, without page breaks and page numbers. Turn off browser headers and footers in the print dialog.</span>
         <button class="btn primary" id="printBtn3" type="button">Print / Save as PDF</button>
       </div>
       <div class="paper" id="reportView"></div>

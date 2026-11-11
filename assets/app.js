@@ -88,7 +88,7 @@
             <div class="control-id">${c.id} · 45 CFR ${esc(c.cite)} · <span class="type ${c.type === 'Required' ? 'required' : ''}">${esc(c.type)}</span></div>
             ${requirementHtml(c)}
             ${banners}
-            <button class="toggle-detail no-print" type="button">${hasDoc ? 'Edit notes, recommendation & evidence' : 'Add notes, recommendation & evidence'} <span class="caret">&#9662;</span></button>
+            <button class="toggle-detail no-print" type="button" aria-expanded="false">${hasDoc ? 'Edit notes, recommendation and evidence' : 'Add notes, recommendation and evidence'}</button>
           </div>
           <div class="choices-col">
             <div class="choices" role="radiogroup" aria-label="${esc(c.title)} status">${choices}</div>
@@ -105,9 +105,11 @@
           </div>
         </div>`;
       wrap.appendChild(card);
-      if (hasDoc && activeFilter === 'gaps') card.classList.add('open');
-      card.querySelector('.toggle-detail').onclick = () => card.classList.toggle('open');
-      const reopen = () => { const open = card.classList.contains('open'); renderControls(); if (open) wrap.querySelector(`[data-id="${c.id}"]`)?.classList.add('open'); updateDashboard(); };
+      const toggle = card.querySelector('.toggle-detail');
+      const setOpen = (el, open) => { el.classList.toggle('open', open); el.querySelector('.toggle-detail').setAttribute('aria-expanded', String(open)); };
+      if (hasDoc && activeFilter === 'gaps') setOpen(card, true);
+      toggle.onclick = () => setOpen(card, !card.classList.contains('open'));
+      const reopen = () => { const open = card.classList.contains('open'); renderControls(); const again = wrap.querySelector(`[data-id="${c.id}"]`); if (open && again) setOpen(again, true); updateDashboard(); };
       card.querySelectorAll('.choice').forEach(b => b.onclick = () => {
         s.status = s.status === b.dataset.value ? '' : b.dataset.value;
         delete s.carried;
@@ -127,7 +129,7 @@
           added += file.size;
         }
         if (rejected) $('saveStatus').textContent = `${rejected} file${rejected === 1 ? '' : 's'} not attached: limit is 10 MB per file and 25 MB per assessment.`;
-        card.classList.add('open');
+        setOpen(card, true);
         reopen();
       };
     });
@@ -354,14 +356,14 @@
     renderMap(S);
     $('filters').querySelector('[data-filter="carried"]').hidden = !S.carried && activeFilter !== 'carried';
 
-    $('readinessList').innerHTML = S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mark" aria-hidden="true">${c.ok ? '&#10003;' : '&#8226;'}</span><span>${esc(c.label)}<span class="sr-only">: ${c.ok ? 'complete' : 'open'}</span></span></li>`).join('');
+    $('readinessList').innerHTML = S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mark">${c.ok ? 'Done' : 'Open'}</span><span>${esc(c.label)}</span></li>`).join('');
     const badge = $('readinessBadge');
     badge.textContent = S.missing.length ? `${S.checks.length - S.missing.length} of ${S.checks.length} checks passed` : (S.isDraft ? 'Checks passed, status Draft' : 'Final');
     badge.classList.toggle('ready', !S.missing.length);
     const notice = $('readinessNotice');
     notice.className = 'notice ' + (S.missing.length ? 'warn' : 'ok');
     notice.innerHTML = S.missing.length
-      ? `<strong>Draft:</strong> the report prints with a DRAFT watermark until the ${S.missing.length} open ${S.missing.length === 1 ? 'check is' : 'checks are'} complete. ${state.meta.reportStatus === 'Final' ? 'The report status is set to Final but will print as Draft until then.' : ''}`
+      ? `<strong>Draft:</strong> the report prints with a Draft watermark until the ${S.missing.length} open ${S.missing.length === 1 ? 'check is' : 'checks are'} complete. ${state.meta.reportStatus === 'Final' ? 'The report status is set to Final but will print as Draft until then.' : ''}`
       : `<strong>Completeness checks passed.</strong> ${S.isDraft ? 'The report still prints as Draft until you set the report status to Final below.' : 'The report prints as Final without a watermark.'} These checks test whether fields are filled in, not whether the analysis is accurate or thorough. Review the report before approval.`;
 
     const ok = key => S.checks.find(c => c.key === key)?.ok;
@@ -374,7 +376,51 @@
       attestation: ok('approval') ? 'done' : '',
       report: S.missing.length ? (S.missing.length < S.checks.length ? 'partial' : '') : 'done'
     };
-    Object.entries(dots).forEach(([k, v]) => { const d = document.querySelector(`[data-dot="${k}"]`); if (d) d.className = 'dot ' + v; });
+    const dotLabel = { done: 'complete', partial: 'in progress', '': 'not started' };
+    Object.entries(dots).forEach(([k, v]) => { const d = document.querySelector(`[data-dot="${k}"]`); if (d) { d.className = 'dot ' + v; d.title = dotLabel[v]; } });
+    refreshLetterheadFields();
+    showSaveState();
+  }
+
+  function showSaveState() {
+    const el = $('dirtyStatus');
+    el.textContent = state.dirty ? 'Unsaved changes' : (state.savedAt ? 'No unsaved changes' : '');
+    el.classList.toggle('is-dirty', !!state.dirty);
+  }
+
+  const MAX_LOGO = 512 * 1024;
+  function refreshLetterheadFields() {
+    const mode = state.meta.letterhead || '';
+    document.querySelectorAll('[data-letterhead]').forEach(el => { el.hidden = el.dataset.letterhead !== mode; });
+    const custom = mode === 'firm' && state.meta.firmLogo === 'custom';
+    const data = SRAReport.logoData(state.meta);
+    $('logoRow').hidden = !custom;
+    $('logoPreview').hidden = !(custom && data);
+    $('logoRemove').hidden = !(custom && data);
+    if (custom && data) $('logoPreview').src = data;
+    else $('logoPreview').removeAttribute('src');
+  }
+  async function chooseLogo(file) {
+    const out = $('logoStatus');
+    if (!SRAReport.LOGO_TYPES.includes(file.type)) { out.textContent = 'Choose a PNG, JPEG, WebP, or SVG image.'; return; }
+    if (file.size > MAX_LOGO) { out.textContent = `That image is ${formatBytes(file.size)}. The limit for a letterhead logo is ${formatBytes(MAX_LOGO)}.`; return; }
+    state.meta.letterheadLogoData = await toDataUrl(file);
+    out.textContent = `${file.name} will print on the letterhead. It is kept in the saved assessment file.`;
+    updateDashboard();
+    if (reportMode) renderReportView();
+  }
+  function removeLogo() {
+    delete state.meta.letterheadLogoData;
+    $('logoStatus').textContent = 'Image removed.';
+    updateDashboard();
+    if (reportMode) renderReportView();
+  }
+
+  function showTheme() {
+    const dark = SRATheme.get() === 'dark';
+    const btn = $('themeBtn');
+    btn.textContent = dark ? 'Light mode' : 'Dark mode';
+    btn.setAttribute('aria-pressed', String(dark));
   }
 
   /* ---- Report ------------------------------------------------------------ */
@@ -399,8 +445,17 @@
     $('previewBtn').innerHTML = '<span class="label">Preview report</span>';
   }
   let savedTitle = document.title;
+  const cssString = s => '"' + String(s).replace(/[\\"]/g, '\\$&').replace(/[\n\r\f]+/g, ' ') + '"';
+  function writePageStyle() {
+    let el = $('printPageStyle');
+    if (!el) { el = document.createElement('style'); el.id = 'printPageStyle'; document.head.appendChild(el); }
+    const p = SRAReport.pageStrings(state, SRAReport.stats(state));
+    const box = 'font-family:"Inter","Segoe UI",system-ui,Arial,sans-serif;font-size:8.25pt;color:#505d72';
+    el.textContent = `@page{@top-left{content:${cssString(p.topLeft)};${box};vertical-align:bottom;padding-bottom:4mm}@top-right{content:${cssString(p.topRight)};${box};vertical-align:bottom;padding-bottom:4mm}@bottom-left{content:${cssString(p.bottomLeft)};${box};vertical-align:top;padding-top:4mm}@bottom-right{content:"Page " counter(page) " of " counter(pages);${box};vertical-align:top;padding-top:4mm}}@page :first{@top-left{content:none}@top-right{content:none}@bottom-left{content:none}@bottom-right{content:none}}`;
+  }
   function preparePrint() {
     renderReportView();
+    writePageStyle();
     $('reportMain').hidden = false;
     savedTitle = document.title;
     const org = (state.meta.orgName || '').trim();
@@ -437,6 +492,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 500);
     const embedded = Object.values(state.controls).some(c => (c.evidence || []).some(e => e.data));
     state.dirty = !includeEvidence && embedded;
+    showSaveState();
     $('saveStatus').textContent = includeEvidence
       ? `Assessment file created ${new Date(state.savedAt).toLocaleString()}. Changes made after this are not saved until you save again.`
       : `Assessment file without evidence created ${new Date(state.savedAt).toLocaleString()}.${embedded ? ' The attached evidence is only in this tab until you save the full file.' : ''}`;
@@ -452,6 +508,8 @@
       hydrateMeta();
       renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard({ keepClean: true });
       state.dirty = false;
+      showSaveState();
+      $('logoStatus').textContent = '';
       if (reportMode) renderReportView();
       const note = up.version < 4 ? ` This version ${up.version} file was read into format version ${FILE_FORMAT.version}. ${up.carried.length} answer${up.carried.length === 1 ? '' : 's'} carried over on rows that changed and marked for review; saving writes version ${FILE_FORMAT.version}.` : '';
       $('saveStatus').textContent = `Opened ${file.name}. Changes remain in memory until saved.${note}`;
@@ -493,7 +551,7 @@
 
   /* ---- Wiring ------------------------------------------------------------ */
   document.querySelectorAll('.meta').forEach(el => {
-    const h = () => { updateDashboard(); if (['entityType', 'clearinghouse', 'groupHealthPlan'].includes(el.id)) renderControls(); };
+    const h = () => { updateDashboard(); if (['entityType', 'clearinghouse', 'groupHealthPlan'].includes(el.id)) renderControls(); if (reportMode && ['letterhead', 'letterheadSpace', 'firmLogo'].includes(el.id)) renderReportView(); };
     el.addEventListener('input', h); el.addEventListener('change', h);
   });
   $('filters').onclick = e => {
@@ -519,16 +577,23 @@
   $('previewBtn').onclick = () => reportMode ? hideReport() : showReport();
   $('previewBtn2').onclick = showReport;
   $('backBtn').onclick = hideReport;
+  $('themeBtn').onclick = () => { SRATheme.toggle(); showTheme(); };
+  $('logoFile').onchange = e => { if (e.target.files[0]) chooseLogo(e.target.files[0]); e.target.value = ''; };
+  $('logoRemove').onclick = removeLogo;
   $('brandLink').onclick = e => { if (reportMode) { e.preventDefault(); hideReport(); } };
   document.querySelectorAll('.nav a').forEach(a => a.addEventListener('click', () => { if (reportMode) hideReport(); }));
 
   if ('IntersectionObserver' in window) {
     const links = [...document.querySelectorAll('.nav a[data-nav]')];
     const io = new IntersectionObserver(entries => {
-      entries.forEach(en => { if (en.isIntersecting) links.forEach(l => l.classList.toggle('active', l.dataset.nav === en.target.id)); });
+      entries.forEach(en => { if (en.isIntersecting) links.forEach(l => { const on = l.dataset.nav === en.target.id; l.classList.toggle('active', on); if (on) l.setAttribute('aria-current', 'step'); else l.removeAttribute('aria-current'); }); });
     }, { rootMargin: '-30% 0px -60% 0px' });
     links.forEach(l => { const t = document.getElementById(l.dataset.nav); if (t) io.observe(t); });
   }
+
+  window.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); exportAssessment(true); }
+  });
 
   window.addEventListener('beforeunload', e => {
     if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
@@ -536,6 +601,7 @@
 
   /* ---- Init -------------------------------------------------------------- */
   $('assessmentDate').value = localToday();
+  showTheme();
   renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard({ keepClean: true });
 
   /* ---- Host seam ---------------------------------------------------------
@@ -548,10 +614,12 @@
      it, so the public page behaves exactly as before. */
   function markSaved(message) {
     state.dirty = false;
+    showSaveState();
     if (message) $('saveStatus').textContent = String(message);
   }
+  function setTheme(theme) { SRATheme.set(theme); showTheme(); }
   const isDirty = () => !!state.dirty;
 
   /* Exposed for testing and for automation hooks (for example loading a sample file). */
-  window.SRA = { state, snapshot, markSaved, isDirty, importAssessment, attachWardEvidence, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
+  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
 })();

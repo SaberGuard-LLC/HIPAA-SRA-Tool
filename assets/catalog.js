@@ -65,7 +65,7 @@ const INVENTORY = {
   baa: [['yes', 'Yes, on file'], ['no', 'No'], ['not-required', 'Not required (not a business associate)'], ['unknown', 'Unknown, not confirmed']],
   location: [['on-site', 'On site'], ['home-remote', 'Home or remote'], ['vendor-hosted', 'Vendor hosted'], ['unknown', 'Unknown']],
   yesNo: [['yes', 'Yes'], ['no', 'No'], ['unknown', 'Unknown, not checked'], ['n/a', 'Not applicable']],
-  transport: [['https', 'HTTPS'], ['sftp', 'SFTP'], ['email', 'Email'], ['fax', 'Fax service (electronic)'], ['vpn', 'VPN'], ['phone-sms', 'Phone or SMS'], ['removable-media', 'Removable media'], ['direct-entry', 'Direct entry'], ['vendor-internal', 'Inside the vendor'], ['unknown', 'Unknown']]
+  transport: [['https', 'HTTPS'], ['sftp', 'SFTP'], ['email', 'Email'], ['fax', 'Fax service (electronic)'], ['vpn', 'VPN'], ['lan', 'Local network'], ['phone-sms', 'Phone or SMS'], ['removable-media', 'Removable media'], ['direct-entry', 'Direct entry'], ['vendor-internal', 'Inside the vendor'], ['unknown', 'Unknown']]
 };
 const INVENTORY_LABELS = Object.fromEntries(Object.entries(INVENTORY).map(([k, list]) => [k, Object.fromEntries(list)]));
 

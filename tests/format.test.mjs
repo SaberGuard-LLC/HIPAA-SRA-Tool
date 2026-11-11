@@ -142,3 +142,21 @@ test('files with another format are refused', () => {
   assert.throws(() => SRAFormat.upgrade({ format: 'Other', version: 4 }));
   assert.throws(() => SRAFormat.upgrade(null));
 });
+
+test('letterhead settings survive a save and open, and invalid values fall back to none', () => {
+  const pixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+  const state = SRAFormat.upgrade({ format: FILE_FORMAT.name, version: 4, meta: { letterhead: 'firm', firmName: 'Example Firm LLC', firmAddress: '1 Main St', firmContact: '555-0100', firmLogo: 'custom', letterheadLogoData: pixel, letterheadSpace: '15' } });
+  const again = SRAFormat.upgrade(plain(SRAFormat.serialize(state)));
+  for (const k of ['letterhead', 'firmName', 'firmAddress', 'firmContact', 'firmLogo', 'letterheadLogoData', 'letterheadSpace']) assert.equal(again.meta[k], state.meta[k], k);
+  const bad = SRAFormat.upgrade({ format: FILE_FORMAT.name, version: 4, meta: { letterhead: 'everyone', firmLogo: 'other', letterheadSpace: '99', letterheadLogoData: 'javascript:alert(1)' } });
+  assert.equal(bad.meta.letterhead, '');
+  assert.equal(bad.meta.firmLogo, '');
+  assert.equal(bad.meta.letterheadSpace, '20');
+  assert.equal('letterheadLogoData' in bad.meta, false);
+});
+
+test('a file saved before letterheads existed opens with no letterhead', () => {
+  const state = SRAFormat.upgrade(plain(v3));
+  assert.equal(state.meta.letterhead, '');
+  assert.equal(state.meta.firmName, '');
+});
