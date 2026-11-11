@@ -6,7 +6,7 @@ description: Open the workspace, load the sample, and save your work.
 
 # Getting started
 
-## Open it
+## Open the workspace
 
 Use the hosted copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/>, or run it from a folder:
 
@@ -18,11 +18,11 @@ git clone https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool.git
 cd HIPAA-SRA-Tool
 ```
 
-Then open `index.html` in a browser. There is nothing to install and no account. A current version of Chrome, Edge, Firefox, or Safari works. Chrome and Edge print page numbers; see [report and printing]({{ '/docs/report/' | relative_url }}).
+Then open `index.html` in a browser. There is nothing to install and no account. Use a current browser. The workspace is tested in Chromium, the engine of Chrome and Edge, and uses only standard browser features. Chrome and Edge print page numbers; see [report and printing]({{ '/docs/report/' | relative_url }}).
 
-## Look at the sample
+## Load the sample assessment
 
-Press **Open** and choose `samples/example-health-clinic-hipaa-sra-2026-09-06.json` from the repository. It is a fictitious outpatient clinic with a full inventory, 13 data flows, all 65 catalog rows reviewed, and 9 risks. Press **Preview report** to see the report it produces.
+Download the [sample assessment]({{ '/samples/example-health-clinic-hipaa-sra-2026-09-06.json' | relative_url }}) (it is also in `samples/` in the repository), press **Open**, and choose it. It is a fictitious outpatient clinic with a full inventory, 13 data flows, all 65 catalog rows reviewed, and 9 risks. Press **Preview report** to see the report it produces, then **Print / PDF** to print it.
 
 ## Save your work
 
@@ -41,7 +41,7 @@ The workspace opens in the light theme. Press **Dark mode** in the top bar to sw
 
 The report preview and the printed report are always on white.
 
-## Work through the steps
+## Work through the seven steps
 
 The sidebar lists the seven steps. A dot beside each step turns amber when it is in progress and green when its completeness checks pass. You can work in any order. The report stays a draft, with a watermark, until every check passes and you set the report status to Final.
 

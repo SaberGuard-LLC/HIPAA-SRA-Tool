@@ -11,7 +11,7 @@ description: SaberGuard SRA Workspace is a browser workspace for documenting a H
 # SaberGuard SRA Workspace
 {: .text-center }
 
-Document a HIPAA Security Rule risk analysis in the browser, then print a report that is ready to sign.
+Document a HIPAA Security Rule risk analysis in the browser, then print a report laid out for signature.
 {: .fs-6 .fw-300 .text-center }
 
 [Open the workspace]({{ '/' | relative_url }}){: .btn .btn-primary .mr-2 }
@@ -27,7 +27,7 @@ Document a HIPAA Security Rule risk analysis in the browser, then print a report
 This is not the HHS Security Risk Assessment (SRA) Tool. It is published by SaberGuard LLC, is not affiliated with or endorsed by HHS, OCR, or ONC, and does not replace the HHS tool. See [how it relates to the HHS SRA Tool]({{ '/docs/hhs-sra-tool/' | relative_url }}).
 {: .note }
 
-## What you can do with it
+## What the workspace records and prints
 
 Record the scope.
 : The organization, the review period, the entity profile (covered entity, business associate, clearinghouse, group health plan), the method, and who took part.
@@ -42,7 +42,7 @@ Rate and treat risks.
 : A risk register with likelihood and impact from 1 to 5, a treatment decision, an owner, a target date, and the expected residual rating. Each risk links to the inventory rows, flows, and catalog rows it affects.
 
 Print the report.
-: A formatted report with a cover, document control, executive summary, findings, risk register, remediation roadmap, and a signature page. It prints on your letterhead or on pre-printed letterhead paper, with page numbers.
+: A report with a cover, document control, executive summary, findings, risk register, remediation roadmap, and a signature page. It prints on your letterhead or on pre-printed letterhead paper, with page numbers.
 
 ## What it does not do
 
