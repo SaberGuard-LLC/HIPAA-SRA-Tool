@@ -2,6 +2,19 @@
 
 Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versioning](https://semver.org/). The major version tracks the saved file format.
 
+## [4.2.0] - 2026-11-11
+
+More from a Ward evidence file: inventory rows and draft risks, offered for the assessor to add, and no repeat attachments when nothing changed.
+
+### Added
+- A Ward evidence file that lists the services, devices, and mail domains Ward saw now offers them as inventory rows: Microsoft 365 or Google Workspace, each managed device, and any mail domain delivered elsewhere. Nothing is added until you press **Add to the inventory**. Each row carries what Ward observed in its notes and leaves the ePHI held and the lifecycle stages blank, so the inventory check stays open until you confirm the row or remove it.
+- Open Ward findings (not rejected in review) are offered as draft risks, linked to their catalog row and to the inventory rows Ward can name. Likelihood, impact, owner, target date, and treatment are left blank. A finding already in the register (its description still names "Ward finding" and the rule id) is not offered again.
+- `attachWardEvidence(file, { confirmName: false })` for a host that fetched the file for the assessment's own client, and it now returns what it attached and what it offered.
+
+### Changed
+- A newer Ward collection that says the same thing about a row as the attachment already there (same outcome, rules, findings, and fact values) is not attached again, and the status line names those rows as unchanged.
+- Attaching Ward evidence that adds nothing no longer marks the assessment as having unsaved changes.
+
 ## [4.1.0] - 2026-11-11
 
 Regulation text on every row, a flat light and dark design, and a report laid out for letterhead and signature.
@@ -40,5 +53,6 @@ The state of `main` before this changelog began.
 - A hosting seam on `window.SRA`: `snapshot()`, `importAssessment()`, `markSaved()`, and `isDirty()`.
 - A catalog of 65 rows with the regulation wording kept separate from SaberGuard's summaries, and a verification log.
 
-[4.1.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/0cbf5e5...HEAD
+[4.2.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/5ac4490...HEAD
+[4.1.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/0cbf5e5...5ac4490
 [4.0.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/commit/0cbf5e5

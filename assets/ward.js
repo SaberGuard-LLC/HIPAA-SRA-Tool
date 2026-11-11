@@ -3,8 +3,9 @@
    SRAWard.read(data)                  -> a checked Ward evidence file
    SRAWard.plan(controls, meta, file)  -> what attaching it would do
    SRAWard.apply(controls, plan, opts) -> attaches files, fills empty notes
+   SRAWard.drafts(state, file)         -> inventory rows and risks to offer
    SRAWard.describe(file)              -> one line naming the collections
-   Pure functions. No DOM. Loaded after catalog.js.
+   Pure functions. No DOM. Loaded after catalog.js and format.js.
 
    Ward is SaberGuard's configuration collector. It reads a client's Microsoft
    365 or Google Workspace tenant, the devices its RMM (Level) manages, the
@@ -18,7 +19,21 @@
 
    File versions: 1 has one `collection`. 2 adds `collections`, the newest
    evaluated collection of every source, and names the source on every fact,
-   finding and rule; `collection` stays as the newest of them.
+   finding and rule; `collection` stays as the newest of them. A version 2
+   file may also carry `inventory`: the tenant services, managed devices and
+   mail domains Ward saw. An older file without it still reads.
+
+   A row whose newest Ward attachment says the same thing as the new one
+   (same outcome, rules, findings and fact values) is not attached again, so
+   a weekly collection with nothing new adds nothing.
+
+   Drafts. drafts() offers, and only offers, two things the assessor adds by
+   choice: an inventory row for each service and device Ward saw that the
+   inventory does not name yet, and a draft risk for each open finding (one
+   not rejected in review) not already in the register. Draft inventory rows
+   leave the ePHI held and the lifecycle blank, and draft risks leave
+   likelihood, impact, owner, date and treatment blank, so the completeness
+   checks stay open until the assessor has confirmed each one.
 
    Nothing here sets a status or a verification basis. Met, Partially met and
    Not met stay the assessor's call, made with the evidence in front of them.
@@ -49,6 +64,12 @@ const SRAWard = (function () {
   };
   /* An attested fact's source_ref is attestation/<question key>/<basis>. */
   const ATTESTED = /^attestation\/.+\/([a-z]+)$/;
+  /* Tenant services and the vendor each one names in the inventory. */
+  const SERVICES = {
+    microsoft: { name: 'Microsoft 365', vendor: 'Microsoft' },
+    google: { name: 'Google Workspace', vendor: 'Google' }
+  };
+  const PLATFORMS = { windows: 'Windows', mac: 'macOS', linux: 'Linux' };
 
   const isStr = v => typeof v === 'string' && v.length > 0;
   const sourceLabel = s => SOURCES[s] || s;
@@ -93,6 +114,7 @@ const SRAWard = (function () {
       if (!s || !isStr(s.citation)) throw new Error(`Safeguard ${i + 1} in the Ward evidence file has no citation.`);
       if (!OUTCOMES[s.outcome]) throw new Error(`Safeguard ${s.citation} has an unknown outcome "${s.outcome}".`);
     });
+    if (data.inventory != null && (typeof data.inventory !== 'object' || Array.isArray(data.inventory))) throw new Error('The Ward evidence file has an inventory that is not a list of services, devices and domains.');
     return data;
   }
 
@@ -152,6 +174,16 @@ const SRAWard = (function () {
     if (!isStr(d) || !d.startsWith('data:application/json')) return null;
     try { return JSON.parse(decodeURIComponent(d.slice(d.indexOf(',') + 1))).safeguard || null; } catch (e) { return null; }
   }
+
+  /* What a safeguard says, without when it was collected: two collections
+     that observed the same thing compare equal. */
+  const substance = s => stable({
+    outcome: s.outcome,
+    rules: (s.rules || []).map(r => stable([r.rule_id, r.status])).sort(),
+    findings: (s.findings || []).map(f => stable([f.rule_id, f.severity, f.narrative, f.review ? f.review.verdict : null])).sort(),
+    rejected: (s.rejected_findings || []).map(r => r.rule_id).sort(),
+    facts: (s.facts || []).filter(f => f && isStr(f.key)).map(f => stable([f.key, f.value])).sort()
+  });
 
   const andList = xs => xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`;
 
@@ -215,6 +247,13 @@ const SRAWard = (function () {
           duplicate = !!named(attachment.name);
         }
       }
+      /* The newest Ward attachment already on the row for this citation. If
+         it says the same thing, a newer collection adds nothing to attach. */
+      let unchanged = null;
+      if (!duplicate) {
+        const latest = existing.map(e => ({ e, was: safeguardIn(e) })).filter(x => x.was && x.was.citation === s.citation).pop();
+        if (latest && substance(latest.was) === substance(s)) unchanged = latest.e.name;
+      }
       rows.push({
         id: c.id,
         title: c.title,
@@ -222,7 +261,8 @@ const SRAWard = (function () {
         outcome: s.outcome,
         attachment,
         note: noteFor(file, s),
-        duplicate
+        duplicate,
+        unchanged
       });
     });
     const org = nameKey(meta && meta.orgName);
@@ -240,9 +280,10 @@ const SRAWard = (function () {
      assessment. A row whose attachment would pass it is skipped. */
   function apply(controls, p, opts = {}) {
     let budget = typeof opts.budget === 'number' ? opts.budget : Infinity;
-    const attached = [], noted = [], overLimit = [], skipped = [];
+    const attached = [], noted = [], overLimit = [], skipped = [], unchanged = [];
     p.rows.forEach(r => {
       if (r.duplicate) { skipped.push(r.id); return; }
+      if (r.unchanged) { unchanged.push(r.id); return; }
       if (r.attachment.size > budget) { overLimit.push(r.id); return; }
       const c = controls[r.id] || (controls[r.id] = SRAFormat.newControl());
       if (!Array.isArray(c.evidence)) c.evidence = [];
@@ -251,9 +292,167 @@ const SRAWard = (function () {
       attached.push(r.id);
       if (!String(c.notes || '').trim()) { c.notes = r.note; noted.push(r.id); }
     });
-    return { attached, noted, overLimit, skipped };
+    return { attached, noted, overLimit, skipped, unchanged };
   }
 
-  return { read, plan, apply, describe, FORMAT, VERSIONS, SOURCES };
+  /* ---- Drafts: inventory rows and risks ----------------------------------- */
+  const lower = s => String(s || '').trim().toLowerCase();
+  const list = v => Array.isArray(v) ? v : [];
+  const sentence = s => { const t = String(s || '').trim(); return !t || /[.!?]$/.test(t) ? t : t + '.'; };
+
+  /* The inventory section of the file, every list checked, every entry kept
+     only if it names what it is. */
+  function inventoryOf(file) {
+    const inv = file.inventory || {};
+    return {
+      services: list(inv.services).filter(x => x && SERVICES[x.source]),
+      devices: list(inv.devices).filter(x => x && isStr(x.name)),
+      domains: list(inv.domains).filter(x => x && isStr(x.domain))
+    };
+  }
+
+  function collectionLabel(file, id, source) {
+    const c = collectionsOf(file).find(x => x.id === id) || collectionsOf(file).find(x => x.source === source);
+    return c ? `${sourceLabel(c.source)} collection of ${day(c)}` : sourceLabel(source);
+  }
+
+  function assetDrafts(file) {
+    const inv = inventoryOf(file);
+    const out = [];
+    const providers = new Set(inv.services.map(s => s.source));
+    inv.services.forEach(s => {
+      const svc = SERVICES[s.source];
+      const domains = inv.domains.filter(d => d.mx_provider === s.source).map(d => d.domain);
+      out.push({
+        key: svc.name,
+        source: s.source,
+        asset: {
+          name: svc.name,
+          kind: 'application',
+          zone: 'systems',
+          vendor: svc.vendor,
+          location: 'vendor-hosted',
+          protection: [
+            `From Ward, ${collectionLabel(file, s.collection_id, s.source)}${isStr(s.tenant_id) ? `, tenant ${s.tenant_id}` : ''}.`,
+            domains.length ? `Mail for ${andList(domains)} is delivered here.` : '',
+            'Confirm the ePHI it holds (for example email and files), the lifecycle stages, and the business associate agreement. The configuration evidence is on the catalog rows.'
+          ].filter(Boolean).join(' ')
+        }
+      });
+    });
+    /* Mail delivered somewhere Ward does not read as a tenant. */
+    const elsewhere = inv.domains.filter(d => d.mx_provider && !['none', ...providers].includes(d.mx_provider));
+    elsewhere.forEach(d => {
+      const svc = SERVICES[d.mx_provider];
+      const name = svc ? `${svc.name} (mail for ${d.domain})` : `Email service for ${d.domain}`;
+      out.push({
+        key: name,
+        source: 'dns',
+        domain: d.domain,
+        asset: {
+          name,
+          kind: 'application',
+          zone: 'external',
+          vendor: svc ? svc.vendor : '',
+          location: 'vendor-hosted',
+          protection: `From Ward, ${collectionLabel(file, d.collection_id, 'dns')}: the MX records of ${d.domain} point to ${svc ? svc.name : 'a provider Ward does not recognize'}. Name the provider, confirm whether it handles ePHI and whether a business associate agreement is on file.`
+        }
+      });
+    });
+    inv.devices.forEach(d => {
+      const platform = PLATFORMS[d.platform] || (isStr(d.platform) && d.platform !== 'unknown' ? d.platform : '');
+      out.push({
+        key: d.name,
+        source: 'level',
+        asset: {
+          name: d.name,
+          kind: 'device',
+          zone: 'devices',
+          atRest: d.encryption_failing === true ? 'no' : 'unknown',
+          protection: [
+            `From Ward, ${collectionLabel(file, d.collection_id, 'level')}${platform ? `: ${platform}` : ''}.`,
+            d.ephi_tagged === true ? 'Tagged as holding ePHI in Level.' : 'Not tagged as holding ePHI in Level: confirm whether it holds ePHI, and remove this row if it does not.',
+            d.encryption_failing === true ? 'Level reports its disk encryption check failing.' : '',
+            d.os_end_of_life === true ? 'Its operating system is past end of life.' : '',
+            d.stale === true ? 'It has not checked in recently.' : ''
+          ].filter(Boolean).join(' ')
+        }
+      });
+    });
+    return out;
+  }
+
+  /* An open finding is one in `findings`: rejected ones are listed apart. */
+  const RISK_TAG = id => `Ward finding ${id}`;
+  const hasTag = (text, id) => new RegExp(`\\b${RISK_TAG(id).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(String(text || ''));
+
+  function drafts(state, file) {
+    const assets = list(state && state.assets);
+    const risks = list(state && state.risks);
+    const names = new Set(assets.map(a => lower(a.name)));
+    const offered = [], alreadyInInventory = [];
+    assetDrafts(file).forEach(d => {
+      if (names.has(lower(d.asset.name))) { alreadyInInventory.push(d.asset.name); return; }
+      names.add(lower(d.asset.name));
+      offered.push({ ...d, asset: SRAFormat.newAsset(d.asset) });
+    });
+
+    /* Inventory rows a finding can point at: what is there and what is offered. */
+    const pool = [...assets.map(a => ({ id: a.id, name: a.name })), ...offered.map(d => ({ id: d.asset.id, name: d.asset.name, source: d.source, domain: d.domain }))];
+    const byName = name => pool.find(a => lower(a.name) === lower(name));
+    const inv = inventoryOf(file);
+    function assetsFor(f, s) {
+      if (SERVICES[f.source]) { const a = byName(SERVICES[f.source].name); return a ? [a.id] : []; }
+      if (f.source === 'dns') {
+        const values = (s.facts || []).filter(x => (f.facts || []).includes(x.key)).flatMap(x => Array.isArray(x.value) ? x.value : []);
+        const domains = inv.domains.filter(d => values.includes(d.domain));
+        return [...new Set(domains.map(d => {
+          const own = SERVICES[d.mx_provider] && byName(SERVICES[d.mx_provider].name);
+          const other = pool.find(a => a.domain === d.domain);
+          return (own || other || {}).id;
+        }).filter(Boolean))];
+      }
+      if (f.source === 'level') {
+        const values = (s.facts || []).filter(x => (f.facts || []).includes(x.key)).flatMap(x => Array.isArray(x.value) ? x.value : []);
+        return [...new Set(values.filter(isStr).map(v => (byName(v) || {}).id).filter(Boolean))];
+      }
+      return [];
+    }
+
+    const byCite = {};
+    CONTROLS.forEach(c => { byCite[c.cite] = c; });
+    CONTROLS.forEach(c => citesOf(c.cite).forEach(k => { if (!byCite[k]) byCite[k] = c; }));
+    const risksOffered = [], alreadyInRegister = [];
+    const seen = new Set();
+    file.safeguards.forEach(s => {
+      const row = byCite[s.citation];
+      (s.findings || []).forEach(f => {
+        if (!f || !isStr(f.rule_id) || seen.has(f.rule_id)) return;
+        seen.add(f.rule_id);
+        if (risks.some(r => hasTag(r.description, f.rule_id))) { alreadyInRegister.push(f.rule_id); return; }
+        /* A reviewed narrative is the consultant's wording and comes along;
+           a template one only repeats the facts, which are on the row. */
+        const narrative = f.narrative_source === 'review' ? String(f.narrative || '').replace(/\s+/g, ' ').trim() : '';
+        const description = [
+          `${RISK_TAG(f.rule_id)}${f.severity ? ` (${f.severity})` : ''}, ${collectionLabel(file, f.collection_id, f.source)}: ${sentence(f.title)}`,
+          narrative ? sentence(narrative) : '',
+          'Rewrite as the threat, the weakness it could exploit, and the ePHI affected.'
+        ].filter(Boolean).join(' ');
+        risksOffered.push({
+          rule_id: f.rule_id,
+          title: f.title,
+          severity: f.severity || '',
+          risk: SRAFormat.newRisk({
+            description,
+            controlIds: row ? [row.id] : [],
+            assetIds: assetsFor(f, s)
+          })
+        });
+      });
+    });
+    return { assets: offered, risks: risksOffered, alreadyInInventory, alreadyInRegister };
+  }
+
+  return { read, plan, apply, drafts, describe, FORMAT, VERSIONS, SOURCES };
 })();
 if (typeof window !== 'undefined') window.SRAWard = SRAWard;

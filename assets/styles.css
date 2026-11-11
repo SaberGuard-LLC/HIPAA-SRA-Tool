@@ -318,6 +318,11 @@ select{appearance:auto}
 .ward-import .help{margin:2px 0 0;max-width:none}
 .ward-import .file-status{grid-column:1 / -1}
 .ward-import .file-status:empty{display:none}
+.ward-drafts{grid-column:1 / -1;display:grid;gap:12px;margin-top:4px}
+.ward-draft{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
+.ward-draft-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.ward-draft ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--text-2);columns:2 16rem}
+.ward-draft .help{margin:4px 0 0}
 
 .report-main{padding:22px 20px 80px;max-width:none}
 .report-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:8.5in;margin:0 auto 16px}

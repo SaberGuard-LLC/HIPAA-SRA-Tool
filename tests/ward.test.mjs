@@ -232,3 +232,120 @@ test('an attachment kept by name only (saved without evidence) is still a duplic
   const plan = SRAWard.plan(controls, {}, SRAWard.read(fixtureV2()));
   assert.ok(plan.rows.every(r => r.duplicate));
 });
+
+/* ---- Unchanged rows, inventory and risk drafts ---------------------------- */
+const later = () => {
+  const f = fixtureV2();
+  const next = { 'level': '2026-11-05T11:02:10.000Z', 'microsoft': '2026-11-05T11:00:42.000Z' };
+  f.collections = f.collections.map(c => next[c.source] ? { ...c, id: c.id.replace(/^./, 'f'), collected_at: next[c.source] } : c);
+  f.collection = f.collections.slice().sort((a, b) => b.collected_at.localeCompare(a.collected_at))[0];
+  const ids = Object.fromEntries(fixtureV2().collections.map((c, i) => [c.id, f.collections[i].id]));
+  for (const s of f.safeguards) for (const x of [...s.rules, ...s.findings, ...s.facts]) {
+    if (x.collection_id) x.collection_id = ids[x.collection_id];
+    if (x.observed_at) x.observed_at = next[x.source] || x.observed_at;
+  }
+  return f;
+};
+
+test('a newer collection that says the same thing about a row is not attached again', () => {
+  const controls = freshControls();
+  SRAWard.apply(controls, SRAWard.plan(controls, {}, SRAWard.read(fixtureV2())));
+  const before = JSON.stringify(controls);
+  const plan = SRAWard.plan(controls, {}, SRAWard.read(later()));
+  assert.ok(plan.rows.every(r => !r.duplicate), 'a different collection, so not a duplicate by name');
+  assert.deepEqual(plain(plan.rows.map(r => !!r.unchanged)), [true, true, true, true, true]);
+  const result = SRAWard.apply(controls, plan);
+  assert.deepEqual(plain(result.attached), []);
+  assert.deepEqual(plain(result.unchanged), ['A17', 'A23', 'A29', 'T05', 'T09']);
+  assert.equal(JSON.stringify(controls), before);
+
+  const changed = later();
+  changed.safeguards[3].facts.find(f => f.key === 'devices.rmm.encryption_failing_count').value = 1;
+  const third = SRAWard.apply(controls, SRAWard.plan(controls, {}, SRAWard.read(changed)));
+  assert.deepEqual(plain(third.attached), ['T05'], 'a changed fact value is attached');
+  assert.deepEqual(plain(third.unchanged), ['A17', 'A23', 'A29', 'T09']);
+  assert.equal(controls.T05.evidence.length, 2);
+});
+
+test('a file without an inventory still reads and offers no inventory rows; a malformed one is refused', () => {
+  const plainV2 = fixtureV2();
+  delete plainV2.inventory;
+  const d = SRAWard.drafts({ assets: [], risks: [] }, SRAWard.read(plainV2));
+  assert.deepEqual(plain(d.assets), []);
+  assert.ok(d.risks.length > 0, 'findings are still offered as risks');
+  assert.throws(() => SRAWard.read({ ...fixtureV2(), inventory: [] }), /inventory/);
+});
+
+test('the services and devices Ward saw are offered as inventory rows left for the assessor to confirm', () => {
+  const d = SRAWard.drafts({ assets: [], risks: [] }, SRAWard.read(fixtureV2()));
+  assert.deepEqual(plain(d.assets.map(x => x.asset.name)), ['Microsoft 365', 'Email service for example.org', 'EXCLINIC-DR02', 'EXCLINIC-FD01']);
+  const [m365, other, mac, pc] = d.assets.map(x => x.asset);
+  assert.equal(m365.kind, 'application');
+  assert.equal(m365.zone, 'systems');
+  assert.equal(m365.vendor, 'Microsoft');
+  assert.equal(m365.location, 'vendor-hosted');
+  assert.equal(m365.baa, 'unknown', 'the agreement is the assessor\'s to confirm');
+  assert.match(m365.protection, /^From Ward, Microsoft 365 collection of 2026-10-29, tenant 00000000-0000-4000-8000-000000000001\. Mail for exampleclinic\.com is delivered here\./);
+  assert.equal(other.zone, 'external');
+  assert.match(other.protection, /MX records of example\.org point to a provider Ward does not recognize/);
+  assert.equal(mac.kind, 'device');
+  assert.equal(mac.zone, 'devices');
+  assert.equal(mac.atRest, 'no', 'a failing encryption check is recorded');
+  assert.equal(pc.atRest, 'unknown', 'a passing check is not read as encrypted');
+  assert.match(mac.protection, /macOS\. Not tagged as holding ePHI in Level: confirm whether it holds ePHI, and remove this row if it does not\. Level reports its disk encryption check failing\. It has not checked in recently\./);
+  assert.match(pc.protection, /Windows\. Tagged as holding ePHI in Level\.$/);
+  for (const a of d.assets.map(x => x.asset)) {
+    assert.equal(a.data, '', 'ePHI held is left blank');
+    assert.deepEqual(plain(a.lifecycle), [], 'lifecycle is left blank');
+    assert.ok(a.id, 'each row has an id');
+  }
+});
+
+test('inventory rows already named are not offered again, whatever the case', () => {
+  const d = SRAWard.drafts({ assets: [SRAFormat.newAsset({ name: 'microsoft 365' }), SRAFormat.newAsset({ name: 'EXCLINIC-FD01 ' })], risks: [] }, SRAWard.read(fixtureV2()));
+  assert.deepEqual(plain(d.assets.map(x => x.asset.name)), ['Email service for example.org', 'EXCLINIC-DR02']);
+  assert.deepEqual(plain(d.alreadyInInventory), ['Microsoft 365', 'EXCLINIC-FD01']);
+});
+
+test('open findings are offered as draft risks tied to their catalog row and the inventory rows Ward can name', () => {
+  const d = SRAWard.drafts({ assets: [], risks: [] }, SRAWard.read(fixtureV2()));
+  assert.deepEqual(plain(d.risks.map(r => [r.rule_id, r.risk.controlIds])), [['MAIL-001', ['A17']], ['BAA-001', ['A29']], ['RMM-002', ['T05']]]);
+  const mail = d.risks[0].risk;
+  const otherMail = d.assets.find(x => x.asset.name === 'Email service for example.org').asset;
+  assert.deepEqual(plain(mail.assetIds), [otherMail.id], 'the DMARC finding names example.org, which delivers elsewhere');
+  assert.match(mail.description, /^Ward finding MAIL-001 \(medium\), Mail domain \(DNS\) collection of 2026-10-29: Mail domains without a DMARC record\. Rewrite as the threat/);
+  assert.doesNotMatch(mail.description, /Observed:/, 'a template narrative is not copied');
+  for (const { risk } of d.risks) {
+    assert.equal(risk.likelihood, '');
+    assert.equal(risk.impact, '');
+    assert.equal(risk.owner, '');
+    assert.equal(risk.target, '');
+    assert.equal(risk.treatment, '');
+    assert.equal(risk.status, 'Open');
+  }
+});
+
+test('a reviewed narrative comes along; a rejected finding and one already in the register are not offered', () => {
+  const f = fixtureV2();
+  f.safeguards[2].findings[0].narrative = 'One vendor that hosts scheduling\nhas no signed agreement.';
+  f.safeguards[2].findings[0].narrative_source = 'review';
+  const d = SRAWard.drafts({ assets: [], risks: [] }, SRAWard.read(f));
+  assert.match(d.risks.find(r => r.rule_id === 'BAA-001').risk.description, /: Vendors handling ePHI without a business associate agreement\. One vendor that hosts scheduling has no signed agreement\. Rewrite/);
+
+  const rejected = fixtureV2();
+  const [rmm] = rejected.safeguards[3].findings.splice(0, 1);
+  rejected.safeguards[3].rejected_findings = [{ rule_id: rmm.rule_id, title: rmm.title, reviewer: 'jd', reviewed_at: '2026-10-30T00:00:00Z', note: null }];
+  const existing = [SRAFormat.newRisk({ description: 'Ward finding MAIL-001 (medium): rewritten by the assessor.' })];
+  const d2 = SRAWard.drafts({ assets: [], risks: existing }, SRAWard.read(rejected));
+  assert.deepEqual(plain(d2.risks.map(r => r.rule_id)), ['BAA-001']);
+  assert.deepEqual(plain(d2.alreadyInRegister), ['MAIL-001']);
+  const d3 = SRAWard.drafts({ assets: [], risks: [SRAFormat.newRisk({ description: 'Ward finding MAIL-0010' })] }, SRAWard.read(fixtureV2()));
+  assert.ok(d3.risks.some(r => r.rule_id === 'MAIL-001'), 'the tag matches the whole rule id only');
+});
+
+test('drafts never touch the catalog rows, the inventory or the register they are given', () => {
+  const state = { assets: [SRAFormat.newAsset({ name: 'EHR' })], risks: [], controls: freshControls() };
+  const before = JSON.stringify(state);
+  SRAWard.drafts(state, SRAWard.read(fixtureV2()));
+  assert.equal(JSON.stringify(state), before);
+});
