@@ -30,7 +30,7 @@ test('the SVG is one well-formed element with the three columns and an accessibl
   const opens = (svg.match(/<(svg|g|rect|text|path|polygon|line)\b/g) || []).length;
   const closes = (svg.match(/<\/(svg|g|rect|text|path|polygon|line)>/g) || []).length;
   assert.equal(opens, closes, 'every element is closed');
-  for (const t of ['IN THE PRACTICE', 'SYSTEMS', 'OUTSIDE PARTIES', 'where ePHI is kept']) assert.ok(svg.includes(t), t);
+  for (const t of ['In the practice', 'Systems', 'Outside parties', 'where ePHI is kept']) assert.ok(svg.includes(t), t);
   assert.ok(!/patient data/i.test(svg), 'the map says ePHI, not patient data');
   assert.ok(/aria-label="Map of where ePHI lives and moves for Example Counseling Practice\./.test(svg));
 });
@@ -52,7 +52,7 @@ test('backups are listed inside the system they copy', () => {
   assert.deepEqual([...ehr.copies].map(c => c.a.name), ['EHR vendor backups']);
   const laptop = b.view.byId[byName('Therapist laptop').id];
   assert.deepEqual([...laptop.copies].map(c => c.a.name).sort(), ['Laptop cloud backup', 'USB drive']);
-  assert.ok(svg.includes('COPIES KEPT'));
+  assert.ok(svg.includes('Copies kept'));
   assert.ok(!b.view.nodes.some(n => n.a.zone === 'backup'), 'no backup gets its own box');
   assert.equal(b.view.absorbed.length, 3);
 });
@@ -114,5 +114,5 @@ test('an unclassified row is drawn as unclassified in the systems column, not de
 
 test('an empty inventory still yields an SVG', () => {
   const svg = SRAMap.toString(SRAMap.build({ meta: {}, assets: [], flows: [], risks: [] }).tree);
-  assert.ok(svg.startsWith('<svg') && svg.includes('IN THE PRACTICE'));
+  assert.ok(svg.startsWith('<svg') && svg.includes('In the practice'));
 });

@@ -190,3 +190,81 @@ test('the version 3 sample upgrades and renders without errors', () => {
   assert.ok(html.includes('Flow notes (version 3)'), 'legacy flow notes print');
   assert.ok(!/SaberGuard LLC/.test(JSON.stringify(data.meta)), 'sample must not name a SaberGuard consultant');
 });
+
+const PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+const renderWith = meta => {
+  const state = { meta: { ...fullMeta, ...meta }, assets: [], flows: [], controls: {}, risks: [] };
+  return SRAReport.render(state, SRAReport.stats(state));
+};
+
+test('a firm letterhead prints the firm, its contact lines and the chosen logo, and names the firm by the assessor', () => {
+  const html = renderWith({ letterhead: 'firm', firmName: 'Example Firm LLC', firmAddress: '1 Main St', firmContact: '555-0100', firmLogo: 'custom', letterheadLogoData: PIXEL });
+  assert.ok(html.includes('class="rpt-letterhead"'));
+  assert.ok(html.includes(`<img src="${PIXEL}" alt="Example Firm LLC logo">`));
+  assert.ok(html.includes('<b>Example Firm LLC</b>1 Main St<br>555-0100'));
+  assert.ok(html.includes('<div class="role">Lead assessor</div><div class="org">Example Firm LLC</div>'));
+  assert.ok(html.includes('did not review this report unless named as the assessor'));
+});
+
+test('the bundled logo prints only when the firm letterhead asks for it', () => {
+  assert.ok(renderWith({ letterhead: 'firm', firmName: 'SaberGuard LLC', firmLogo: 'saberguard' }).includes('<img src="SaberGuard_1.png"'));
+  assert.ok(!renderWith({ firmName: 'SaberGuard LLC', firmLogo: 'saberguard' }).includes('<img'));
+  assert.ok(!renderWith({ letterhead: 'preprinted', firmName: 'SaberGuard LLC', firmLogo: 'saberguard' }).includes('<img'));
+});
+
+test('a logo that is not an image data URL never reaches the report', () => {
+  for (const bad of ['javascript:alert(1)', 'https://example.com/logo.png', 'data:text/html;base64,PGI+', `${PIXEL}" onerror="x`]) {
+    const html = renderWith({ letterhead: 'firm', firmName: 'Example Firm LLC', firmLogo: 'custom', letterheadLogoData: bad });
+    assert.ok(!html.includes('<img'), bad);
+  }
+});
+
+test('pre-printed letterhead paper leaves the chosen space on the cover and prints no firm block', () => {
+  const html = renderWith({ letterhead: 'preprinted', letterheadSpace: '25', firmName: 'Example Firm LLC' });
+  assert.ok(html.includes('rpt-letterhead-space s25'));
+  assert.ok(html.includes('rpt-cover has-space'));
+  assert.ok(!html.includes('class="rpt-letterhead"'));
+  assert.ok(renderWith({ letterhead: 'preprinted', letterheadSpace: 'huge' }).includes('rpt-letterhead-space s20'));
+});
+
+test('the signature block has a line, a printed name and a date for each of the three signers', () => {
+  const html = renderWith({ securityOfficial: 'S. Official' });
+  const block = html.slice(html.indexOf('class="rpt-sign"'));
+  assert.equal((block.match(/<div class="cap">Signature<\/div>/g) || []).length, 3);
+  assert.equal((block.match(/Date: ________________/g) || []).length, 3);
+  for (const who of ['Lead assessor', 'HIPAA security official', 'Executive approver', 'A. Assessor, Example Firm', 'S. Official', 'E. Exec, Owner']) assert.ok(block.includes(who), who);
+});
+
+test('the page margin strings name the document, its status and the preparer', () => {
+  const state = { meta: { ...fullMeta, classification: 'Restricted', reportVersion: '2.1' }, assets: [], flows: [], controls: {}, risks: [] };
+  const plainPage = SRAReport.pageStrings(state, SRAReport.stats(state));
+  assert.equal(plainPage.topLeft, 'HIPAA Security Rule risk analysis · Test Org');
+  assert.equal(plainPage.topRight, 'Restricted · v2.1 Draft');
+  assert.equal(plainPage.bottomLeft, 'Prepared by A. Assessor, Example Firm');
+  state.meta.letterhead = 'firm';
+  state.meta.firmName = 'Example Firm LLC';
+  assert.equal(SRAReport.pageStrings(state, SRAReport.stats(state)).bottomLeft, 'Prepared by Example Firm LLC');
+  const empty = { meta: {}, assets: [], flows: [], controls: {}, risks: [] };
+  assert.equal(SRAReport.pageStrings(empty, SRAReport.stats(empty)).bottomLeft, 'Preparer not named');
+});
+
+test('the shipped sample is a complete version 4 assessment that prints as Final', () => {
+  const data = JSON.parse(read('samples/example-health-clinic-hipaa-sra-2026-09-06.json'));
+  assert.equal(data.version, 4);
+  const state = SRAFormat.upgrade(data);
+  const S = SRAReport.stats(state);
+  assert.equal(S.missing.map(c => c.key).join(' '), '');
+  assert.equal(S.isDraft, false);
+  assert.equal(S.reviewed, CONTROLS.length);
+  assert.ok(/fictitious/i.test(state.meta.orgType) && /fictitious/i.test(state.meta.assessor), 'the sample says it is fictitious');
+  const html = SRAReport.render(state, S);
+  assert.ok(!html.includes('is-draft') && !html.includes('undefined') && !html.includes('NaN'));
+  assert.ok(!html.includes('<img'), 'the sample carries no letterhead');
+});
+
+test('every catalog row prints the regulation wording, not a summary in its place', () => {
+  assert.equal(CONTROLS.filter(c => !c.regulation).map(c => c.id).join(' '), '');
+  const html = renderWith({});
+  assert.ok(!html.includes("SaberGuard's summary:"));
+  assert.ok(html.includes('compared with the eCFR text on'));
+});

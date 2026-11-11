@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Text lint for the SaberGuard SRA Workspace.
 // Fails on em dashes (U+2014), emoji, and a list of banned phrases in the
-// files a reader sees: index.html, assets/, docs/, README.md and samples/.
+// files a reader sees: index.html, assets/, docs/, README.md, CHANGELOG.md,
+// SECURITY.md and samples/.
 //
 // Verbatim quotations are exempt, because the regulation uses both em dashes
 // and some of the banned words. A quotation is marked in one of three ways:
@@ -13,7 +14,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, extname, relative } from 'node:path';
 
-const DEFAULT_PATHS = ['index.html', 'assets', 'docs', 'README.md', 'samples'];
+const DEFAULT_PATHS = ['index.html', 'assets', 'docs', 'README.md', 'CHANGELOG.md', 'SECURITY.md', 'samples'];
 const EXTENSIONS = new Set(['.html', '.js', '.mjs', '.cjs', '.css', '.md', '.json', '.svg', '.txt']);
 const BANNED = [
   ['ensure', /\bensur(e|es|ed|ing)\b/i],

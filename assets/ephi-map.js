@@ -23,9 +23,9 @@ const SRAMap = (function () {
 
   const L = { W: 710, bandW: 186, nodeW: 170, inset: 8, head: 46, gap: 11, foot: 10 };
   const COLS = [
-    { t: 'IN THE PRACTICE', s: 'people and devices' },
-    { t: 'SYSTEMS', s: 'where ePHI is kept' },
-    { t: 'OUTSIDE PARTIES', s: 'who it is shared with' }
+    { t: 'In the practice', s: 'people and devices' },
+    { t: 'Systems', s: 'where ePHI is kept' },
+    { t: 'Outside parties', s: 'who it is shared with' }
   ];
   const ENC = { yes: 'Encrypted', no: 'Not encrypted', unknown: 'Not checked', 'n/a': 'Not applicable' };
   const pad2 = n => String(n).padStart(2, '0');
@@ -301,7 +301,7 @@ const SRAMap = (function () {
       n.status.forEach((st, i) => parts.push(el('text', { class: `st${st.c ? ' ' + st.c : ''}`, x: 10, y: r1(n.statusY + i * 13) }, st.t)));
       if (n.copies.length) {
         parts.push(el('line', { class: 'div', x1: 0, y1: r1(n.mainH), x2: W, y2: r1(n.mainH) }));
-        parts.push(el('text', { class: 'cp-l', x: 10, y: r1(n.mainH + 13) }, 'COPIES KEPT'));
+        parts.push(el('text', { class: 'cp-l', x: 10, y: r1(n.mainH + 13) }, 'Copies kept'));
         n.copies.forEach(c => {
           const cg = el('g', { class: 'copy', 'data-asset': c.a.id, transform: `translate(0,${r1(c.y)})` });
           c.name.forEach((ln, i) => cg.children.push(el('text', { class: 'cp-n', x: 10, y: 10 + i * 12 }, ln)));

@@ -1,0 +1,27 @@
+name: Regulation or source correction
+description: A catalog row, a citation, or a statement about the Security Rule is wrong or out of date.
+labels: ["regulation"]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Where it appears
+      description: The catalog row id, the report section, or the page.
+      placeholder: A21, report section 03, docs/catalog
+    validations:
+      required: true
+  - type: input
+    id: citation
+    attributes:
+      label: Citation
+      description: The paragraph of 45 CFR, or the HHS page, that it should match.
+      placeholder: 45 CFR 164.308(a)(6)(ii)
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What is wrong, and what the source says
+      description: Quote the source and link to it. eCFR, the Federal Register, and hhs.gov or healthit.gov are the sources the project uses.
+    validations:
+      required: true

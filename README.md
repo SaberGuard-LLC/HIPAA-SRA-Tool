@@ -1,90 +1,109 @@
-# SaberGuard SRA Workspace
+<p align="center">
+  <img src="SaberGuard_1.png" width="320" alt="SaberGuard logo: a shield drawn in one line beside the word SaberGuard">
+</p>
 
-A workspace for documenting a HIPAA Security Rule risk analysis. Published by SaberGuard LLC.
+<h1 align="center">SaberGuard SRA Workspace</h1>
 
-This is not the HHS Security Risk Assessment (SRA) Tool, is not affiliated with or endorsed by HHS, OCR, or ONC, and does not replace the HHS SRA Tool (https://www.healthit.gov/topic/privacy-security-and-hipaa/security-risk-assessment-tool). HHS states that use of its own tool is neither required by nor guarantees compliance with federal, state or local laws.
+<p align="center">
+  A browser workspace for documenting a HIPAA Security Rule risk analysis.<br>
+  Inventory where ePHI lives, review the Security Rule row by row beside its own text, rate the risks, and print a report laid out for signature.
+</p>
 
-## What it is
+<p align="center">
+  <a href="https://saberguard-llc.github.io/HIPAA-SRA-Tool/"><b>Open the workspace</b></a> ·
+  <a href="https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/"><b>Docs</b></a> ·
+  <a href="CHANGELOG.md"><b>Changelog</b></a> ·
+  <a href="VERIFICATION.md"><b>Sources</b></a>
+</p>
 
-A static page that runs in the browser. There is nothing to install and no account. It has no backend, trackers, cookies, or browser storage. Work exists only in the current tab until the assessor saves a JSON file or prints the report.
+<p align="center">
+  <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/checks.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/checks.yml/badge.svg" alt="Checks"></a>
+  <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/codeql.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="package.json"><img src="https://img.shields.io/github/package-json/v/SaberGuard-LLC/HIPAA-SRA-Tool" alt="Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/SaberGuard-LLC/HIPAA-SRA-Tool" alt="License: MIT"></a>
+  <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/commits/main"><img src="https://img.shields.io/github/last-commit/SaberGuard-LLC/HIPAA-SRA-Tool" alt="Last commit"></a>
+  <a href="VERIFICATION.md"><img src="https://img.shields.io/badge/45%20CFR%20164%20Subpart%20C-checked%202026--11--11-1f5fbf" alt="Regulation text checked against eCFR on 2026-11-11"></a>
+  <img src="https://img.shields.io/badge/network%20and%20storage-none-1a7f37" alt="No network connection and no browser storage">
+</p>
 
-With it an assessor can:
+---
 
-- record the organization, scope, environment, method, and the entity profile (covered entity or business associate, clearinghouse within a larger organization, group health plan), which marks the rows that do not apply as Not applicable with the basis recorded;
-- inventory the people, devices, systems, outside parties, and backups that store, receive, maintain, or transmit ePHI, with kind, zone, lifecycle, vendor, business associate agreement, location, encryption at rest, and multi-factor authentication, and the data flows between them;
-- review the Security Rule standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316, with notes, recommendations, attached evidence, and the basis on which each status was verified (observed, document reviewed, or stated by the client);
-- see an ePHI flow map drawn from the inventory and flows: three columns (people and devices in the practice, the systems that hold ePHI with backups listed inside them, outside parties), direct-entry flows left out, a label only on flows that are not encrypted or not checked, and one tag per finding using the risk register reference. The same map prints in section 04 of the report. The layout is deterministic: the same file produces the same drawing;
-- attach a Ward evidence file in step 4. Ward is SaberGuard's configuration collector: it reads the Microsoft 365 or Google Workspace tenant, the devices Level manages, the mail domain's public DNS records, and the answers the consultant records in the interview. Each safeguard in the file goes to the catalog row with the same 45 CFR citation as one JSON attachment (a row that names two paragraphs, such as A29 at 164.308(b)(1) and (b)(2), takes either). Rows with no notes get one line naming the collections the safeguard draws on, the rule outcome, and the facts, with the basis Ward recorded for each attested fact. It never sets a status or a verification basis;
-- build a risk register with likelihood and impact ratings, treatment decisions, owners, target dates, and residual ratings, each risk linked to the inventory rows, data flows, and catalog rows it affects, starting from a risk scenario library where useful;
-- print a formatted report, or save as PDF, with a draft watermark until the completeness checks pass and the status is set to Final.
+This is not the HHS Security Risk Assessment (SRA) Tool. It is published by SaberGuard LLC, is not affiliated with or endorsed by HHS, OCR, or ONC, and does not replace the [HHS SRA Tool](https://www.healthit.gov/topic/privacy-security-and-hipaa/security-risk-assessment-tool). HHS states that use of its own tool is neither required by nor guarantees compliance with federal, state or local laws. The same is true of this one.
+
+1. Open <https://saberguard-llc.github.io/HIPAA-SRA-Tool/>, or clone this repository and open `index.html`. There is nothing to install and no account.
+2. Download [`samples/example-health-clinic-hipaa-sra-2026-09-06.json`](samples/example-health-clinic-hipaa-sra-2026-09-06.json), press **Open**, and choose it to see a finished, fictitious assessment.
+3. Press **Preview report**, then **Print / PDF**.
+
+<p align="center">
+  <img src="docs/assets/screenshots/workspace-light.png" width="760" alt="The workspace in the light theme: the overview with progress figures and the first step, organization and scope">
+</p>
+
+| Catalog review, dark theme | ePHI flow map |
+| --- | --- |
+| <img src="docs/assets/screenshots/catalog-dark.png" width="400" alt="Catalog review in the dark theme: a row with its citation, regulation text, status buttons and verification basis"> | <img src="docs/assets/screenshots/flow-map-light.png" width="400" alt="The ePHI flow map: people and devices, systems, and outside parties, with risk tags and one flow marked not encrypted"> |
+| **Report cover on letterhead** | **Signature page** |
+| <img src="docs/assets/screenshots/report-cover.png" width="400" alt="Report cover with the firm letterhead, the title, the organization and the document details"> | <img src="docs/assets/screenshots/report-signatures.png" width="400" alt="Section 09 of the report: the assessor's statement, the management statement and three signature boxes"> |
+
+## What each step produces
+
+| Step | What you get |
+| --- | --- |
+| **Organization and scope** | The organization, review period, method, and the entity profile. The profile marks the rows that do not apply (clearinghouse, group health plan, subcontractor contracts) as Not applicable, with the basis recorded. |
+| **ePHI inventory** | Every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, and the data flows between them. Each row records vendor, business associate agreement, location, encryption at rest, and multi-factor authentication. |
+| **ePHI flow map** | Drawn from the inventory. Three columns, a label only on flows that are not encrypted or not checked, and one tag per finding. The same file always produces the same drawing. |
+| **Catalog review** | 65 rows: the standards and implementation specifications in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316. Each shows the regulation's own wording, a status, how the status was verified, notes, a recommendation, and evidence. |
+| **Risk register** | Likelihood and impact from 1 to 5, a treatment decision, owner, target date, and residual rating. Each risk links to the inventory rows, flows, and catalog rows it affects. |
+| **Summary and attestation** | The executive summary, written by the assessor or generated from the results, the named executive approver, and the management statement. |
+| **Report** | Cover, document control, executive summary, findings, risk register, remediation roadmap, and a signature page. Prints on your letterhead or on pre-printed letterhead paper, with page numbers, and carries a Draft watermark until the completeness checks pass and the report status is set to Final. |
+
+The workspace also has light and dark themes, a risk scenario library, and an import for evidence files from SaberGuard Ward, a separate product. Files from earlier versions open without loss.
 
 ## What it is not
 
 It is not a scanner, it does not test systems, and it does not decide anything. It records the assessor's work and judgment. Using it does not by itself make a risk analysis complete, and it does not establish compliance with the HIPAA Security Rule. It is not legal advice.
 
-## Quick start
+## Where your data goes
 
-```bash
-git clone https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool.git
-cd HIPAA-SRA-Tool
-open index.html   # or double-click the file
-```
+Nowhere. The page makes no network connection. A Content Security Policy sets `connect-src 'none'`, so the browser blocks `fetch`, `XMLHttpRequest`, WebSocket, and beacon calls, and it loads scripts, fonts, and stylesheets only from the page's own origin. It sets no cookies and uses no `localStorage`, `sessionStorage`, or IndexedDB. Work stays in the tab's memory until you save a JSON file or print.
 
-Or use the hosted copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/>. Open `samples/example-health-clinic-hipaa-sra-2026-09-06.json` with the **Open** button to see a filled-in assessment and its report. The sample is fictitious.
+The saved file and the printed report describe an organization's security weaknesses. Store them only in an approved, encrypted location, and do not attach evidence that shows patient identifiers. See [data handling](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/data-handling/).
 
-### Printing a PDF
+## How the regulation text is checked
 
-1. Click **Print / PDF** (or press Ctrl/Cmd+P from anywhere in the workspace).
-2. Choose **Save as PDF**, paper size **Letter**.
-3. Turn off "Headers and footers" so the browser's URL and timestamp do not print. Background colors are forced on by the report styles.
+Every catalog row carries the regulation's own wording and, separately, a plain-language summary labelled as SaberGuard's. A test compares the wording, heading, and Required or Addressable marker on all 65 rows with the official eCFR text of 45 CFR Part 164, Subpart C kept in `tests/fixtures/`, and fails if the regulation has a standard or titled specification the catalog lacks.
 
-## The catalog
+The text was last retrieved on November 11, 2026 (eCFR issue of November 5, 2026). Subpart C was last amended on November 24, 2020. The changes HHS proposed in January 2025 (90 FR 898) are not final, so the workspace reflects the rule in force.
+
+Every regulatory statement that ships is listed in [VERIFICATION.md](VERIFICATION.md) with its source and the date it was checked. Two of them, which rest on OCR's risk analysis guidance, are marked unconfirmed there because hhs.gov could not be read on that date.
+
+## Catalog row count, addressable specifications, and scoring
 
 The catalog has one row per standard, one row per titled implementation specification, and one row for the untitled implementation specifications paragraph at 45 CFR 164.314(b)(2). 164.308(b)(1) is counted as a standard because Appendix A to Subpart C lists it as one; 164.308(b)(2) has no heading and is shown with it. Under this convention there are 65 catalog rows: 22 standards, 21 Required implementation specifications, and 22 Addressable implementation specifications. The regulation itself states no total. The count is SaberGuard's convention. Every displayed count is derived from the catalog.
 
-Each row carries the regulation's own wording and, separately, a plain-language summary labelled as SaberGuard's. A test compares the regulation wording on every row with the official text kept in `tests/fixtures/`.
+An addressable implementation specification is not optional. The covered entity or business associate must assess whether it is reasonable and appropriate in its environment; implement it if it is; and if it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). The workspace records this with two statuses available on addressable rows only: "Alternative measure in place" and "Not implemented, decision documented". Both need a note.
 
-An addressable implementation specification is not optional. The covered entity or business associate must assess whether it is reasonable and appropriate in its environment; implement it if it is; and if it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). The workspace records this with two statuses available on addressable rows only: "Alternative measure in place" and "Not implemented, decision documented". Both need a note. A Not applicable response likewise needs a recorded basis, which the report prints.
+The 1 to 5 rating scales, the Low, Medium, and High thresholds, and the implementation score are also SaberGuard's own. The score is a progress measure, not a compliance score. The Security Rule sets no fixed interval for a risk analysis, so "Next planned review" is a date the organization sets. See [the catalog and scoring](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/catalog/).
 
-## Scoring
+## Printing and signing
 
-Likelihood and impact are each rated 1 to 5. Inherent risk is likelihood multiplied by impact: Low 1 to 7, Medium 8 to 14, High 15 to 25. The implementation score is (met + alternative measure + half of partial) divided by the applicable rows reviewed; rows rated Not applicable or Not implemented, decision documented are left out. These scales and thresholds are SaberGuard's own. The implementation score is a progress measure, not a compliance score.
+1. Finish the completeness checks and set the report status to Final.
+2. In step 7, choose a letterhead: your firm's, printed by the report, or blank space for pre-printed paper.
+3. Press **Print / PDF**. Paper size Letter, margins Default, browser headers and footers off.
+4. Sign by hand in section 09.
 
-## Review frequency
+Print from Chrome or Edge to get "Page 2 of 41" numbering in the page margins. See [report and printing](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/report/).
 
-The HIPAA Security Rule sets no fixed interval for a risk analysis. It requires the security measures to be reviewed and modified as needed (45 CFR 164.306(e)), documentation to be reviewed periodically and updated in response to environmental or operational changes (45 CFR 164.316(b)(2)(iii)), and periodic evaluation (45 CFR 164.308(a)(8)). The workspace has a "Next planned review" field that the organization sets.
+## Development
 
-## Hosting
+Run the text lint and the tests (Node 22 or later):
 
-The public page keeps nothing. A host that serves its own copy can keep the assessment for the assessor: `window.SRA.snapshot()` returns the assessment as the object a saved file holds, `window.SRA.importAssessment()` opens one, and `window.SRA.markSaved()` clears the unsaved-changes warning once the host has stored it. SaberGuard's Ward does this behind its own sign-in. Nothing in this repository calls those functions, and the page here still makes no network connection.
-
-## Data handling
-
-- The application does not use `localStorage`, `sessionStorage`, IndexedDB, cookies, analytics, or network APIs. A Content Security Policy meta tag in `index.html` blocks network connections from the page; `vercel.json` sets the same policy and related headers on a Vercel deployment. GitHub Pages does not apply the headers.
-- Unsaved work is held in memory and is lost when the tab is closed or reloaded. The browser warns before you leave if there are edits since the last save or open.
-- Evidence attachments are limited to 10 MB per file and 25 MB per assessment. Evidence must not show patient identifiers; the workspace warns at the attach control. "Save file without evidence" writes the assessment with the names and sizes of attachments but not the files themselves.
-- A row or flow flagged for a missing or unconfirmed business associate agreement, encryption at rest or in transit, or multi-factor authentication must be linked to a risk before the report leaves draft. Appendix B lists any that are not.
-- Saved files use format version 4. Files saved by earlier versions open without loss: the three old 164.314 rows (O01 to O03) move to the current rows O12, O13 and O15, free-text risk links are kept as legacy notes beside the new id lists, and answers on rows whose citation or regulation text changed are marked "carried from version 3, review again" and count as not reviewed until the assessor confirms them. Rows added since version 3 open as not reviewed, so a complete version 3 file opens as incomplete.
-- Attach Ward evidence reads the chosen file in the browser like Open does; nothing is uploaded. It reads Ward evidence format versions 1 (one collection) and 2 (the newest collection of every source). Attachments count toward the 25 MB limit, the same file attached twice adds nothing, a collection Ward evaluated again since it was attached (for example after new rules were activated) is attached beside the earlier one, citations the catalog does not carry are listed and skipped, and a file whose client name does not match the organization name in step 1 asks before attaching.
-- Saved JSON files and printed reports contain sensitive security details. Store them only in an approved encrypted location.
-- The Security Rule requires documentation, including the risk analysis, to be retained for 6 years from the date of its creation or the date when it last was in effect, whichever is later (45 CFR 164.316(b)(2)(i)). State law or contracts may require longer.
-
-## Project layout
-
-```
-index.html            Workspace markup
-assets/styles.css     Workspace, report preview, and print styles
-assets/catalog.js     Security Rule catalog, statuses, rating scales, risk scenario library, completeness checks
-assets/app.js         Workspace logic, JSON save and open, print handling
-assets/report.js      Metrics and the report renderer
-assets/ward.js        Ward evidence import (read, plan, apply; no DOM)
-samples/              Fictitious example assessment
-scripts/lint-text.mjs Text lint run in CI
-tests/                Tests (node --test) and the regulation fixture
-VERIFICATION.md       Every regulatory statement that ships, with its source and the date checked
+```bash
+npm run check
 ```
 
-Run `npm run check` to run the text lint and the tests. There are no runtime dependencies.
+There are no dependencies and no build step. The repository layout, the design rules, and how to refresh the regulation text are in [development](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/development/).
+
+A host that serves its own copy can keep assessments for its users through `window.SRA.snapshot()`, `importAssessment()`, and `markSaved()`. See [file format and hosting](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/file-format/).
 
 ## References
 
@@ -94,4 +113,4 @@ Run `npm run check` to run the text lint and the tests. There are no runtime dep
 
 ## License
 
-Code is released under the MIT License. See [LICENSE](LICENSE). The SaberGuard name and logo are not covered by that license.
+Code is released under the [MIT License](LICENSE). The SaberGuard name and logo are not covered by that license. The bundled Inter font is under the SIL Open Font License; see `assets/fonts/LICENSE-Inter`.

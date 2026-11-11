@@ -96,7 +96,8 @@ const SRAFormat = (function () {
     return out;
   }
 
-  const META_DEFAULTS = { reportVersion: '1.0', classification: 'Confidential', reportStatus: 'Draft', entityType: '', clearinghouse: '', groupHealthPlan: '' };
+  const META_DEFAULTS = { reportVersion: '1.0', classification: 'Confidential', reportStatus: 'Draft', entityType: '', clearinghouse: '', groupHealthPlan: '', letterhead: '', letterheadSpace: '20', firmName: '', firmAddress: '', firmContact: '', firmLogo: '' };
+  const LOGO_DATA = /^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
 
   /* Reads a saved file of any version into workspace state. Nothing in the
      file is dropped: unknown control ids are kept as they are, and version 3
@@ -112,6 +113,10 @@ const SRAFormat = (function () {
     if (!['yes', 'no'].includes(meta.groupHealthPlan)) meta.groupHealthPlan = '';
     if (!meta.reportVersion) meta.reportVersion = '1.0';
     if (!meta.classification) meta.classification = 'Confidential';
+    if (!['firm', 'preprinted'].includes(meta.letterhead)) meta.letterhead = '';
+    if (!['15', '20', '25'].includes(meta.letterheadSpace)) meta.letterheadSpace = '20';
+    if (!['saberguard', 'custom'].includes(meta.firmLogo)) meta.firmLogo = '';
+    if (typeof meta.letterheadLogoData !== 'string' || !LOGO_DATA.test(meta.letterheadLogoData)) delete meta.letterheadLogoData;
 
     const assets = Array.isArray(data.assets) ? data.assets.filter(a => a && typeof a === 'object').map(newAsset) : [];
     const assetIds = new Set(assets.map(a => a.id));
