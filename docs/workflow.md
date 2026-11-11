@@ -72,7 +72,9 @@ The filters narrow the list to one section of the rule, to gaps, or to rows not 
 
 ### Ward evidence
 
-**Attach Ward evidence** reads an evidence file from SaberGuard Ward, a configuration collector. Each safeguard in the file is attached as a JSON file to the catalog row with the same citation. Rows with no notes get one line naming the collections, the rule outcome, and the facts. The import never sets a status or a verification basis. Attaching the same file twice adds nothing.
+**Attach Ward evidence** reads an evidence file from SaberGuard Ward, a configuration collector. Each safeguard in the file is attached as a JSON file to the catalog row with the same citation. Rows with no notes get one line naming the collections, the rule outcome, and the facts. The import never sets a status or a verification basis. Attaching the same file twice adds nothing, and a newer file that says the same thing about a row (same outcome, rules, findings, and fact values) is not attached to that row again.
+
+When the file lists the services, devices, and mail domains Ward saw, the workspace offers the ones the inventory does not name yet as inventory rows, and offers each open Ward finding as a draft risk. Nothing is added until you choose **Add to the inventory** or **Add draft risks**. Draft inventory rows leave the ePHI held and the lifecycle stages blank, and draft risks leave likelihood, impact, owner, target date, and treatment blank, so the completeness checks stay open until you have confirmed each one. A device not tagged as holding ePHI in Ward's device management says so in its notes: remove the row if it holds none.
 
 ## Step 5: risk register
 

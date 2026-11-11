@@ -510,6 +510,7 @@
       state.dirty = false;
       showSaveState();
       $('logoStatus').textContent = '';
+      wardOffer = null; renderWardDrafts();
       if (reportMode) renderReportView();
       const note = up.version < 4 ? ` This version ${up.version} file was read into format version ${FILE_FORMAT.version}. ${up.carried.length} answer${up.carried.length === 1 ? '' : 's'} carried over on rows that changed and marked for review; saving writes version ${FILE_FORMAT.version}.` : '';
       $('saveStatus').textContent = `Opened ${file.name}. Changes remain in memory until saved.${note}`;
@@ -519,34 +520,92 @@
   }
 
   /* ---- Ward evidence ----------------------------------------------------- */
-  async function attachWardEvidence(file) {
+  /* What the newest Ward file offers to add to the inventory and the risk
+     register. Nothing is added until the assessor chooses to. */
+  let wardOffer = null;
+  function renderWardDrafts() {
+    const box = $('wardDrafts');
+    const offer = wardOffer;
+    if (!offer) { box.hidden = true; box.innerHTML = ''; return; }
+    const names = new Set(state.assets.map(a => a.name.trim().toLowerCase()));
+    offer.assets = offer.assets.filter(d => !names.has(d.asset.name.trim().toLowerCase()));
+    const ids = new Set(state.risks.map(r => r.id));
+    offer.risks = offer.risks.filter(d => !ids.has(d.risk.id));
+    if (!offer.assets.length && !offer.risks.length) { box.hidden = true; box.innerHTML = ''; return; }
+    const part = (title, items, label, btnId, help) => !items.length ? '' : `
+      <div class="ward-draft">
+        <div class="ward-draft-head"><strong>${esc(title)}</strong><button class="btn small" id="${btnId}" type="button">${esc(label)}</button></div>
+        <p class="help">${esc(help)}</p>
+        <ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      </div>`;
+    box.innerHTML = part(
+      `Ward saw ${offer.assets.length} ${offer.assets.length === 1 ? 'service or device' : 'services and devices'} not in the inventory`,
+      offer.assets.map(d => d.asset.name),
+      `Add ${offer.assets.length} to the inventory`, 'wardAddAssets',
+      'Each is added to step 2 with what Ward observed in its notes. The ePHI held and the lifecycle stages are left for you, so the inventory check stays open until you confirm each row or remove it.'
+    ) + part(
+      `${offer.risks.length} open Ward ${offer.risks.length === 1 ? 'finding is' : 'findings are'} not in the risk register`,
+      offer.risks.map(d => `${d.rule_id}${d.severity ? ` (${d.severity})` : ''}: ${d.title}`),
+      `Add ${offer.risks.length} draft ${offer.risks.length === 1 ? 'risk' : 'risks'}`, 'wardAddRisks',
+      'Each is added to step 5 linked to its catalog row, and to the inventory rows Ward can name. Likelihood, impact, owner, target date, and treatment are left blank for you. Findings rejected in review in Ward are not offered.'
+    );
+    box.hidden = false;
+    const a = $('wardAddAssets');
+    if (a) a.onclick = () => {
+      const n = offer.assets.length;
+      offer.assets.forEach(d => state.assets.push(d.asset));
+      offer.assets = [];
+      renderAssets(); renderFlows(); renderRisks(); updateDashboard();
+      $('wardStatus').textContent = `${n} inventory ${n === 1 ? 'row' : 'rows'} added from Ward. Confirm the ePHI held and the lifecycle stages on each in step 2.`;
+      renderWardDrafts();
+    };
+    const r = $('wardAddRisks');
+    if (r) r.onclick = () => {
+      const n = offer.risks.length;
+      const known = new Set(state.assets.map(x => x.id));
+      offer.risks.forEach(d => { d.risk.assetIds = d.risk.assetIds.filter(id => known.has(id)); state.risks.push(d.risk); });
+      offer.risks = [];
+      renderRisks(); updateDashboard();
+      $('wardStatus').textContent = `${n} draft ${n === 1 ? 'risk' : 'risks'} added from Ward findings. Rate and assign each in step 5.`;
+      renderWardDrafts();
+    };
+  }
+
+  /* opts.confirmName false skips the name check: a host that fetched the file
+     for this assessment's own client already knows it is the right one. */
+  async function attachWardEvidence(file, opts = {}) {
     const out = $('wardStatus');
     let ward;
     try {
       ward = SRAWard.read(JSON.parse(await file.text()));
     } catch (err) {
       out.textContent = err instanceof SyntaxError ? 'Could not read that file. Choose the JSON file downloaded from Ward.' : err.message;
-      return;
+      return null;
     }
     collectMeta();
     const plan = SRAWard.plan(state.controls, state.meta, ward);
-    if (plan.nameMismatch && !window.confirm(`This Ward file is for "${ward.client.name}", but the organization in step 1 is "${state.meta.orgName}". Attach it anyway?`)) {
+    if (opts.confirmName !== false && plan.nameMismatch && !window.confirm(`This Ward file is for "${ward.client.name}", but the organization in step 1 is "${state.meta.orgName}". Attach it anyway?`)) {
       out.textContent = 'Nothing attached.';
-      return;
+      return null;
     }
     const used = CONTROLS.reduce((n, x) => n + controlState(x.id).evidence.reduce((m, f) => m + (f.size || 0), 0), 0);
     const result = SRAWard.apply(state.controls, plan, { budget: MAX_TOTAL - used });
-    renderControls(); updateDashboard();
+    const changed = result.attached.length > 0;
+    renderControls(); updateDashboard({ keepClean: !changed });
+    wardOffer = SRAWard.drafts(state, ward);
+    renderWardDrafts();
     const list = ids => ids.join(', ');
     out.textContent = [
       `Ward evidence for ${ward.client.name}, ${SRAWard.describe(ward)}:`,
-      result.attached.length ? `attached to ${result.attached.length} row${result.attached.length === 1 ? '' : 's'} (${list(result.attached)}).` : 'nothing new attached.',
+      changed ? `attached to ${result.attached.length} row${result.attached.length === 1 ? '' : 's'} (${list(result.attached)}).` : 'nothing new attached.',
       result.noted.length ? `Notes filled on rows that had none: ${list(result.noted)}.` : '',
       result.skipped.length ? `Already attached, skipped: ${list(result.skipped)}.` : '',
+      result.unchanged.length ? `Unchanged since the Ward evidence already attached, not attached again: ${list(result.unchanged)}.` : '',
       result.overLimit.length ? `Not attached, over the 25 MB evidence limit: ${list(result.overLimit)}.` : '',
       plan.unmatched.length ? `Citations not in this catalog, not attached: ${list(plan.unmatched)}.` : '',
       'No status was changed.'
     ].filter(Boolean).join(' ');
+    return { ...result, offered: { assets: wardOffer.assets.length, risks: wardOffer.risks.length } };
   }
 
   /* ---- Wiring ------------------------------------------------------------ */
