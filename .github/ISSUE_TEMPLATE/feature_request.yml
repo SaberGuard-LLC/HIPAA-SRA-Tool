@@ -1,0 +1,22 @@
+name: Feature request
+description: Something the workspace or the report should do.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you are trying to do
+      description: The assessment task this would help with. Check the roadmap in the docs first.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+  - type: checkboxes
+    id: limits
+    attributes:
+      label: Limits
+      description: The public page keeps nothing and talks to nothing. Requests that need a server, an account, or analytics belong in a host, not here.
+      options:
+        - label: This works with no network connection and no browser storage.

@@ -1,0 +1,49 @@
+name: Bug report
+description: Something in the workspace or the report does not work the way the docs say.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not attach a real assessment file, and do not paste anything that identifies a patient or a client. A made-up file or the sample in `samples/` is enough.
+  - type: input
+    id: version
+    attributes:
+      label: Workspace version
+      description: The version in `package.json`, or the date you opened the hosted copy.
+      placeholder: 4.1.0
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: Chrome 142 on Windows 11
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it happened
+      options:
+        - Workspace
+        - Report preview
+        - Printed report or PDF
+        - Opening or saving a file
+        - Ward evidence import
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console output
+      description: Any errors in the developer tools console.
+      render: text

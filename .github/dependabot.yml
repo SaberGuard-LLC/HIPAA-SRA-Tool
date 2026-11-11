@@ -12,3 +12,11 @@ updates:
     rebase-strategy: "auto"
     # Specify the branch to target, matching your CodeQL and main development branch.
     target-branch: "main"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    open-pull-requests-limit: 5
+    target-branch: "main"

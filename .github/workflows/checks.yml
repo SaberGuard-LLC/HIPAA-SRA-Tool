@@ -20,3 +20,22 @@ jobs:
         run: npm run lint
       - name: Tests
         run: npm test
+
+  pages:
+    name: Docs site build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with the GitHub Pages Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: The workspace is published unchanged
+        run: |
+          cmp index.html _site/index.html
+          cmp assets/app.js _site/assets/app.js
+          test -f _site/docs/index.html
+          test ! -e _site/tests

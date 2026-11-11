@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/
+    about: Getting started, the seven steps, the catalog, printing, and data handling.
+  - name: Security problem
+    url: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/security/advisories/new
+    about: Please report security problems privately.
