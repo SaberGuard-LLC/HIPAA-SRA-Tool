@@ -15,8 +15,8 @@ Last full check: November 11, 2026.
 | Item | Detail |
 | --- | --- |
 | Source | [eCFR, 45 CFR Part 164, Subpart C](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C) |
-| Issue retrieved | November 5, 2026 (eCFR current through November 9, 2026) |
-| Last amendment to Subpart C | November 24, 2020, to 164.314. The other sections are unchanged since eCFR's history begins. |
+| Issue | Dated November 5, 2026, retrieved November 11, 2026 (eCFR current through November 9, 2026) |
+| Last amendment to Subpart C | November 24, 2020, to 164.314. No other section has a later version. |
 | Kept in the repository | `tests/fixtures/ecfr-title45-part164-subpartC-2026-11-05.xml`, unchanged from the eCFR versioner API |
 
 A test compares the regulation wording, the heading, and the Required or Addressable marker on all 65 catalog rows with that file. It also checks that:
@@ -35,16 +35,16 @@ HHS published a proposed rule on January 6, 2025: "HIPAA Security Rule To Streng
 
 It is a proposal. As of November 11, 2026, the Federal Register lists no final rule under that RIN and no final rule amending 45 CFR Part 164 since it was published, and the eCFR text of Subpart C is unchanged. The workspace reflects the rule in force. The distinction between Required and Addressable implementation specifications still applies.
 
-If a final rule is published, the fixture test is how the change will show: refresh the fixture, and every row whose text, heading, or type moved will fail by name.
+If a final rule is published, the fixture test is how the change will show: refresh the fixture, and every row whose text, heading, or type moved will fail by id.
 
 ## Definitions outside Subpart C
 
 Read on eCFR, issue of November 5, 2026:
 
 - Electronic protected health information is the part of protected health information that is transmitted by or maintained in electronic media (45 CFR 160.103). Paper records are outside it.
-- A business associate, and a subcontractor, are as defined in 45 CFR 160.103. The duty to obtain satisfactory assurances at 45 CFR 164.308(b) runs to business associates.
+- A business associate, and a subcontractor, are as defined in 45 CFR 160.103. 45 CFR 164.308(b)(1) is the covered entity's duty to obtain satisfactory assurances from a business associate, and (b)(2) is the business associate's duty toward a subcontractor.
 
-## HHS guidance
+## HHS guidance: what is confirmed and what is not
 
 | Statement | Source | Status |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ Read on eCFR, issue of November 5, 2026:
 | The Security Rule does not specify how frequently to perform risk analysis. | [OCR Guidance on Risk Analysis](https://www.hhs.gov/hipaa/for-professionals/security/guidance/guidance-risk-analysis/index.html) | Supported by the regulation text itself, which the fixture test checks. The OCR sentence was seen in a search index excerpt, not read on the page. |
 | OCR's guidance lists nine elements of a risk analysis, and HHS does not endorse or recommend any particular risk analysis or risk management model. | Same page | Not confirmed on November 11, 2026. |
 
-hhs.gov refused automated requests on the date of the check, so the two OCR guidance statements could not be read directly. They are carried from the reference notes of September 30, 2026 and are marked unconfirmed in the log until someone reads the page in a browser.
+hhs.gov refused automated requests on the date of the check, so the nine elements and the no-endorsement statement (S15 and S16 in the log) could not be read directly. They are carried from the reference notes of September 30, 2026 and are marked unconfirmed in the log until someone reads the page in a browser.
 {: .warning }
 
 ## What the workspace does not claim
@@ -62,10 +62,10 @@ hhs.gov refused automated requests on the date of the check, so the two OCR guid
 - It does not say that multi-factor authentication or patching is required by the current rule. The risk scenario library offers them as risks an assessor may record.
 - It does not call the implementation score a compliance score.
 
-## Checking it yourself
+## Running the comparison yourself
 
 ```bash
 npm test
 ```
 
-runs the comparison. To refresh the regulation text, see [development]({{ '/docs/development/' | relative_url }}).
+This command runs the comparison. To refresh the regulation text, see [development]({{ '/docs/development/' | relative_url }}).

@@ -6,6 +6,9 @@ description: The seven steps of an assessment, from scope to the printed report.
 
 # Using the workspace
 
+Work stays in the tab's memory. Save a file with **Save file**, or Ctrl + S (Cmd + S on a Mac), before closing the tab. See [data handling]({{ '/docs/data-handling/' | relative_url }}).
+{: .warning }
+
 ## Step 1: organization and scope
 
 Record who is being assessed and what is in scope. These fields fill the report cover, the document control block, and the scope section.
@@ -30,7 +33,7 @@ Each row records the kind, the zone, the ePHI held, the lifecycle stages, the ow
 
 Then add one data flow for every connection that carries ePHI between two rows: what is carried, the transport, and whether it is encrypted in transit.
 
-Unknown is a recorded gap, not a no. A row left unclassified fails the inventory check. A row or flow whose business associate agreement, encryption, or multi-factor authentication is missing or not checked is flagged on the map, and the report stays in draft until a risk is linked to it or the row is corrected.
+Unknown is a recorded gap, not a no. A row left unclassified fails the inventory check. A row or flow whose business associate agreement, encryption, or multi-factor authentication is missing or not checked is flagged on the map, and the report stays in draft until a risk that is not closed is linked to it or the row is corrected.
 {: .note }
 
 ## Step 3: ePHI flow map
@@ -69,7 +72,7 @@ The filters narrow the list to one section of the rule, to gaps, or to rows not 
 
 ### Ward evidence
 
-**Attach Ward evidence** reads an evidence file from SaberGuard Ward, a configuration collector. Each safeguard in the file is attached as a JSON file to the catalog row with the same citation. Rows with no notes get one line naming the collections, the rule outcome, and the facts. It never sets a status or a verification basis. Attaching the same file twice adds nothing.
+**Attach Ward evidence** reads an evidence file from SaberGuard Ward, a configuration collector. Each safeguard in the file is attached as a JSON file to the catalog row with the same citation. Rows with no notes get one line naming the collections, the rule outcome, and the facts. The import never sets a status or a verification basis. Attaching the same file twice adds nothing.
 
 ## Step 5: risk register
 
@@ -91,11 +94,12 @@ The completeness checks test whether fields are filled in. They do not test whet
 | Inventory | At least one row, and every row has a name, the ePHI held, a kind, a zone, and a lifecycle stage. |
 | Flows | Every data flow names two different inventory rows. |
 | Linked risks | Every row or flow flagged for a missing or unconfirmed business associate agreement, encryption, or multi-factor authentication is linked to a risk. |
-| Reviewed | Every catalog row has a status. |
-| Basis | Every reviewed row has a verification basis. |
+| Reviewed | Every catalog row has a status. An answer carried from a version 3 file counts only once it is confirmed. |
+| Basis | Every reviewed row has a verification basis. Rows marked Not applicable by the entity profile do not need one. |
 | Notes | Every row rated Partially met, Not met, Not applicable, Alternative measure in place, or Not implemented, decision documented has a note. |
 | Recommendations | Every row rated Partially met or Not met has a recommendation. |
-| Risks | At least one risk, and every risk has a description, likelihood, impact, owner, target date, and treatment plan. |
+| Risks recorded | At least one risk is in the register. |
+| Risks complete | Every risk has a description, likelihood, impact, owner, target date, and treatment plan. |
 | Approval | The management approver is named. |
 
 When every check passes, set the report status to Final. Then choose a letterhead and print. See [report and printing]({{ '/docs/report/' | relative_url }}).

@@ -6,7 +6,7 @@ description: Repository layout, checks, refreshing the regulation text, and prev
 
 # Development
 
-## Layout
+## Repository layout
 
 ```
 index.html              workspace markup
@@ -30,13 +30,13 @@ VERIFICATION.md         every regulatory statement, its source, the date checked
 
 The scripts are plain browser scripts with no build step and no dependencies. `report.js`, `format.js`, `ward.js`, and `ephi-map.js` do not touch the page, so the tests run them directly under Node.
 
-## Checks
+## Checks: text lint and tests
 
 ```bash
 npm run check
 ```
 
-runs both of these, as does every push and pull request:
+This command runs both of these, as does every pull request and every push to `main`:
 
 - **Text lint** (`npm run lint`): no em dashes, no emoji, and none of a list of filler phrases in anything a reader sees. Quoted regulation text is exempt.
 - **Tests** (`npm test`, Node 22 or later): the regulation comparison, the file format and its upgrades, the completeness checks, the report, the flow map against a golden file, the Ward import, the hosting seam, and the stylesheet rules.
@@ -69,7 +69,7 @@ Do not edit the XML. If the markup changes, adjust `tests/regulation-text.mjs`.
 - Flat. No gradients, shadows, blur, or glow.
 - Two font weights: 400, and 500 for headings and emphasis.
 - Sentence case for headings, labels, and buttons.
-- Nothing smaller than 11 px on screen or 8.25 pt in print.
+- Interface text is at least 11 px and report text at least 8.25 pt. The flow map is an SVG, so its labels scale with its width.
 - Colors come from the tokens at the top of `styles.css`, defined once for light and once for dark. The report has its own fixed light tokens.
 - No icon library. Controls are labelled with words.
 - No browser storage and no network, for any reason.
@@ -94,6 +94,6 @@ bundle exec jekyll serve --baseurl ""
 
 `Gemfile` and `Gemfile.lock` are ignored by Git and excluded from the site.
 
-## Releases
+## Releases and version numbers
 
 Versions follow [semantic versioning](https://semver.org/). The major version tracks the file format version. Record changes in `CHANGELOG.md`.

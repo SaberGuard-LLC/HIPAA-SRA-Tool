@@ -19,7 +19,7 @@ Regulation text on every row, a flat light and dark design, and a report laid ou
 - Security policy, issue templates, a pull request template, and a check that builds the documentation the way GitHub Pages does.
 
 ### Changed
-- The workspace is restyled: flat, no gradients or shadows, two font weights, sentence case throughout, and nothing smaller than 11 px. Inter is bundled so type renders the same on every machine and in print.
+- The workspace is restyled: flat, no gradients or shadows, two font weights, sentence case throughout, and interface text no smaller than 11 px. Inter is bundled so type renders the same on every machine and in print.
 - The sample is now a complete version 4 assessment with a typed inventory, 13 data flows, linked risks, and a verification basis on every row. It prints as Final.
 - The report cover stays on one page. A draft cover states how many checks are open and points to Appendix B.
 - Completeness marks read "Done" and "Open" in words.

@@ -6,7 +6,7 @@ description: How the 65 catalog rows map to the Security Rule, what each status 
 
 # The catalog and scoring
 
-## What a row is
+## What counts as a row
 
 The catalog has one row per standard, one row per titled implementation specification, and one row for the untitled implementation specifications paragraph at 45 CFR 164.314(b)(2).
 
@@ -18,9 +18,9 @@ The catalog has one row per standard, one row per titled implementation specific
 | 45 CFR 164.314 | Organizational requirements | 6 |
 | 45 CFR 164.316 | Policies and procedures and documentation requirements | 5 |
 
-That is 65 rows: 22 standards, 21 Required implementation specifications, and 22 Addressable implementation specifications. The regulation itself states no total. The count is SaberGuard's convention, and every count the workspace displays is derived from the catalog.
+The total is 65 rows: 22 standards, 21 Required implementation specifications, and 22 Addressable implementation specifications. The regulation itself states no total. The count is SaberGuard's convention, and every count the workspace displays is derived from the catalog.
 
-Two conventions are worth knowing:
+Two conventions affect the count and the titles:
 
 - 45 CFR 164.308(b)(1) is counted as a standard because Appendix A to Subpart C lists it as one. Paragraph (b)(2) has no heading and is shown with it.
 - 45 CFR 164.314(b)(2) is headed only "Implementation specifications (Required)", so its title in the catalog, "Plan document provisions", is SaberGuard's label and is marked as such.
@@ -34,7 +34,7 @@ Each row carries two separate texts:
 
 A test compares the regulation wording on every row with the official eCFR text kept in the repository. The same test fails if the regulation gains a standard or a titled specification that the catalog has no row for. See [sources and verification]({{ '/docs/sources/' | relative_url }}).
 
-## Statuses
+## The six statuses and which need a note
 
 | Status | Meaning | Needs a note |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ For an addressable implementation specification, the regulation requires the org
 >
 > (2) Implement an equivalent alternative measure if reasonable and appropriate.
 
-That is 45 CFR 164.306(d)(3) as published. The two addressable-only statuses record the two documented outcomes. Both need a note, and the report prints it.
+The quotation is 45 CFR 164.306(d)(3) as published. The two addressable-only statuses record the two documented outcomes. Both need a note, and the report prints it.
 
 ## Verification basis
 
@@ -99,4 +99,4 @@ The implementation score is:
 (met + alternative measure + half of partial) / applicable rows reviewed
 ```
 
-Rows rated Not applicable or Not implemented, decision documented are left out of the calculation. The score is a progress measure. It is not a compliance score, and the report says so wherever it prints.
+Rows rated Not applicable or Not implemented, decision documented are left out of the calculation. The score is a progress measure. It is not a compliance score. The workspace and the report say so beside the overall score; the per-section scores in the report print with the formula only.

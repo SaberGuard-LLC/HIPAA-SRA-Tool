@@ -36,13 +36,13 @@ Letterhead settings were added in 4.1 as optional fields in `meta`. A file witho
 
 ## What is validated on open
 
-Values the workspace does not recognize fall back to a safe default: an unknown status becomes not reviewed, an unknown kind or zone becomes unknown, an unknown letterhead becomes none. A letterhead logo is kept only if it is an embedded PNG, JPEG, WebP, or SVG image. Unknown catalog row ids are kept as they are, so nothing in a file is dropped.
+Values the workspace does not recognize fall back to a safe default: an unknown status becomes not reviewed, an unknown kind or zone becomes unknown, an unknown letterhead becomes none. A letterhead logo is kept only if it is an embedded PNG, JPEG, WebP, or SVG image. Unknown catalog row ids are kept as they are. A risk's link to a row or flow that no longer exists is removed, and fields the workspace does not know on inventory rows, flows, and risks are not kept.
 
 ## Catalog row ids
 
 Ids such as `A02`, `P09`, or `T12` are stable. An id is never reused with a new meaning. When the regulation or the catalog convention changes, a new id is added and the old one is mapped on open.
 
-## Hosting seam
+## Hosting seam: functions a host can call
 
 The public page keeps nothing. A host that serves its own copy can keep the assessment for the assessor by calling functions on `window.SRA`:
 
@@ -54,4 +54,4 @@ The public page keeps nothing. A host that serves its own copy can keep the asse
 | `isDirty()` | `true` when there are edits since the last save or open. |
 | `setTheme('light' or 'dark')` | Sets the theme. |
 
-SaberGuard's Ward does this behind its own sign-in. Nothing in this repository calls these functions, and the page here makes no network connection.
+SaberGuard's Ward does this behind its own sign-in. The public page uses `snapshot()` and `importAssessment()` only for **Save file** and **Open**, never calls `markSaved()`, and makes no network connection.

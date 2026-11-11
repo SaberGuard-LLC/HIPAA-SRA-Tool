@@ -8,7 +8,7 @@ description: What is planned for the workspace, what is being considered, and wh
 
 Nothing here is a commitment or a date. It is the order SaberGuard expects to work in.
 
-## Next
+## Planned next
 
 Encrypted save.
 : An option to protect the saved file with a passphrase, using the browser's built-in cryptography. The file holds an organization's weaknesses, and today its protection depends entirely on where the assessor stores it.
@@ -40,7 +40,7 @@ A single-file build.
 : The whole workspace as one HTML file for assessors who work offline or on restricted machines.
 
 An accessibility audit.
-: A full review against WCAG 2.2 AA with assistive technology, beyond the keyboard and contrast checks done so far.
+: A full review against WCAG 2.2 AA with assistive technology. None has been done yet.
 
 ## Deliberately left out
 
@@ -59,6 +59,6 @@ Electronic signatures.
 Analytics.
 : Of any kind.
 
-## Suggesting something
+## Suggesting a change
 
 Open an [issue](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues/new/choose). For anything about what the regulation says, include the citation.

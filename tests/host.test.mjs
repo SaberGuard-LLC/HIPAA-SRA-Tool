@@ -13,7 +13,9 @@ test('the page exposes what a host needs and nothing calls it by default', () =>
   for (const name of ['snapshot', 'markSaved', 'isDirty', 'importAssessment', 'attachWardEvidence']) {
     assert.ok(new RegExp(`\\b${name}\\b`).test(exposed), `window.SRA.${name}`);
   }
-  assert.ok(!/SRAHost|fetch\(|XMLHttpRequest|sendBeacon|WebSocket/.test(app), 'app.js makes no network call');
+  for (const f of ['app.js', 'theme.js', 'catalog.js', 'format.js', 'ephi-map.js', 'report.js', 'ward.js']) {
+    assert.ok(!/SRAHost|fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/.test(read(`assets/${f}`)), `${f} makes no network call`);
+  }
 });
 
 test('saving a file and a host snapshot serialize the same way', () => {
