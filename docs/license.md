@@ -1,6 +1,6 @@
 ---
 title: License
-nav_order: 13
+nav_order: 14
 description: What the PolyForm Shield License 1.0.0 allows, in plain language, and how to get a commercial license.
 ---
 

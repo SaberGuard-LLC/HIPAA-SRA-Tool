@@ -26,14 +26,14 @@ Your work is in the tab's memory until you save a JSON file or print. Closing or
 The saved file and the printed report describe an organization's security weaknesses.
 {: .warning }
 
-- Store them only in an approved, encrypted location. The workspace does not encrypt the file it saves.
+- Store them only in an approved, encrypted location. **Save** writes plain JSON. **Save protected file** encrypts the file with a passphrase; see [file format]({{ '/docs/file-format/' | relative_url }}). A PDF of the report is never encrypted by the workspace.
 - Do not attach evidence that shows patient identifiers. Redact names, dates of birth, record numbers, and similar identifiers first. The workspace warns at the attach control but cannot inspect what you attach.
 - Share the report only with people who need it: leadership, the security and privacy officials, counsel, and those doing the remediation.
 - Retain the analysis and its supporting records for at least 6 years (45 CFR 164.316(b)(2)(i)), or longer if state law or a contract requires.
 
 ## Size limits for evidence and logos
 
-Attachments are limited to 10 MB per file and 25 MB per assessment. They are embedded in the saved file. "Save file without evidence" writes the same file with the names and sizes of the attachments but not their contents.
+Attachments are limited to 10 MB per file and 25 MB per assessment. They are embedded in the saved file, with the SHA-256 of each recorded when it is attached. "Save without evidence" writes the same file with the names, sizes, and SHA-256 of the attachments but not their contents.
 
 A letterhead logo is limited to 512 KB and is also kept in the saved file.
 
@@ -45,7 +45,7 @@ The workspace is static files. Any web server can host it, and it also runs from
 - GitHub Pages does not send those headers. The policy in the page's own `<meta>` tag still applies.
 - Offering the workspace to others as a hosted service needs a commercial license from SaberGuard. Hosting a copy for your own organization does not. See [license]({{ '/docs/license/' | relative_url }}).
 
-A host can keep assessments for its users through three functions on `window.SRA`: `snapshot()` returns the assessment as the object a saved file holds, `importAssessment()` opens one, and `markSaved()` clears the unsaved-changes warning. `setTheme('dark')` sets the theme. The public page uses `snapshot()` and `importAssessment()` only for **Save file** and **Open**, and never calls `markSaved()`. See [file format]({{ '/docs/file-format/' | relative_url }}).
+A host can keep assessments for its users through three functions on `window.SRA`: `snapshot()` returns the assessment as the object a saved file holds, `importAssessment()` opens one, and `markSaved()` clears the unsaved-changes warning. `setTheme('dark')` sets the theme. The public page uses `snapshot()` and `importAssessment()` only for **Save** and **Open**, and never calls `markSaved()`. See [file format]({{ '/docs/file-format/' | relative_url }}).
 
 ## Reporting a security problem
 

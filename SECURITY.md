@@ -70,6 +70,6 @@ OpenSSF Scorecard runs weekly and on every push to `main`. CodeQL and the securi
 
 Every action in the workflows is pinned to a full commit SHA, every job starts with no permissions and asks only for what it needs, and checkouts do not keep credentials. Dependabot opens weekly updates for the actions.
 
-## Saved files and PDFs are not encrypted
+## Saved files and PDFs
 
-The saved JSON file is not encrypted, and neither is a PDF of the report. Their protection is where you store them. Keep them in an approved, encrypted location. A passphrase-protected save is planned for version 5.0.0.
+**Save file** writes plain JSON. **Save protected file** encrypts the assessment with AES-256-GCM, using a key derived from a passphrase with PBKDF2-SHA-256 and 600,000 iterations; a lost passphrase cannot be recovered. A PDF of the report is not encrypted by the workspace. Keep every copy in an approved, encrypted location.

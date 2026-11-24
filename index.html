@@ -7,75 +7,118 @@
   <meta name="description" content="A browser-based workspace from SaberGuard for documenting a HIPAA Security Rule risk analysis. Record an ePHI inventory, review Security Rule standards and implementation specifications, build a risk register, and print a report. Not the HHS SRA Tool and not a replacement for it.">
   <meta name="color-scheme" content="light dark">
   <title>SaberGuard SRA Workspace</title>
-  <link rel="icon" href="SaberGuard_1.png" type="image/png">
+  <link rel="icon" href="assets/favicon.png" type="image/png" sizes="64x64">
   <link rel="stylesheet" href="assets/styles.css">
   <script src="assets/theme.js"></script>
 </head>
-<body>
-<a class="skip-link no-print" href="#workspace">Skip to the workspace</a>
+<body class="on-start">
+<a class="skip-link no-print" href="#main">Skip to the workspace</a>
 <div class="app" id="app">
   <header class="topbar no-print">
-    <a class="brand" href="#overview" id="brandLink">
-      <img class="logo" src="SaberGuard_1.png" alt="SaberGuard">
-      <div><div class="brand-name">SaberGuard SRA Workspace</div><div class="brand-sub">Runs in your browser. No assessment data is sent to a server.</div></div>
-    </a>
+    <a class="brand" href="#overview" id="brandLink" aria-label="SaberGuard SRA Workspace, overview"><img class="logo" src="assets/logo.png" width="115" height="28" alt=""><img class="mark" src="assets/favicon.png" width="28" height="28" alt=""></a>
+    <div class="doc-title">
+      <div class="doc-org" id="docOrg">SaberGuard SRA Workspace</div>
+      <div class="doc-sub" id="docSub">HIPAA Security Rule risk analysis</div>
+    </div>
+    <span class="save-pill" id="dirtyStatus" role="status" aria-live="polite"></span>
     <div class="top-actions">
-      <span class="top-status" id="dirtyStatus" role="status" aria-live="polite"></span>
-      <button class="btn ghost" id="themeBtn" type="button" aria-pressed="false" title="Switch between the light and dark theme">Dark mode</button>
-      <button class="btn" id="importBtn" type="button" title="Open a saved assessment (.json)"><span class="label">Open</span></button>
-      <button class="btn" id="exportBtn" type="button" title="Save this assessment as a local JSON file (Ctrl or Cmd + S)"><span class="label">Save file</span></button>
-      <button class="btn optional" id="previewBtn" type="button" title="Preview the printed report"><span class="label">Preview report</span></button>
-      <button class="btn primary" id="printBtn" type="button" title="Print or save the report as PDF"><span class="label">Print / PDF</span></button>
+      <button class="btn ghost" id="themeBtn" type="button" aria-pressed="false">Dark theme</button>
+      <div class="menu-wrap">
+        <button class="btn" id="fileBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="fileMenu">File</button>
+        <div class="menu" id="fileMenu" role="menu" aria-labelledby="fileBtn" hidden>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="open">Open</button>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save">Save<span class="kbd" aria-hidden="true">Ctrl or Cmd + S</span></button>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save-protected" id="menuProtected">Save protected file</button>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save-lean">Save without evidence</button>
+          <div class="menu-sep" role="separator"></div>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="export-csv">Export remediation plan (CSV)</button>
+        </div>
+      </div>
+      <button class="btn optional" id="previewBtn" type="button">Preview report</button>
+      <button class="btn primary" id="printBtn" type="button">Print / PDF</button>
       <input id="importFile" type="file" accept="application/json,.json" hidden>
     </div>
   </header>
-  <div class="affiliation no-print">This is not the HHS Security Risk Assessment (SRA) Tool. SaberGuard SRA Workspace is published by SaberGuard LLC, is not affiliated with or endorsed by HHS, and does not replace the HHS tool.</div>
 
-  <div class="layout">
-    <aside class="sidebar no-print" id="sidebar">
-      <div class="nav-label">Assessment workflow</div>
-      <nav class="nav" id="nav" aria-label="Assessment workflow">
-        <a href="#overview" data-nav="overview"><span class="num">00</span>Overview</a>
-        <a href="#profile" data-nav="profile"><span class="num">01</span>Organization &amp; scope<span class="dot" data-dot="profile"></span></a>
-        <a href="#inventory" data-nav="inventory"><span class="num">02</span>ePHI inventory<span class="dot" data-dot="inventory"></span></a>
-        <a href="#map" data-nav="map"><span class="num">03</span>ePHI flow map<span class="dot" data-dot="map"></span></a>
-        <a href="#controlsSection" data-nav="controlsSection"><span class="num">04</span>Catalog review<span class="dot" data-dot="controls"></span></a>
-        <a href="#risks" data-nav="risks"><span class="num">05</span>Risk register<span class="dot" data-dot="risks"></span></a>
-        <a href="#attestation" data-nav="attestation"><span class="num">06</span>Summary &amp; attestation<span class="dot" data-dot="attestation"></span></a>
-        <a href="#report" data-nav="report"><span class="num">07</span>Report &amp; checks<span class="dot" data-dot="report"></span></a>
+  <div class="layout" id="layout">
+    <aside class="rail no-print" id="rail">
+      <nav aria-label="Assessment steps">
+        <ol class="steps">
+          <li><a href="#overview" data-step="overview"><span class="num">0</span><span class="step-text"><span class="step-name">Overview</span><span class="step-status" data-status="overview"></span></span></a></li>
+          <li><a href="#profile" data-step="profile"><span class="num">1</span><span class="step-text"><span class="step-name">Organization and scope</span><span class="step-status" data-status="profile"></span></span></a></li>
+          <li><a href="#inventory" data-step="inventory"><span class="num">2</span><span class="step-text"><span class="step-name">ePHI inventory</span><span class="step-status" data-status="inventory"></span></span></a></li>
+          <li><a href="#map" data-step="map"><span class="num">3</span><span class="step-text"><span class="step-name">ePHI flow map</span><span class="step-status" data-status="map"></span></span></a></li>
+          <li><a href="#catalog" data-step="catalog"><span class="num">4</span><span class="step-text"><span class="step-name">Catalog review</span><span class="step-status" data-status="catalog"></span></span></a></li>
+          <li><a href="#risks" data-step="risks"><span class="num">5</span><span class="step-text"><span class="step-name">Risk register</span><span class="step-status" data-status="risks"></span></span></a></li>
+          <li><a href="#attestation" data-step="attestation"><span class="num">6</span><span class="step-text"><span class="step-name">Summary and attestation</span><span class="step-status" data-status="attestation"></span></span></a></li>
+          <li><a href="#report" data-step="report"><span class="num">7</span><span class="step-text"><span class="step-name">Report and checks</span><span class="step-status" data-status="report"></span></span></a></li>
+        </ol>
       </nav>
-      <div class="sidebar-foot">
-        <div class="side-progress"><b id="sideProgressLabel"></b> catalog rows reviewed<div class="progress"><span id="sideProgress"></span></div></div>
-        <div class="privacy-card"><strong>Runs locally</strong>What you enter stays in this tab's memory and is not sent anywhere. It is gone when you close or reload the tab unless you save a JSON file. Store that file in an encrypted location.</div>
-      </div>
+      <p class="rail-foot">Not the HHS SRA Tool, and not legal advice. What you enter stays in this tab.</p>
     </aside>
 
-    <main class="main" id="workspace" tabindex="-1">
-      <section class="hero" id="overview">
-        <div class="eyebrow">HIPAA Security Rule · 45 CFR Part 164, Subpart C</div>
-        <h1>Document a HIPAA Security Rule risk analysis.</h1>
-        <p>Record where ePHI is stored, received, maintained or transmitted, review the Security Rule standards and implementation specifications, rate risks by likelihood and impact, assign remediation, and print a report. Runs in a browser with nothing to install, no account, and one working file.</p>
-        <p class="hero-note">Published by SaberGuard LLC. This workspace is not the HHS Security Risk Assessment (SRA) Tool, is not affiliated with or endorsed by HHS, and does not replace the HHS tool. Using it does not by itself make a risk analysis complete or establish compliance with the HIPAA Security Rule.</p>
-        <div class="hero-grid">
-          <div class="metric"><b id="completeMetric">0%</b><span>Assessment complete</span></div>
-          <div class="metric"><b id="answeredMetric"></b><span>Catalog rows reviewed</span></div>
-          <div class="metric"><b id="openRiskMetric">0</b><span>Risks recorded</span></div>
-          <div class="metric"><b id="evidenceMetric">0</b><span>Evidence files</span></div>
+    <main class="main" id="main" tabindex="-1">
+      <section class="view start" data-view="start" aria-labelledby="startTitle">
+        <h1 id="startTitle">HIPAA Security Rule risk analysis, in your browser</h1>
+        <p class="start-lede">Inventory where ePHI lives, review every Security Rule standard and implementation specification beside the regulation's own text, rate the risks, and print a report laid out for signature.</p>
+        <div class="start-actions">
+          <button class="start-btn primary" id="startNew" type="button"><span class="t">Start a new assessment</span><span class="d">Begin with the organization and scope.</span></button>
+          <button class="start-btn" id="startOpen" type="button"><span class="t">Open a saved file</span><span class="d">A .json or passphrase-protected .sra.json file.</span></button>
+          <button class="start-btn" id="startSample" type="button"><span class="t">Explore the sample clinic</span><span class="d">A finished, fictitious assessment to look around in.</span></button>
         </div>
-        <div class="mobile-progress"><div class="progress"><span id="mobileProgress"></span></div></div>
+        <p class="file-status" id="startStatus" role="status"></p>
+        <h2 class="start-h">Seven steps, and what each produces</h2>
+        <ol class="start-steps">
+          <li><b>Organization and scope</b><span>The scope, the entity profile, and an interview log.</span></li>
+          <li><b>ePHI inventory</b><span>Every system, device, person, and vendor that touches ePHI, and the flows between them.</span></li>
+          <li><b>ePHI flow map</b><span>A drawing of the inventory, with unencrypted flows marked.</span></li>
+          <li><b>Catalog review</b><span>A status, a verification basis, and evidence for each of the 65 rows.</span></li>
+          <li><b>Risk register</b><span>Threats, vulnerabilities, ratings, owners, and target dates.</span></li>
+          <li><b>Summary and attestation</b><span>The executive summary and the management statement.</span></li>
+          <li><b>Report</b><span>A report on your letterhead, ready to sign.</span></li>
+        </ol>
+        <div class="trust">
+          <div><h2>Regulation text checked against eCFR</h2><p>Every catalog row is compared by test with the official eCFR text of 45 CFR Part 164, Subpart C. Last checked <span id="startChecked"></span>.</p></div>
+          <div><h2>Nothing sent, nothing stored</h2><p>The page makes no network connection and keeps nothing in the browser. Your work stays in this tab until you save a file.</p></div>
+          <div><h2>Source available and tested</h2><p>The code is published, and every change runs the tests, a text lint, and security scans before it ships.</p></div>
+        </div>
+        <p class="assessor-row">Rather have an assessor run it with you? <a href="https://saberguard.tech" rel="noopener">SaberGuard performs HIPAA risk analyses</a>.</p>
       </section>
 
-      <section class="section" id="profile">
-        <div class="section-head">
-          <div><div class="step">Step 1 of 7</div><h2>Organization &amp; assessment scope</h2><p class="help">Define who, what, and where is included before reviewing the catalog. The entity profile decides which business associate duty applies and marks the clearinghouse and group health plan rows Not applicable with the basis recorded. These details populate the report cover, document control block, and scope section.</p></div>
-          <span class="badge">Required foundation</span>
+      <section class="view" data-view="overview" aria-labelledby="overviewTitle" hidden>
+        <div class="view-head"><div><div class="step">Overview</div><h1 id="overviewTitle">Readiness and progress</h1></div></div>
+        <div class="readiness" id="readinessBanner"></div>
+        <div class="tiles" id="tiles"></div>
+        <div class="overview-grid">
+          <section class="panel" aria-labelledby="barsTitle">
+            <h2 id="barsTitle">Catalog status by safeguard</h2>
+            <div class="bars" id="bars"></div>
+            <div class="bar-legend" id="barLegend"></div>
+          </section>
+          <section class="panel" aria-labelledby="nextTitle">
+            <h2 id="nextTitle">Before the next review</h2>
+            <div id="nextPanel"></div>
+          </section>
+        </div>
+        <section class="panel" aria-labelledby="topTitle">
+          <h2 id="topTitle">Highest risks</h2>
+          <div id="topRisks"></div>
+        </section>
+      </section>
+
+      <section class="view section" data-view="profile" aria-labelledby="profileTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 1 of 7</div><h1 id="profileTitle">Organization and assessment scope</h1>
+            <p class="lede">Who is assessed, what is in scope, and how the work was done.</p>
+            <details class="how"><summary>How to complete this step</summary><p class="help">Define who, what, and where is included before reviewing the catalog. The entity profile decides which business associate duty applies and marks the clearinghouse and group health plan rows Not applicable with the basis recorded. These details populate the report cover, document control block, and scope section.</p></details>
+          </div>
         </div>
         <div class="form-grid">
           <div class="field"><label for="entityType">Entity type</label><small>Covered entity, business associate, or both.</small><select class="meta" id="entityType"><option value="">Not answered</option><option value="covered-entity">Covered entity</option><option value="business-associate">Business associate</option><option value="both">Both</option></select></div>
           <div class="field"><label for="clearinghouse">Health care clearinghouse that is part of a larger organization</label><small>No marks 45 CFR 164.308(a)(4)(ii)(A) Not applicable with the basis recorded.</small><select class="meta" id="clearinghouse"><option value="">Not answered</option><option value="yes">Yes</option><option value="no">No</option></select></div>
           <div class="field"><label for="groupHealthPlan">Group health plan</label><small>No marks 45 CFR 164.314(b)(1) and (b)(2) Not applicable with the basis recorded.</small><select class="meta" id="groupHealthPlan"><option value="">Not answered</option><option value="yes">Yes</option><option value="no">No</option></select></div>
           <div class="field"><label for="orgName">Organization name</label><input class="input meta" id="orgName" placeholder="Example Health Clinic" autocomplete="organization"></div>
-          <div class="field"><label for="orgType">Entity description &amp; location</label><input class="input meta" id="orgType" placeholder="Outpatient clinic · Austin, TX"></div>
+          <div class="field"><label for="orgType">Entity description and location</label><input class="input meta" id="orgType" placeholder="Outpatient clinic · Austin, TX"></div>
           <div class="field"><label for="assessmentDate">Assessment date</label><input class="input meta" id="assessmentDate" type="date"></div>
           <div class="field"><label for="period">Review period</label><input class="input meta" id="period" placeholder="January 1 to December 31, 2026"></div>
           <div class="field"><label for="assessor">Lead assessor</label><small>Name, title, and firm as it should appear on the report. The report names this person or firm as its preparer.</small><input class="input meta" id="assessor" placeholder="Name, title, firm"></div>
@@ -85,26 +128,36 @@
           <div class="field"><label for="nextReview">Next planned review</label><small>Set by the organization. The Security Rule sets no fixed interval. The analysis is also updated when environmental or operational changes affect the security of ePHI (45 CFR 164.306(e) and 164.316(b)(2)(iii)).</small><input class="input meta" id="nextReview" type="date"></div>
           <div class="field full"><label for="scope">Scope statement</label><small>Include locations, workforce, systems, ePHI flows, vendors, and explicit exclusions.</small><textarea class="meta" id="scope" placeholder="This analysis covers..."></textarea></div>
           <div class="field"><label for="environment">Environment summary</label><small>EHR, cloud services, endpoints, facilities, network, and vendors.</small><textarea class="meta" id="environment" placeholder="EHR platform, Microsoft 365, 24 managed laptops, one clinic location..."></textarea></div>
-          <div class="field"><label for="methodology">Methodology &amp; participants</label><small>Interviews, document review, technical validation, sampling, and who took part.</small><textarea class="meta" id="methodology" placeholder="Interviews with the practice administrator and IT vendor; review of policies, business associate agreements, and training records; configuration review of..."></textarea></div>
+          <div class="field"><label for="methodology">Methodology and participants</label><small>Interviews, document review, technical validation, sampling, and who took part.</small><textarea class="meta" id="methodology" placeholder="Interviews with the practice administrator and IT vendor; review of policies, business associate agreements, and training records; configuration review of..."></textarea></div>
         </div>
+        <div class="sub-head"><h2>Interview and document log</h2><p class="help">One row per interview, walkthrough, or document review. The report prints this table in its methodology section, after the text above.</p></div>
+        <div class="table-scroll"><table class="data-table interview-table"><thead><tr><th class="w16" scope="col">Participant</th><th class="w16" scope="col">Role</th><th class="w12" scope="col">Date</th><th scope="col">Topics</th><th class="w16" scope="col">Method</th><th class="no-print w36px" scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody id="interviewRows"></tbody></table></div>
+        <div class="empty" id="interviewEmpty">No interviews, walkthroughs, or document reviews recorded.</div>
+        <div class="output-actions no-print"><button class="btn" id="addInterview" type="button">Add log entry</button></div>
       </section>
 
-      <section class="section" id="inventory">
-        <div class="section-head">
-          <div><div class="step">Step 2 of 7</div><h2>ePHI systems &amp; data-flow inventory</h2><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, then record the flows between them. Record electronic PHI only; paper records are not ePHI. Unknown is a recorded gap, not a no: a row left unclassified fails a completeness check.</p></div>
+      <section class="view section" data-view="inventory" aria-labelledby="inventoryTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 2 of 7</div><h1 id="inventoryTitle">ePHI systems and data-flow inventory</h1>
+            <p class="lede">Everything that stores, receives, maintains, or transmits ePHI, and the flows between them.</p>
+            <details class="how"><summary>How to complete this step</summary><p class="help">The risk analysis covers all ePHI the organization holds (45 CFR 164.308(a)(1)(ii)(A)). Record every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI, then record the flows between them. Record electronic PHI only; paper records are not ePHI. Unknown is a recorded gap, not a no: a row left unclassified fails a completeness check.</p></details>
+          </div>
           <button class="btn primary no-print" id="addAsset" type="button">Add system or location</button>
         </div>
         <div class="assets" id="assetRows"></div>
         <div class="empty" id="assetEmpty">No ePHI systems or locations recorded. Include people, EHRs, email, endpoints, file shares, backups, medical devices, cloud vendors, outside parties, and physical locations.</div>
-        <div class="sub-head"><h3>Data flows</h3><p class="help">One row per connection that carries ePHI between two inventory rows. "Fax" means an electronic fax service. Direct entry is a person typing into a device. Unknown transport or encryption is a recorded gap.</p></div>
-        <div class="table-scroll"><table class="data-table flows-table"><thead><tr><th class="w4">#</th><th class="w16">From</th><th class="w10">Direction</th><th class="w16">To</th><th class="w16">ePHI carried</th><th class="w12">Transport</th><th class="w11">Encrypted in transit</th><th>Notes</th><th class="no-print w36px"></th></tr></thead><tbody id="flowRows"></tbody></table></div>
+        <div class="sub-head"><h2>Data flows</h2><p class="help">One row per connection that carries ePHI between two inventory rows. "Fax" means an electronic fax service. Direct entry is a person typing into a device. Unknown transport or encryption is a recorded gap.</p></div>
+        <div class="table-scroll"><table class="data-table flows-table"><thead><tr><th class="w4" scope="col">#</th><th class="w16" scope="col">From</th><th class="w10" scope="col">Direction</th><th class="w16" scope="col">To</th><th class="w16" scope="col">ePHI carried</th><th class="w12" scope="col">Transport</th><th class="w11" scope="col">Encrypted in transit</th><th scope="col">Notes</th><th class="no-print w36px" scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody id="flowRows"></tbody></table></div>
         <div class="empty" id="flowEmpty">No data flows recorded. Add the connections between people, devices, systems, vendors, outside parties, and backups.</div>
         <div class="output-actions no-print"><button class="btn" id="addFlow" type="button">Add data flow</button></div>
       </section>
 
-      <section class="section" id="map">
-        <div class="section-head">
-          <div><div class="step">Step 3 of 7</div><h2>ePHI flow map</h2><p class="help">Drawn from the inventory and data flows above. Three columns: people and devices in the practice, the systems that hold ePHI with their backups listed inside, and the outside parties ePHI is shared with. Direct-entry flows are not drawn. A line carries a label only when it is not encrypted or not checked. Tags are risk register references. Every row or flow flagged for a missing or unconfirmed business associate agreement, encryption, or multi-factor authentication needs a linked risk before the report leaves draft.</p></div>
+      <section class="view section" data-view="map" aria-labelledby="mapTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 3 of 7</div><h1 id="mapTitle">ePHI flow map</h1>
+            <p class="lede">Drawn from the inventory and data flows. There is nothing to arrange.</p>
+            <details class="how"><summary>How to read the map</summary><p class="help">Three columns: people and devices in the practice, the systems that hold ePHI with their backups listed inside, and the outside parties ePHI is shared with. Direct-entry flows are not drawn. A line carries a label only when it is not encrypted or not checked. Tags are risk register references. Every row or flow flagged for a missing or unconfirmed business associate agreement, encryption, or multi-factor authentication needs a linked risk before the report leaves draft.</p></details>
+          </div>
         </div>
         <div class="map-facts" id="mapFacts"></div>
         <div class="map-box" id="mapBox"></div>
@@ -112,47 +165,68 @@
         <div class="map-attention" id="mapAttention"></div>
       </section>
 
-      <section class="section" id="controlsSection">
-        <div class="section-head">
-          <div><div class="step">Step 4 of 7</div><h2>Review the Security Rule catalog</h2><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis. Record for each row how the status was verified: observed, document reviewed, or stated by the client.</p></div>
-          <div class="progress-block"><div class="progress"><span id="controlProgress"></span></div><div class="file-status" id="progressLabel"></div></div>
+      <section class="view section catalog-view" data-view="catalog" aria-labelledby="catalogTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 4 of 7</div><h1 id="catalogTitle">Review the Security Rule catalog</h1>
+            <p class="lede">A status, a verification basis, and notes for each standard and implementation specification.</p>
+            <details class="how"><summary>How to complete this step</summary><p class="help">Review each Security Rule standard and implementation specification. Addressable does not mean optional. For each addressable specification, assess whether it is reasonable and appropriate in your environment. If it is, implement it. If it is not, document why and implement an equivalent alternative measure if one is reasonable and appropriate (45 CFR 164.306(d)(3)). Record that reason in the notes when you choose Alternative measure in place or Not implemented, decision documented. Use Not applicable only when the provision does not apply to the organization, and record the basis. Record for each row how the status was verified: observed, document reviewed, or stated by the client.</p></details>
+          </div>
+          <div class="progress-block"><div class="progress" aria-hidden="true"><span id="controlProgress"></span></div><div class="file-status" id="progressLabel"></div></div>
         </div>
-        <div class="ward-import no-print">
-          <button class="btn" id="wardBtn" type="button" title="Attach a Ward evidence file (.json) to the matching catalog rows">Attach Ward evidence</button>
-          <input id="wardFile" type="file" accept="application/json,.json" hidden>
-          <p class="help">A Ward evidence file holds the rule outcomes and facts from SaberGuard Ward, grouped by citation: Microsoft 365 or Google Workspace configuration, device state from Level, mail domain DNS records, and the answers recorded in the interview. Each safeguard is attached as a JSON file to the row with the same citation, and rows with no notes get one line naming the collections, the rule outcome and the facts, with the basis of each attested fact. Statuses and verification basis are not changed. Attaching the same file again adds nothing, and neither does a newer file that says the same thing about a row. The services and devices Ward saw, and its open findings, are offered as inventory rows and draft risks that you add by choice.</p>
-          <div class="file-status" id="wardStatus"></div>
-          <div class="ward-drafts" id="wardDrafts" hidden></div>
-        </div>
-        <div class="filters no-print" id="filters">
-          <button class="filter active" data-filter="all" type="button">All</button>
-          <button class="filter" data-filter="administrative" type="button">Administrative</button>
-          <button class="filter" data-filter="physical" type="button">Physical</button>
-          <button class="filter" data-filter="technical" type="button">Technical</button>
-          <button class="filter" data-filter="organization" type="button">Organizational</button>
-          <button class="filter" data-filter="documentation" type="button">Documentation</button>
-          <button class="filter" data-filter="gaps" type="button">Gaps only<span class="count" id="gapCount"></span></button>
-          <button class="filter" data-filter="unreviewed" type="button">Not yet reviewed<span class="count" id="unreviewedCount"></span></button>
-          <button class="filter" data-filter="carried" type="button">Carried from version 3<span class="count" id="carriedCount"></span></button>
-        </div>
-        <div class="controls" id="controls"></div>
-      </section>
-
-      <section class="section" id="risks">
-        <div class="section-head">
-          <div><div class="step">Step 5 of 7</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
-          <div class="risk-toolbar no-print">
-            <select id="scenarioPick" aria-label="Add a risk from the risk scenario library"><option value="">Add from risk scenario library</option></select>
-            <button class="btn primary" id="addRisk" type="button">Add risk</button>
+        <div class="cat-toolbar no-print">
+          <div class="filters" id="filters" role="group" aria-label="Filter catalog rows"></div>
+          <div class="cat-tools">
+            <label class="sr-only" for="catalogSearch">Search the catalog</label>
+            <input class="input search" id="catalogSearch" type="search" placeholder="Search id, citation, title, or text" autocomplete="off">
+            <button class="btn" id="wardBtn" type="button">Attach Ward evidence</button>
+            <input id="wardFile" type="file" accept="application/json,.json" hidden>
           </div>
         </div>
-        <div class="risks" id="riskRows"></div>
-        <div class="empty" id="riskEmpty">No risks recorded yet. Add risks identified during interviews, evidence review, or the catalog review, or start from the risk scenario library.</div>
+        <details class="how ward-help no-print"><summary>About Ward evidence</summary><p class="help">A Ward evidence file holds the rule outcomes and facts from SaberGuard Ward, grouped by citation: Microsoft 365 or Google Workspace configuration, device state from Level, mail domain DNS records, and the answers recorded in the interview. Each safeguard is attached as a JSON file to the row with the same citation, and rows with no notes get one line naming the collections, the rule outcome and the facts, with the basis of each attested fact. Statuses and verification basis are not changed. Attaching the same file again adds nothing, and neither does a newer file that says the same thing about a row. The services and devices Ward saw, and its open findings, are offered as inventory rows and draft risks that you add by choice.</p></details>
+        <div class="file-status" id="wardStatus" role="status"></div>
+        <div class="ward-drafts" id="wardDrafts" hidden></div>
+        <div class="master-detail">
+          <nav class="cat-list" id="catList" aria-label="Catalog rows"></nav>
+          <div class="cat-detail" id="catDetail"></div>
+        </div>
+        <div class="cat-foot no-print" id="catFoot"></div>
       </section>
 
-      <section class="section" id="attestation">
-        <div class="section-head">
-          <div><div class="step">Step 6 of 7</div><h2>Executive summary &amp; management attestation</h2><p class="help">Write the narrative that opens the report, then name the accountable approver. If the narrative is left blank, the report generates a factual summary from the results.</p></div>
+      <section class="view section" data-view="risks" aria-labelledby="risksTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 5 of 7</div><h1 id="risksTitle">Risk register and remediation plan</h1>
+            <p class="lede">Threats, the vulnerabilities they would exploit, ratings, and the plan for each.</p>
+            <details class="how"><summary>How to complete this step</summary><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></details>
+          </div>
+        </div>
+        <div class="risk-toolbar no-print">
+          <label class="sr-only" for="scenarioPick">Add a risk from the risk scenario library</label>
+          <select id="scenarioPick"><option value="">Add from risk scenario library</option></select>
+          <button class="btn" id="csvBtn" type="button">Export CSV</button>
+          <button class="btn primary" id="addRisk" type="button">Add risk</button>
+        </div>
+        <div class="filters risk-filters no-print" id="riskFilters" role="group" aria-label="Filter risks"></div>
+        <div class="risk-layout">
+          <div class="risk-main">
+            <div class="table-scroll"><table class="risk-table" id="riskTable"><caption class="sr-only">Risk register. Choose a risk id to open its form.</caption><thead><tr><th scope="col">ID</th><th scope="col">Threat and vulnerability</th><th scope="col">Inherent</th><th scope="col">Treatment</th><th scope="col">Owner</th><th scope="col">Target</th><th scope="col">Residual</th><th scope="col">Status</th></tr></thead><tbody id="riskRows"></tbody></table></div>
+            <div class="empty" id="riskEmpty">No risks recorded yet. Add risks identified during interviews, evidence review, or the catalog review, or start from the risk scenario library.</div>
+          </div>
+          <aside class="risk-side" aria-label="Heat map and coverage">
+            <section class="panel" aria-labelledby="heatTitle">
+              <div class="panel-head"><h2 id="heatTitle">Heat map</h2><div class="seg-toggle" role="group" aria-label="Rating shown"><button type="button" class="btn small" id="heatInherent" aria-pressed="true">Inherent</button><button type="button" class="btn small" id="heatResidual" aria-pressed="false">Residual</button></div></div>
+              <div id="heatMap"></div>
+            </section>
+            <section class="panel coverage" id="coverage" aria-label="Coverage"></section>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view section" data-view="attestation" aria-labelledby="attestationTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 6 of 7</div><h1 id="attestationTitle">Executive summary and management attestation</h1>
+            <p class="lede">The narrative that opens the report, and the accountable approver.</p>
+            <details class="how"><summary>How to complete this step</summary><p class="help">Write the narrative that opens the report, then name the accountable approver. If the narrative is left blank, the report generates a factual summary from the results.</p></details>
+          </div>
         </div>
         <div class="form-grid">
           <div class="field full"><label for="executiveSummary">Executive summary narrative</label><small>Overall posture, most significant risks, notable strengths, and the recommended priorities for leadership.</small><textarea class="meta tall" id="executiveSummary" placeholder="Leave blank to generate a summary from the assessment results, or write the assessor's narrative here."></textarea></div>
@@ -161,9 +235,12 @@
         </div>
       </section>
 
-      <section class="section" id="report">
-        <div class="section-head">
-          <div><div class="step">Step 7 of 7</div><h2>Report &amp; completeness checks</h2><p class="help">Preview the report on screen, then use Print / PDF to produce the deliverable. Save the JSON file to keep an editable record. The checks below test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough.</p></div>
+      <section class="view section" data-view="report" aria-labelledby="reportTitle" hidden>
+        <div class="view-head">
+          <div><div class="step">Step 7 of 7</div><h1 id="reportTitle">Report and completeness checks</h1>
+            <p class="lede">Check what is still open, choose a letterhead, and print.</p>
+            <details class="how"><summary>How to complete this step</summary><p class="help">Preview the report on screen, then use Print / PDF to produce the deliverable. Save the JSON file to keep an editable record. The checks below test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough.</p></details>
+          </div>
           <span class="badge" id="readinessBadge">Draft</span>
         </div>
         <div class="summary-grid">
@@ -177,7 +254,7 @@
         <div class="form-grid status-grid">
           <div class="field"><label for="reportStatus">Report status</label><small>The report prints as Draft, with a watermark, until every check passes and you set Final here.</small><select class="meta" id="reportStatus"><option>Draft</option><option>Final</option></select></div>
         </div>
-        <div class="sub-head"><h3>Letterhead and signatures</h3><p class="help">The report prints with no letterhead unless you choose one here. A firm letterhead prints the firm's name, contact details and logo at the top of the cover and names the firm beside the assessor's signature line. Choose pre-printed paper to leave the top of the cover blank for letterhead stock. Signatures are made by hand on the printed report in section 09.</p></div>
+        <div class="sub-head"><h2>Letterhead and signatures</h2><p class="help">The report prints with no letterhead unless you choose one here. A firm letterhead prints the firm's name, contact details and logo at the top of the cover and names the firm beside the assessor's signature line. Choose pre-printed paper to leave the top of the cover blank for letterhead stock. Signatures are made by hand on the printed report in section 09.</p></div>
         <div class="form-grid">
           <div class="field"><label for="letterhead">Letterhead</label><select class="meta" id="letterhead"><option value="">None</option><option value="firm">Firm letterhead, printed by the report</option><option value="preprinted">Pre-printed letterhead paper, leave space</option></select></div>
           <div class="field" data-letterhead="preprinted"><label for="letterheadSpace">Space to leave at the top of the cover</label><select class="meta" id="letterheadSpace"><option value="15">1.5 inches</option><option value="20" selected>2 inches</option><option value="25">2.5 inches</option></select></div>
@@ -194,13 +271,16 @@
           <button class="btn primary" id="printBtn2" type="button">Print / Save as PDF</button>
           <button class="btn" id="exportBtn2" type="button">Save assessment file</button>
           <button class="btn" id="exportNoEvidenceBtn" type="button">Save file without evidence</button>
+          <button class="btn" id="saveProtectedBtn" type="button">Save protected file</button>
         </div>
-        <p class="help">"Save file without evidence" writes the same file with the names and sizes of attached evidence but not the files themselves, for sharing the assessment without the attachments. Evidence stays in this tab until you save the full file.</p>
+        <p class="help">"Save file without evidence" writes the same file with the names, sizes, and SHA-256 of attached evidence but not the files themselves, for sharing the assessment without the attachments. Evidence stays in this tab until you save the full file.</p>
+        <p class="help" id="protectNote">"Save protected file" encrypts the whole assessment, evidence included, with a passphrase you choose. Opening it asks for the passphrase. A lost passphrase cannot be recovered.</p>
+        <div class="fingerprint-line"><span>Assessment file fingerprint</span> <span class="hash" id="fingerprint"></span><p class="help">A SHA-256 over the assessment's contents and the SHA-256 of every evidence file. The printed report carries the same value, so a signed report can be matched to the file it came from.</p></div>
         <div class="notice"><strong>Print tips:</strong> in the print dialog choose <em>Save as PDF</em> or your printer, paper size <em>Letter</em>, margins <em>Default</em>, and turn off <em>Headers and footers</em> so the browser's URL and timestamp do not print. Recent versions of Chrome and Edge print the running header, footer, and "Page 2 of N" numbering in the page margins. A browser without CSS page margin boxes prints the header and footer without page numbers. Backgrounds and status colors are forced on by the report styles. The report always prints on white, whichever theme the workspace is using.</div>
         <div class="notice"><strong>Retention:</strong> the Security Rule requires documentation to be kept for 6 years from the date it was created or the date it was last in effect, whichever is later (45 CFR 164.316(b)(2)(i)). Keep the final analysis and the records that support it at least that long. State law or contracts may require longer. The saved JSON file can contain sensitive security information. Store it only on an approved, encrypted device.</div>
-        <div class="file-status" id="saveStatus">Not saved during this session.</div>
+        <div class="file-status" id="saveStatus" role="status">Not saved during this session.</div>
       </section>
-      <div class="footer">SaberGuard LLC. This workspace is not the HHS Security Risk Assessment (SRA) Tool and is not affiliated with or endorsed by HHS, OCR, or ONC. It is not legal advice. Using it does not establish compliance with the HIPAA Security Rule.</div>
+      <div class="footer">SaberGuard LLC. Not the HHS Security Risk Assessment (SRA) Tool, and not affiliated with or endorsed by HHS, OCR, or ONC. Not legal advice. Using this workspace does not establish compliance with the HIPAA Security Rule.</div>
     </main>
 
     <main class="main report-main" id="reportMain" hidden>
@@ -212,9 +292,38 @@
       <div class="paper" id="reportView"></div>
     </main>
   </div>
+
+  <dialog class="dialog" id="passDialog" aria-labelledby="passTitle" aria-describedby="passDesc">
+    <form id="passForm" novalidate>
+      <h2 id="passTitle">Save a passphrase-protected file</h2>
+      <p class="help" id="passDesc"></p>
+      <div class="field"><label for="passOne">Passphrase</label><input class="input" id="passOne" type="password" autocomplete="new-password" spellcheck="false"></div>
+      <div class="field" id="passTwoField"><label for="passTwo">Passphrase again</label><input class="input" id="passTwo" type="password" autocomplete="new-password" spellcheck="false"></div>
+      <p class="dialog-error" id="passError" role="alert"></p>
+      <div class="dialog-actions"><button class="btn" id="passCancel" type="button">Cancel</button><button class="btn primary" id="passOk" type="submit">Save protected file</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog" id="keysDialog" aria-labelledby="keysTitle">
+    <h2 id="keysTitle">Keyboard shortcuts</h2>
+    <p class="help">In the catalog review, while focus is not in a text field or a list.</p>
+    <table class="keys"><caption class="sr-only">Catalog review shortcuts</caption><tbody>
+      <tr><th scope="row"><kbd>J</kbd> and <kbd>K</kbd></th><td>Next and previous row</td></tr>
+      <tr><th scope="row"><kbd>1</kbd></th><td>Met</td></tr>
+      <tr><th scope="row"><kbd>2</kbd></th><td>Partially met</td></tr>
+      <tr><th scope="row"><kbd>3</kbd></th><td>Not met</td></tr>
+      <tr><th scope="row"><kbd>4</kbd></th><td>Not applicable</td></tr>
+      <tr><th scope="row"><kbd>5</kbd></th><td>Alternative measure in place (addressable rows)</td></tr>
+      <tr><th scope="row"><kbd>6</kbd></th><td>Not implemented, decision documented (addressable rows)</td></tr>
+      <tr><th scope="row"><kbd>/</kbd></th><td>Search the catalog</td></tr>
+      <tr><th scope="row"><kbd>?</kbd></th><td>This list</td></tr>
+    </tbody></table>
+    <div class="dialog-actions"><button class="btn primary" id="keysClose" type="button">Close</button></div>
+  </dialog>
 </div>
 <script src="assets/catalog.js"></script>
 <script src="assets/format.js"></script>
+<script src="assets/integrity.js"></script>
 <script src="assets/ephi-map.js"></script>
 <script src="assets/report.js"></script>
 <script src="assets/ward.js"></script>

@@ -12,7 +12,7 @@ test('the migration constants are the agreed ones', () => {
   assert.deepEqual(plain(V3_ID_MAP), { O01: 'O12', O02: 'O13', O03: 'O15' });
   assert.deepEqual([...V3_REVIEW_IDS].sort(), ['A01', 'A02', 'A05', 'A07', 'A10', 'A11', 'A12', 'A15', 'A20', 'A21', 'A22', 'A25', 'A28', 'A29', 'O12', 'O13', 'O15', 'P04']);
   for (const id of V3_REVIEW_IDS) assert.ok(CONTROL_BY_ID[id], id);
-  assert.equal(FILE_FORMAT.version, 4);
+  assert.equal(FILE_FORMAT.version, 5);
 });
 
 test('a version 3 file opens: the old 164.314 answers land on O12, O13 and O15 and are marked for review', () => {
@@ -85,7 +85,7 @@ test('new rows open as not reviewed and nothing from the version 3 file is lost'
   assert.equal(up.savedAt, v3.savedAt);
 });
 
-test('a version 4 file round-trips', () => {
+test('a version 3 file saves as version 5 and round-trips', () => {
   const state = SRAFormat.upgrade(v3);
   state.meta.entityType = 'covered-entity'; state.meta.clearinghouse = 'no'; state.meta.groupHealthPlan = 'no';
   state.assets[0].kind = 'application'; state.assets[0].zone = 'systems'; state.assets[0].lifecycle = ['create', 'maintain']; state.assets[0].vendor = 'EHR vendor'; state.assets[0].baa = 'yes';
@@ -93,10 +93,10 @@ test('a version 4 file round-trips', () => {
   state.risks[0].assetIds = [state.assets[0].id]; state.risks[0].flowIds = [state.flows[0].id];
   state.controls.A01.basis = 'observed'; state.controls.A29.carried = false;
   const file1 = SRAFormat.serialize(state);
-  assert.equal(file1.version, 4);
+  assert.equal(file1.version, 5);
   assert.equal(file1.format, 'SaberGuard HIPAA SRA');
   const back = SRAFormat.upgrade(file1);
-  assert.equal(back.version, 4);
+  assert.equal(back.version, 5);
   assert.deepEqual([...back.carried], []);
   const file2 = SRAFormat.serialize(back);
   delete file1.exportedAt; delete file2.exportedAt;

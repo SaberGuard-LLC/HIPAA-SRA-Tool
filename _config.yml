@@ -59,6 +59,7 @@ exclude:
   - CHANGELOG.md
   - SECURITY.md
   - CONTRIBUTING.md
+  - PERF.md
   - VERIFICATION.md
   - LICENSE
 

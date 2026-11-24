@@ -8,7 +8,8 @@
   "scripts": {
     "test": "node --test \"tests/*.test.mjs\"",
     "lint": "node scripts/lint-text.mjs",
-    "check": "npm run lint && npm test"
+    "check": "npm run lint && npm test",
+    "sample": "node scripts/build-sample.mjs"
   },
   "engines": {
     "node": ">=22"

@@ -11,7 +11,7 @@
 // - an HTML element that carries the attribute data-quote, or a blockquote
 // - a Markdown blockquote line (starts with ">")
 // Nothing else is exempt. Run: node scripts/lint-text.mjs [paths...]
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, extname, relative } from 'node:path';
 
 const DEFAULT_PATHS = ['index.html', 'assets', 'docs', 'README.md', 'CHANGELOG.md', 'SECURITY.md', 'CONTRIBUTING.md', 'samples'];
@@ -38,10 +38,15 @@ const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|️|[\u{1F3FB}-\
 const EMOJI_ALLOWED = /[\u00A9\u00AE\u2122\u2190-\u21FF]/;
 
 function listFiles(path) {
-  if (!existsSync(path)) return [];
-  const st = statSync(path);
-  if (st.isFile()) return EXTENSIONS.has(extname(path)) ? [path] : [];
-  return readdirSync(path).flatMap(name => listFiles(join(path, name)));
+  let entries;
+  try {
+    entries = readdirSync(path, { withFileTypes: true });
+  } catch (err) {
+    if (err.code === 'ENOTDIR') return EXTENSIONS.has(extname(path)) ? [path] : [];
+    if (err.code === 'ENOENT') return [];
+    throw err;
+  }
+  return entries.flatMap(e => e.isDirectory() ? listFiles(join(path, e.name)) : (EXTENSIONS.has(extname(e.name)) ? [join(path, e.name)] : []));
 }
 
 /* Replace quoted regions with spaces of the same length so line numbers hold. */

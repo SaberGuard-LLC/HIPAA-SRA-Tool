@@ -1,6 +1,6 @@
 ---
 title: Sources and verification
-nav_order: 10
+nav_order: 11
 description: What every regulatory statement in the workspace rests on, and when it was last checked against the primary source.
 ---
 
