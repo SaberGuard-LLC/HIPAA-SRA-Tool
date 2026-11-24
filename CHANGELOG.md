@@ -4,13 +4,33 @@ Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versionin
 
 ## [5.0.0] - Unreleased
 
-Version 5.0.0 is in progress. The work is tracked in the 5.0.0 milestones on GitHub.
+Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on GitHub.
 
 ### Changed
+- The header logo is a 12 KB image sized in the markup, in place of the 80 KB original, and the page has its own favicon.
+- Colors: secondary text, borders, and the page background are adjusted, status pills use the agreed pairs, and a partial fill color is added for bars and the heat map. Pills and chips are fully rounded, header buttons are at least 36 px tall, and status choices at least 40 px.
+- Long help text on each step is a one-sentence lede with the full text under "How to complete this step". The affiliation bar under the header and the second disclaimer on the overview are removed; the disclaimer stays in the rail, the footer, and the report.
+- File format version 5. Files from versions 1, 3, and 4 open without loss and save as version 5.
 - The license is now the [PolyForm Shield License 1.0.0](LICENSE). Anyone may use, modify, and run the workspace, including an organization assessing itself. Selling it, hosting it as a service, or using it to compete with SaberGuard's products and services, including paid risk assessments, needs a commercial license. Versions up to and including 4.2.0 remain available under the MIT License.
 - `package.json` declares `SEE LICENSE IN LICENSE`, because PolyForm Shield has no SPDX identifier.
 
 ### Added
+- Every evidence file records its SHA-256, the date it was attached, and whether it came from an upload or from Ward. The catalog row shows a shortened hash, and Appendix A of the report prints the full value with the source and date. Files opened from earlier versions are hashed when they are opened, if their contents are embedded, and an embedded file that no longer matches its recorded hash is marked.
+- An assessment file fingerprint: a SHA-256 over the assessment's contents, including every evidence hash. The report prints the first 16 characters on the cover and in section 01, and the full value in Appendix B. Step 7 shows the fingerprint of the open assessment, and `scripts/fingerprint.mjs` computes it for a saved file.
+- **Save protected file**: the assessment encrypted with AES-256-GCM, with a key derived from a passphrase of at least 12 characters by PBKDF2-SHA-256 with 600,000 iterations. **Open** asks for the passphrase. A wrong passphrase or a changed file opens nothing.
+- Save in place: in Chrome and Edge, later saves write to the file chosen at the first save instead of downloading a new copy.
+- Each risk names its threat and its vulnerability in their own fields, and which of confidentiality, integrity, and availability it affects. The 18 scenarios in the library fill all three. A risk carried from version 4 keeps its statement and shows a prompt to split it. A new check, "Every risk names a threat and a vulnerability", is advisory in 5.0.0: it is shown in step 7 and Appendix B but does not hold the report in draft. It will become a completeness check in a later release.
+- A coverage panel in the risk register: inventory rows considered, flagged rows and flows linked to an open risk, catalog gaps linked to a risk, and risks with an owner and a target date, each with the list of what is missing. An inventory row can record why no reasonably anticipated threat applies. Appendix B prints the four figures.
+- An interview and document log in step 1, printed in the report's methodology section.
+- **Export CSV** in the risk register: the remediation plan as RFC 4180 CSV, UTF-8 with a byte order mark, with formula-like values neutralized.
+- A redesigned interface. A start screen offers a new assessment, a saved file, or the sample clinic. The overview shows readiness with a link to each open check, four summary figures, the catalog status by safeguard, open risks by target date, and the highest risks. Each step is its own view with its own address, so Back and Forward work and a catalog row can be linked (`#catalog/A05`). The step rail shows each step's status in words.
+- The catalog review is a list grouped by safeguard beside the selected row, with filters that show counts, a search across id, citation, title, and regulation text, status and verification basis as radio groups, notes and recommendation side by side, linked risks, and an evidence table. J and K move between rows, 1 to 6 set the status, and slash searches.
+- The risk register is a table with filters (High, Open, In progress, Past target date, Accepted), a form that opens under the chosen row, a 5 by 5 heat map for inherent or residual ratings, and the coverage panel.
+- A File menu in the header holds Open, Save, Save protected file, Save without evidence, and Export remediation plan (CSV). The header shows the organization, the report version and status, and when the file was last saved.
+- `docs/accessibility.md`: an automated axe check of every view in both themes, with no violations, and a keyboard-only walkthrough.
+- `SRA.navigate(step)` and `SRA.loadSample()` for hosts and automation.
+- The sample is now a version 5 assessment with threats and vulnerabilities on its risks, an interview log, and evidence hashes.
+- `PERF.md`, with the baseline measurements and `scripts/measure-perf.mjs`.
 - `CONTRIBUTING.md`, and an updated security policy.
 - Security scanning on every pull request and push to `main`: Semgrep, gitleaks over the full history, actionlint and zizmor for the workflows, dependency review, and OpenSSF Scorecard. CodeQL also analyzes the workflows. Every action is pinned to a commit.
 - A release workflow that publishes a GitHub release from the changelog, with a zip of the workspace and its SHA-256.

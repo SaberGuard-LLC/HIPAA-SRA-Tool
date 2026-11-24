@@ -159,16 +159,46 @@ const SRAReport = (function () {
       approval: !!meta.executive
     };
     const checks = READINESS_CHECKS.map(ch => ({ ...ch, ok: !!checkResults[ch.key] }));
+    const advisoryResults = { threatVuln: risks.every(r => r.threat.trim() && r.vulnerability.trim()) };
+    const advisory = ADVISORY_CHECKS.map(ch => ({ ...ch, ok: !!advisoryResults[ch.key] }));
+    const coverage = coverageOf(assets, controls, risks, unlinked, SRAMap.flagged(state));
     const missing = checks.filter(c => !c.ok);
     const finalRequested = meta.reportStatus === 'Final';
     const isDraft = missing.length > 0 || !finalRequested;
 
     return { total: CONTROLS.length, reviewed: all.reviewed, met: all.met, partial: all.partial, notMet: all['not-met'], alt: all.alt, doc: all.doc, na: all.na,
       applicable: all.applicable, score: all.score, evidence, carried, derived, byCategory, controls, assets, flows, facts, unlinked, assetRef, flowRef, risks, risksByAsset, risksByFlow,
-      high, medium, low, unrated, open, checks, missing, finalRequested, isDraft };
+      high, medium, low, unrated, open, checks, missing, advisory, coverage, finalRequested, isDraft };
   }
 
+  function coverageOf(assets, controls, risks, unlinked, flagged) {
+    const linkedAssets = new Set(risks.flatMap(r => r.assetIds));
+    const linkedControls = new Set(risks.flatMap(r => r.controlIds));
+    const unlinkedIds = new Set(unlinked.map(u => u.id));
+    const figure = (all, isDone, describe) => {
+      const missing = all.filter(x => !isDone(x)).map(describe);
+      return { done: all.length - missing.length, total: all.length, missing };
+    };
+    return {
+      inventory: figure(assets.map((a, i) => ({ a, i })), ({ a }) => linkedAssets.has(a.id) || a.noThreatNote.trim(), ({ a, i }) => ({ type: 'asset', id: a.id, ref: `#${i + 1}`, what: a.name.trim() || 'Unnamed row' })),
+      flagged: figure(flagged, f => !unlinkedIds.has(f.id), f => f),
+      gaps: figure(controls.filter(c => ['partial', 'not-met'].includes(c.status)), c => linkedControls.has(c.id), c => ({ type: 'control', id: c.id, ref: c.id, what: c.title })),
+      owned: figure(risks, r => r.owner.trim() && r.target, r => ({ type: 'risk', id: r.id, ref: r.ref, what: r.description.trim() || r.threat.trim() || 'No description' }))
+    };
+  }
+  const COVERAGE_LABELS = {
+    inventory: 'Inventory rows considered: linked to a risk, or with a note on why no reasonably anticipated threat applies',
+    flagged: 'Flagged inventory rows and flows linked to an open risk',
+    gaps: 'Catalog gaps (partially met or not met) linked to a risk',
+    owned: 'Risks with an owner and a target date'
+  };
+
   /* ---- Report ------------------------------------------------------------ */
+  function fingerprintOf(state) {
+    if (typeof SRAIntegrity === 'undefined' || typeof SRAFormat === 'undefined') return '';
+    return SRAIntegrity.fingerprint(SRAFormat.serialize(state));
+  }
+
   function render(state, S) {
     const m = state.meta || {};
     const org = (m.orgName || '').trim();
@@ -192,6 +222,13 @@ const SRAReport = (function () {
     const entityLabel = Object.fromEntries(ENTITY_TYPES)[m.entityType] || '';
     const yesNo = v => v === 'yes' ? 'Yes' : v === 'no' ? 'No' : '<span class="placeholder">Not answered</span>';
     const assetName = id => { const a = S.assets.find(x => x.id === id); return a ? (a.name.trim() || 'Unnamed row') : 'Removed row'; };
+    const print = fingerprintOf(state);
+    const interviews = (state.interviews || []).map(v => SRAFormat.newInterview(v));
+    const methodLabel = Object.fromEntries(INTERVIEW_METHODS);
+    const interviewLog = interviews.length ? `<h3>Interviews, walkthroughs and document reviews</h3>
+        <table class="tbl compact"><thead><tr><th class="c22">Participant</th><th class="c18">Role</th><th class="c12">Date</th><th class="c14">Method</th><th>Topics</th></tr></thead><tbody>
+        ${interviews.map(v => `<tr><td>${plain(v.participant, 'Not named')}</td><td>${plain(v.role, 'Not recorded')}</td><td class="keep">${fmtShort(v.date, 'Not recorded')}</td><td>${esc(methodLabel[v.method])}</td><td>${text(v.topics, 'Not recorded')}</td></tr>`).join('')}
+        </tbody></table>` : '';
 
     const sections = [
       ['01', 'Document control'], ['02', 'Executive summary'], ['03', 'Scope, environment & method'], ['04', 'ePHI systems & data-flow inventory'],
@@ -227,6 +264,7 @@ const SRAReport = (function () {
             <div><span>Prepared by</span><b>${preparedBy}</b></div>
             <div><span>Security official</span><b>${plain(m.securityOfficial)}</b></div>
             <div><span>Executive approver</span><b>${plain(m.executive, 'Not named')}</b><small class="muted">Signature in section 09</small></div>
+            <div><span>Assessment file fingerprint</span><b class="hash">${esc(print.slice(0, 16))}</b><small class="muted">SHA-256, first 16 characters. Full value in Appendix B</small></div>
           </div>
           ${S.isDraft ? `<div class="rpt-draft-note"><b>Draft report${S.missing.length ? ` · ${S.missing.length} completeness ${S.missing.length === 1 ? 'check' : 'checks'} open` : ' · report status not set to Final'}</b>${S.missing.length ? 'The open checks are listed in Appendix B. This report is not ready for signature.' : 'Every completeness check passed. Set the report status to Final in the workspace before signing.'}</div>` : ''}
         </div>
@@ -249,6 +287,7 @@ const SRAReport = (function () {
           <tr><td>Security official</td><td>${plain(m.securityOfficial)}</td></tr>
           <tr><td>Executive approver</td><td>${plain(m.executive, 'Not named')}. Approval is recorded by signature and date in section 09.</td></tr>
           <tr><td>Classification</td><td>${esc(classification)}</td></tr>
+          <tr><td>File fingerprint</td><td><span class="hash">${esc(print.slice(0, 16))}</span>, the first 16 characters of the SHA-256 fingerprint of the assessment file this report was printed from. The full value is in Appendix B.</td></tr>
           <tr><td>Next planned review</td><td>${fmtDate(m.nextReview, 'Not set')}, or sooner if environmental or operational changes affect the security of ePHI (45 CFR 164.306(e) and 164.316(b)(2)(iii)). The date is the organization's planned cadence. The Security Rule does not set a fixed interval.</td></tr>
           <tr><td>Retention</td><td>Retain this analysis and the records that support it for at least 6 years from the date of creation or the date it was last in effect, whichever is later (45 CFR 164.316(b)(2)(i)). State law or contracts may require longer.</td></tr>
         </tbody></table>
@@ -312,6 +351,7 @@ const SRAReport = (function () {
         <h3>Scope statement</h3><p>${text(m.scope, 'Scope statement not provided.')}</p>
         <h3>Environment summary</h3><p>${text(m.environment, 'Environment summary not provided.')}</p>
         <h3>Methodology &amp; participants</h3><p>${text(m.methodology, 'Methodology not provided.')}</p>
+        ${interviewLog}
         <h3>Assessment approach</h3>
         <p>This assessment uses SaberGuard's method. It is organized around the elements listed under "Elements of a Risk Analysis" in the HHS Office for Civil Rights Guidance on Risk Analysis. HHS states that it does not endorse or recommend any particular risk analysis model, and that guidance does not prescribe the rating scales used here. The catalog review in section 05 covers the Security Rule ${rowsLabel} in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316 as rated by the assessor, with the basis on which each rating was verified. The steps were:</p>
         <table class="tbl compact"><colgroup><col class="c6"></colgroup><tbody>
@@ -410,7 +450,7 @@ const SRAReport = (function () {
     const findingCard = (c, n) => {
       const related = risksByControl[c.id] || [];
       return `<div class="rpt-finding ${STATUSES[c.status].tone}">
-        <div class="rpt-finding-head"><span class="id">F-${pad2(n)} · ${c.id}</span><h4>${esc(c.title)}</h4><span class="cite">${cite(c)} · ${esc(c.type)}</span>${chip(c.status)}</div>
+        <div class="rpt-finding-head"><span class="id">F-${pad2(n)} · ${c.id}</span><h3>${esc(c.title)}</h3><span class="cite">${cite(c)} · ${esc(c.type)}</span>${chip(c.status)}</div>
         <p class="req">${c.regulation ? esc(c.regulation) : `<i>SaberGuard's summary:</i> ${esc(c.summary)}`}</p>
         <dl>
           <dt>Finding</dt><dd>${text(c.notes, 'Not provided')}</dd>
@@ -462,6 +502,9 @@ const SRAReport = (function () {
     const riskDetails = sortedRisks.map(r => `<div class="rpt-risk ${r.level ? r.level.key : 'none'}">
         <div class="rpt-risk-head"><span class="id">${r.ref}</span><span class="stmt">${text(r.description, 'No description')}</span>${levelChip(r.level, r.score)}</div>
         <dl>
+          <dt>Threat</dt><dd>${text(r.threat, 'Not recorded')}</dd>
+          <dt>Vulnerability</dt><dd>${text(r.vulnerability, 'Not recorded')}</dd>
+          <dt>Affects</dt><dd>${r.cia.length ? esc(r.cia.map(k => Object.fromEntries(CIA)[k]).join(', ')) : '<span class="placeholder">Not recorded</span>'}</dd>
           <dt>Affected rows</dt><dd>${affected(r)}</dd>
           <dt>Data flows</dt><dd>${flowsOf(r)}</dd>
           <dt>Catalog rows</dt><dd>${rowsOf(r)}</dd>
@@ -520,7 +563,7 @@ const SRAReport = (function () {
     const appendixA = `
       <section class="rpt-section pb">
         ${head('A', 'Appendix A · Evidence index')}
-        ${evidenceRows.length ? `<p class="small muted">${evidenceRows.length} evidence file${evidenceRows.length === 1 ? '' : 's'} attached to the assessment. Files are embedded in the saved assessment JSON unless it was saved without evidence, and are not reproduced in this report.${omitted ? ` ${omitted} file${omitted === 1 ? ' is' : 's are'} listed by name only because the opened file did not embed ${omitted === 1 ? 'it' : 'them'}.` : ''}</p><table class="tbl compact"><thead><tr><th class="c7">ID</th><th class="c28">Row</th><th>File</th><th class="c16">Type</th><th class="c9">Size</th></tr></thead><tbody>${evidenceRows.map(({ c, e }) => `<tr><td class="id">${c.id}</td><td>${esc(c.title)}</td><td>${esc(e.name)}${e.omitted ? ' <span class="placeholder">(not embedded)</span>' : ''}</td><td class="small">${esc(e.type || 'Unknown')}</td><td class="small">${formatBytes(e.size || 0)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No evidence files were attached to this assessment. Attach policies, screenshots, reports, and agreements to the relevant catalog rows in the workspace so they are indexed here and preserved in the assessment file. Evidence must not show patient identifiers.</p>'}
+        ${evidenceRows.length ? `<p class="small muted">${evidenceRows.length} evidence file${evidenceRows.length === 1 ? '' : 's'} attached to the assessment. Files are embedded in the saved assessment JSON unless it was saved without evidence, and are not reproduced in this report. The SHA-256 of each file was recorded when it was attached, so a copy of the file can be checked against this index.${omitted ? ` ${omitted} file${omitted === 1 ? ' is' : 's are'} listed by name only because the opened file did not embed ${omitted === 1 ? 'it' : 'them'}.` : ''}</p><table class="tbl compact evidence-index"><thead><tr><th class="c7">ID</th><th class="c24">Row</th><th>File and SHA-256</th><th class="c12">Source</th><th class="c12">Added</th><th class="c9">Size</th></tr></thead><tbody>${evidenceRows.map(({ c, e }) => `<tr><td class="id">${c.id}</td><td>${esc(c.title)}</td><td>${esc(e.name)}${e.omitted ? ' <span class="placeholder">(not embedded)</span>' : ''}<br><span class="hash">${e.sha256 ? esc(SRAIntegrity.grouped(e.sha256)) : '<span class="placeholder">SHA-256 not recorded</span>'}</span>${e.mismatch ? '<br><b>The embedded file does not match the recorded SHA-256.</b>' : ''}</td><td class="small">${e.source === 'ward' ? 'Ward' : e.source === 'upload' ? 'Upload' : '<span class="placeholder">Not recorded</span>'}</td><td class="small">${e.addedAt ? fmtShort(e.addedAt) : '<span class="placeholder">Not recorded</span>'}</td><td class="small">${formatBytes(e.size || 0)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No evidence files were attached to this assessment. Attach policies, screenshots, reports, and agreements to the relevant catalog rows in the workspace so they are indexed here and preserved in the assessment file. Evidence must not show patient identifiers.</p>'}
       </section>`;
 
     /* Appendix B Completeness ------------------------------------------- */
@@ -529,6 +572,10 @@ const SRAReport = (function () {
         ${head('B', 'Appendix B · Report completeness checks')}
         <p class="small muted">Checks the workspace applies to the report fields before removing the Draft watermark. They test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough. ${S.missing.length ? 'Items marked open were outstanding when this report was generated.' : 'All checks passed when this report was generated.'}</p>
         <ul class="rpt-checks">${S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? 'Done' : 'Open'}</span><span>${esc(c.label)}</span></li>`).join('')}</ul>
+        <p class="small muted">Advisory checks are reported but do not hold the report in draft in this version.</p>
+        <ul class="rpt-checks">${S.advisory.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? 'Done' : 'Advisory'}</span><span>${esc(c.label)}</span></li>`).join('')}</ul>
+        <h3>Coverage</h3>
+        <div class="rpt-kv">${Object.entries(S.coverage).map(([k, f]) => `<div><span>${esc(COVERAGE_LABELS[k])}</span><b>${f.done} of ${f.total}</b></div>`).join('')}</div>
         ${S.facts.unclassified ? `<p class="small muted">Inventory rows not yet classified by kind and zone: ${S.assets.map((a, i) => (a.kind === 'unknown' || a.zone === 'unknown') ? `#${i + 1} ${esc(a.name.trim() || 'Unnamed row')}` : null).filter(Boolean).join(', ')}.</p>` : ''}
         ${S.unlinked.length ? `<p class="small muted">Flagged on the map with no linked risk: ${S.unlinked.map(u => `${esc(u.ref)} ${esc(u.what)} (${esc(u.why)})`).join('; ')}.</p>` : ''}
         <div class="rpt-kv three">
@@ -541,6 +588,8 @@ const SRAReport = (function () {
           <div><span>Workspace</span><b>SaberGuard SRA Workspace · file format version ${FILE_FORMAT.version}</b></div>
           <div><span>Catalog</span><b>${esc(CATALOG_SOURCE.label)}${CATALOG_SOURCE.checked ? `, compared with the eCFR text on ${fmtDate(CATALOG_SOURCE.checked)}` : ', not yet compared with the eCFR text'}</b></div>
         </div>
+        <p class="small rpt-fingerprint"><b>Assessment file fingerprint</b> <span class="hash">${esc(SRAIntegrity.grouped(print))}</span></p>
+        <p class="small muted">The fingerprint is a SHA-256 over the assessment's contents, including the SHA-256 of every evidence file but not the files themselves or the save time. A saved assessment file with the same fingerprint holds exactly what this report was printed from. The workspace shows the fingerprint of the open assessment in step 7.</p>
         <p class="small muted">Produced with the SaberGuard SRA Workspace. SaberGuard publishes the workspace and did not review this report unless named as the assessor. The workspace is not the HHS Security Risk Assessment (SRA) Tool, is not affiliated with or endorsed by HHS, and does not replace the HHS tool. The report records the assessor's work and judgment. It is not legal advice and does not by itself establish compliance with the HIPAA Security Rule.</p>
       </section>`;
 
@@ -579,6 +628,17 @@ const SRAReport = (function () {
     return `<p class="lead">${parts.join(' ')}</p>`;
   }
 
-  return { stats, render, fmtDate, pageStrings, letterheadOf, logoData, LOGO_TYPES };
+  const CSV_COLUMNS = ['Risk ID', 'Risk statement', 'Threat', 'Vulnerability', 'Inherent score', 'Inherent level', 'Treatment decision', 'Remediation plan', 'Owner', 'Target date', 'Residual score', 'Residual level', 'Status', 'Linked catalog rows'];
+  function csvField(value) {
+    let v = value == null ? '' : String(value);
+    if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`;
+    return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  }
+  function remediationCsv(state, S = stats(state)) {
+    const rows = S.risks.map(r => [r.ref, r.description, r.threat, r.vulnerability, r.score ?? '', r.level ? r.level.label : '', r.decision, r.treatment, r.owner, r.target, r.rScore ?? '', r.rLevel ? r.rLevel.label : '', r.status, r.controlIds.join(' ')]);
+    return '\uFEFF' + [CSV_COLUMNS, ...rows].map(row => row.map(csvField).join(',')).join('\r\n') + '\r\n';
+  }
+
+  return { stats, render, fmtDate, pageStrings, letterheadOf, logoData, LOGO_TYPES, COVERAGE_LABELS, remediationCsv, csvField, CSV_COLUMNS };
 })();
 if (typeof window !== 'undefined') window.SRAReport = SRAReport;

@@ -21,7 +21,7 @@ Document a HIPAA Security Rule risk analysis in the browser, then print a report
 ---
 
 <p align="center">
-  <img src="{{ '/docs/assets/screenshots/workspace-light.png' | relative_url }}" width="760" alt="The workspace in the light theme, showing the overview and the first step">
+  <img src="{{ '/docs/assets/screenshots/workspace-light.png' | relative_url }}" width="760" alt="The overview in the light theme: readiness, the four summary figures, catalog status by safeguard, and open risks by target date">
 </p>
 
 This is not the HHS Security Risk Assessment (SRA) Tool. It is published by SaberGuard LLC, is not affiliated with or endorsed by HHS, OCR, or ONC, and does not replace the HHS tool. See [how it relates to the HHS SRA Tool]({{ '/docs/hhs-sra-tool/' | relative_url }}).
@@ -70,6 +70,7 @@ Nowhere. The page makes no network connection, sets no cookies, and uses no brow
 - [The catalog and scoring]({{ '/docs/catalog/' | relative_url }}): rows, statuses, addressable specifications, and the scales.
 - [Report and printing]({{ '/docs/report/' | relative_url }}): letterhead, page setup, and signing.
 - [Sources and verification]({{ '/docs/sources/' | relative_url }}): what every regulatory statement rests on and when it was last checked.
+- [Accessibility]({{ '/docs/accessibility/' | relative_url }}): what has been checked, and what is still to do.
 - [Security]({{ '/docs/security/' | relative_url }}): how the page protects what you enter, the checks every change passes, and how to report a problem.
 - [Roadmap]({{ '/docs/roadmap/' | relative_url }}): what is planned for 5.0.0 and what is deliberately left out.
 - [License]({{ '/docs/license/' | relative_url }}): what the PolyForm Shield License allows, in plain language.

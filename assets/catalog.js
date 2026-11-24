@@ -15,8 +15,10 @@ const CATALOG_SOURCE = {
 
 /* Saved-file format. The name is the import check, so it stays unchanged.
    Version 4 adds the entity profile, typed inventory rows, the flows table,
-   id-based risk links, the verification basis and evidence without data. */
-const FILE_FORMAT = { name: 'SaberGuard HIPAA SRA', version: 4 };
+   id-based risk links, the verification basis and evidence without data.
+   Version 5 records a SHA-256 hash, the date added and the source on each
+   evidence file. */
+const FILE_FORMAT = { name: 'SaberGuard HIPAA SRA', version: 5 };
 
 /* Opening a version 3 file: the three old 164.314 rows move to the rows that
    hold the same subject under the current regulation. Old ids are never
@@ -438,6 +440,8 @@ function riskLevel(score) {
 }
 
 const DECISIONS = ['Mitigate', 'Accept', 'Transfer', 'Avoid'];
+const CIA = [['confidentiality', 'Confidentiality'], ['integrity', 'Integrity'], ['availability', 'Availability']];
+const INTERVIEW_METHODS = [['interview', 'Interview'], ['walkthrough', 'Walkthrough'], ['document', 'Document review']];
 const RISK_STATUSES = ['Open', 'In progress', 'Closed'];
 const CLASSIFICATIONS = ['Confidential', 'Restricted', 'Internal use only'];
 const REPORT_STATUSES = ['Draft', 'Final'];
@@ -447,24 +451,24 @@ const REPORT_STATUSES = ['Draft', 'Final'];
    Rule. The current rule does not name multi-factor authentication or
    patching, and encryption is an addressable specification. */
 const RISK_SCENARIOS = [
-  { text: 'Ransomware or destructive malware encrypts or destroys systems that store ePHI.', controls: 'A17, A21, A23, A24, A25' },
-  { text: 'Phishing or credential theft compromises workforce email or EHR accounts.', controls: 'A15, A19, T09' },
-  { text: 'A laptop, phone, or removable media containing unencrypted ePHI is lost or stolen.', controls: 'P08, P11, T05' },
-  { text: 'A workforce member accesses patient records without a business need (snooping or insider misuse).', controls: 'A04, A05, A11, T06' },
-  { text: 'A business associate or cloud vendor suffers a breach that exposes the organization\'s ePHI.', controls: 'A29, A30, O12' },
-  { text: 'Devices or electronic media containing ePHI are disposed of or reused without sanitization or destruction.', controls: 'P09, P10' },
-  { text: 'ePHI is transmitted without encryption (email, file transfer, fax-to-email, messaging).', controls: 'T10, T12' },
-  { text: 'Unpatched or end-of-life systems expose known vulnerabilities to exploitation.', controls: 'A03, A17, A28' },
-  { text: 'Backups fail, are incomplete, or cannot be restored when needed.', controls: 'A23, A24, A26' },
-  { text: 'A natural disaster, fire, flood, or extended power or network outage disrupts access to ePHI.', controls: 'A22, A25, P02' },
-  { text: 'Misconfigured cloud storage or file sharing exposes ePHI to unauthorized parties.', controls: 'T01, A13, A14' },
-  { text: 'Access for a departed workforce member is not removed promptly.', controls: 'A10, A14' },
-  { text: 'Shared or generic accounts prevent accountability for ePHI access.', controls: 'T02, T06' },
-  { text: 'Audit logs are not collected or reviewed, so unauthorized activity goes undetected.', controls: 'A05, A18, T06' },
-  { text: 'An unauthorized person enters a restricted area (tailgating, unlocked doors, unattended workstations).', controls: 'P01, P03, P04, P07' },
-  { text: 'Business associate agreements are missing, expired, or do not cover all vendors handling ePHI.', controls: 'A29, A30, O12' },
-  { text: 'Remote access or email is protected by a password alone, without multi-factor authentication.', controls: 'A19, T09' },
-  { text: 'Workforce members have not completed security awareness training or role-based refreshers.', controls: 'A15, A16' }
+  { text: 'Ransomware or destructive malware encrypts or destroys systems that store ePHI.', controls: 'A17, A21, A23, A24, A25', threat: 'Criminal group (adversarial) deploys ransomware through a phishing message, an exposed remote service, or a compromised vendor account.', vulnerability: 'Systems and backups reachable from the same network and accounts, so malware that runs on one can encrypt or delete the others.', cia: ['integrity', 'availability'] },
+  { text: 'Phishing or credential theft compromises workforce email or EHR accounts.', controls: 'A15, A19, T09', threat: 'External attacker (adversarial) sends a phishing message or reuses a stolen password to sign in as a workforce member.', vulnerability: 'Accounts that a password alone can open, and workforce members who have not practiced spotting phishing.', cia: ['confidentiality', 'integrity'] },
+  { text: 'A laptop, phone, or removable media containing unencrypted ePHI is lost or stolen.', controls: 'P08, P11, T05', threat: 'Thief or the workforce member\'s own error (accidental) leaves a device or medium where someone else takes it.', vulnerability: 'ePHI stored on portable devices or media without encryption at rest.', cia: ['confidentiality', 'availability'] },
+  { text: 'A workforce member accesses patient records without a business need (snooping or insider misuse).', controls: 'A04, A05, A11, T06', threat: 'Workforce member (insider, adversarial or curious) opens records outside their job duties.', vulnerability: 'Access rights broader than each role needs, and access logs that nobody reviews.', cia: ['confidentiality'] },
+  { text: 'A business associate or cloud vendor suffers a breach that exposes the organization\'s ePHI.', controls: 'A29, A30, O12', threat: 'Attacker or error at a business associate (adversarial or accidental) exposes data the vendor holds.', vulnerability: 'Vendors holding ePHI without a confirmed agreement or any review of how they protect it.', cia: ['confidentiality', 'integrity', 'availability'] },
+  { text: 'Devices or electronic media containing ePHI are disposed of or reused without sanitization or destruction.', controls: 'P09, P10', threat: 'Recipient of discarded or reissued equipment (accidental disclosure) recovers data left on it.', vulnerability: 'No procedure to wipe or destroy drives and media before disposal or reuse.', cia: ['confidentiality'] },
+  { text: 'ePHI is transmitted without encryption (email, file transfer, fax-to-email, messaging).', controls: 'T10, T12', threat: 'Eavesdropper or misdelivery (adversarial or accidental) reads ePHI while it is in transit.', vulnerability: 'Transmission paths that send ePHI in clear text or to unverified recipients.', cia: ['confidentiality', 'integrity'] },
+  { text: 'Unpatched or end-of-life systems expose known vulnerabilities to exploitation.', controls: 'A03, A17, A28', threat: 'External attacker or malware (adversarial) exploits a published vulnerability.', vulnerability: 'Systems that miss security updates or no longer receive them from the vendor.', cia: ['confidentiality', 'integrity', 'availability'] },
+  { text: 'Backups fail, are incomplete, or cannot be restored when needed.', controls: 'A23, A24, A26', threat: 'Hardware failure, ransomware, or deletion (accidental or adversarial) destroys the primary copy of ePHI.', vulnerability: 'Backups that are not monitored, not kept apart from production, or never tested by a restore.', cia: ['availability', 'integrity'] },
+  { text: 'A natural disaster, fire, flood, or extended power or network outage disrupts access to ePHI.', controls: 'A22, A25, P02', threat: 'Fire, flood, storm, or a utility outage (environmental) makes the site or its systems unusable.', vulnerability: 'No tested plan to keep operating or to restore ePHI from another location.', cia: ['availability'] },
+  { text: 'Misconfigured cloud storage or file sharing exposes ePHI to unauthorized parties.', controls: 'T01, A13, A14', threat: 'Workforce member or administrator (accidental) shares a folder or link more widely than intended.', vulnerability: 'Sharing settings that allow public or anyone-with-the-link access, with no review of what is shared.', cia: ['confidentiality'] },
+  { text: 'Access for a departed workforce member is not removed promptly.', controls: 'A10, A14', threat: 'Former workforce member (adversarial or accidental) signs in after leaving.', vulnerability: 'No checklist or owner for removing accounts and access on the last day.', cia: ['confidentiality', 'integrity'] },
+  { text: 'Shared or generic accounts prevent accountability for ePHI access.', controls: 'T02, T06', threat: 'Workforce member (insider, adversarial or accidental) acts under a login others also use.', vulnerability: 'Accounts shared by several people, so activity cannot be traced to one person.', cia: ['confidentiality', 'integrity'] },
+  { text: 'Audit logs are not collected or reviewed, so unauthorized activity goes undetected.', controls: 'A05, A18, T06', threat: 'Attacker or insider (adversarial) misuses access over a long period.', vulnerability: 'Logging that is off, kept too briefly, or never reviewed.', cia: ['confidentiality', 'integrity'] },
+  { text: 'An unauthorized person enters a restricted area (tailgating, unlocked doors, unattended workstations).', controls: 'P01, P03, P04, P07', threat: 'Visitor or intruder (adversarial) walks into an area where ePHI can be seen or taken.', vulnerability: 'Doors left unlocked, no visitor control, and workstations left signed in.', cia: ['confidentiality', 'integrity'] },
+  { text: 'Business associate agreements are missing, expired, or do not cover all vendors handling ePHI.', controls: 'A29, A30, O12', threat: 'Business associate (accidental or adversarial) uses or discloses ePHI without the agreed safeguards.', vulnerability: 'No current agreement on file for every vendor that creates, receives, maintains, or transmits ePHI.', cia: ['confidentiality'] },
+  { text: 'Remote access or email is protected by a password alone, without multi-factor authentication.', controls: 'A19, T09', threat: 'External attacker (adversarial) signs in with a guessed, phished, or leaked password.', vulnerability: 'Remote access and email that ask for nothing beyond a password.', cia: ['confidentiality', 'integrity'] },
+  { text: 'Workforce members have not completed security awareness training or role-based refreshers.', controls: 'A15, A16', threat: 'Phishing, social engineering, or simple mistakes (adversarial or accidental) by an untrained workforce member.', vulnerability: 'No completed security awareness training, or none since the workforce member\'s role changed.', cia: ['confidentiality', 'integrity', 'availability'] }
 ];
 
 /* Report completeness checks. They test whether fields are filled in. They do
@@ -482,4 +486,11 @@ const READINESS_CHECKS = [
   { key: 'risksExist',  label: 'At least one risk recorded in the risk register' },
   { key: 'risks',       label: 'Every recorded risk has a description, likelihood, impact, owner, target date, and treatment plan' },
   { key: 'approval',    label: 'Management approver named' }
+];
+
+/* Checks shown beside the completeness checks that do not hold the report in
+   draft yet. "Every risk names a threat and a vulnerability" becomes a
+   completeness check in a later release. */
+const ADVISORY_CHECKS = [
+  { key: 'threatVuln', label: 'Every risk names a threat and a vulnerability' }
 ];

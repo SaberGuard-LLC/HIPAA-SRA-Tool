@@ -287,7 +287,7 @@ const SRAWard = (function () {
       if (r.attachment.size > budget) { overLimit.push(r.id); return; }
       const c = controls[r.id] || (controls[r.id] = SRAFormat.newControl());
       if (!Array.isArray(c.evidence)) c.evidence = [];
-      c.evidence.push({ ...r.attachment });
+      c.evidence.push({ ...r.attachment, source: 'ward', ...(opts.today ? { addedAt: opts.today } : {}) });
       budget -= r.attachment.size;
       attached.push(r.id);
       if (!String(c.notes || '').trim()) { c.notes = r.note; noted.push(r.id); }
