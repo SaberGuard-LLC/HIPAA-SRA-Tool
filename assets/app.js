@@ -25,6 +25,18 @@
   const assetName = id => { const i = state.assets.findIndex(a => a.id === id); return i < 0 ? 'Removed row' : assetLabel(state.assets[i], i); };
   const flowLabel = (f, i) => `F-${pad2(i + 1)} · ${assetName(f.from)} ${f.twoWay ? 'and' : 'to'} ${assetName(f.to)}`;
   const clip = (s, n) => { s = String(s || '').trim(); if (s.length <= n) return s; const cut = s.slice(0, n); return cut.slice(0, Math.max(cut.lastIndexOf(' '), n - 12)).replace(/[,;:.]$/, '') + '...'; };
+  const host = { embedded: false };
+  const emit = (name, detail) => document.dispatchEvent(new CustomEvent(name, { detail }));
+  function markDirty() {
+    if (state.dirty) return;
+    state.dirty = true;
+    emit('sra:dirty', { dirty: true });
+  }
+  function markClean(how) {
+    state.dirty = false;
+    state.lastSavedAt = Date.now();
+    emit('sra:saved', { how, savedAt: state.savedAt });
+  }
   const isTyping = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 
   function controlState(id) {
@@ -51,8 +63,8 @@
 
   function route() {
     let { name, sub } = parseHash();
-    if (!name) name = state.pristine ? 'start' : 'overview';
-    if (name === 'start' && !state.pristine) name = 'overview';
+    if (!name) name = state.pristine && !host.embedded ? 'start' : 'overview';
+    if (name === 'start' && (!state.pristine || host.embedded)) name = 'overview';
     if (name !== 'start') state.pristine = false;
     if (reportMode) hideReport();
     const row = name === 'catalog' && sub ? CONTROLS.find(c => c.id === sub.toUpperCase()) : null;
@@ -812,7 +824,7 @@
 
   let frame = 0;
   function updateDashboard(opts = {}) {
-    if (!opts.keepClean) { state.dirty = true; state.pristine = false; }
+    if (!opts.keepClean) { markDirty(); state.pristine = false; }
     collectMeta();
     invalidate(view);
     if (opts.now) { cancelAnimationFrame(frame); frame = 0; refresh(); return; }
@@ -981,10 +993,9 @@
 
   function afterSave(includeEvidence, how) {
     const embedded = hasEmbedded();
-    state.dirty = !includeEvidence && embedded;
     state.protectedSave = how === 'protected';
     state.pristine = false;
-    if (!state.dirty) state.lastSavedAt = Date.now();
+    if (!includeEvidence && embedded) markDirty(); else markClean(how);
     showSaveState();
     const when = new Date(state.savedAt).toLocaleString();
     $('saveStatus').textContent = how === 'protected'
@@ -1263,6 +1274,7 @@
   /* ---- Wiring ------------------------------------------------------------ */
   document.querySelectorAll('.meta').forEach(el => {
     const h = () => {
+      if (state.meta[el.id] === el.value) return;
       updateDashboard();
       if (['entityType', 'clearinghouse', 'groupHealthPlan'].includes(el.id)) stale.add('catalog');
       if (reportMode && ['letterhead', 'letterheadSpace', 'firmLogo'].includes(el.id)) renderReportView();
@@ -1317,7 +1329,7 @@
   window.addEventListener('hashchange', route);
 
   window.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); saveFile(); return; }
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); if (host.embedded) emit('sra:save-requested', {}); else saveFile(); return; }
     if (view !== 'catalog' || reportMode || e.ctrlKey || e.metaKey || e.altKey) return;
     if (document.querySelector('dialog[open]') || !fileMenu.hidden || isTyping(e.target)) return;
     const k = e.key;
@@ -1347,14 +1359,25 @@
      object that has name and text(). Nothing here runs unless a host calls
      it, so the public page behaves exactly as before. */
   function markSaved(message) {
-    state.dirty = false;
-    state.lastSavedAt = Date.now();
+    markClean('host');
     showSaveState();
     if (message) $('saveStatus').textContent = String(message);
   }
   function setTheme(theme) { SRATheme.set(theme); showTheme(); }
+
+  /* configure({ embedded: true }) is for a host whose own interface owns
+     opening and saving: it hides the start screen, the open and save
+     controls, and the footer. Ctrl or Cmd + S then fires sra:save-requested
+     for the host instead of saving a file. */
+  function configure(opts = {}) {
+    if (typeof opts.embedded === 'boolean') host.embedded = opts.embedded;
+    document.body.classList.toggle('embedded', host.embedded);
+    document.querySelectorAll('[data-host-hide]').forEach(el => { el.hidden = host.embedded; });
+    if (host.embedded && view === 'start') navigate('overview');
+    return { ...host };
+  }
   const isDirty = () => !!state.dirty;
 
   /* Exposed for testing and for automation hooks (for example loading a sample file). */
-  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, saveFile, saveProtected, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, exportRemediationCsv, addInterview, navigate, loadSample, renderAll() { hydrateMeta(); invalidate(); renderView(view); refresh(); } };
+  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, saveFile, saveProtected, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, exportRemediationCsv, addInterview, navigate, loadSample, configure, renderAll() { hydrateMeta(); invalidate(); renderView(view); refresh(); } };
 })();

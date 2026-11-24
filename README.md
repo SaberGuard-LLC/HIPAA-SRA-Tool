@@ -112,7 +112,7 @@ Print from Chrome or Edge to get "Page 2 of 41" numbering in the page margins. S
 
 ## Host a copy on any web server or inside your product
 
-The workspace is static files: `index.html`, the logo, and `assets/`. Any web server can host them. On Vercel, `vercel.json` sets the security headers. A host can store assessments for its users through `window.SRA.snapshot()`, `importAssessment()`, and `markSaved()`. See [file format and hosting](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/file-format/).
+The workspace is static files: `index.html`, the logo, and `assets/`. Any web server can host them. On Vercel, `vercel.json` sets the security headers. A host can store assessments for its users through `window.SRA.snapshot()`, `importAssessment()`, and `markSaved()`, hide the workspace's own open and save controls with `configure({ embedded: true })`, and listen for `sra:dirty` and `sra:saved` events. See [file format and hosting](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/file-format/).
 
 Offering the workspace to others as a hosted service requires a commercial license. See [License](#license-polyform-shield-100).
 
@@ -130,7 +130,7 @@ Contributions are welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first. Repo
 
 ## What remains before the 5.0.0 release
 
-Version 5.0.0 is not released yet. Still to come: settings for a host that embeds the workspace, the remaining performance work in [`PERF.md`](PERF.md), and deployment polish. The work is tracked in [issues labeled 5.0.0](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues?q=label%3A5.0.0). See the [roadmap](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/roadmap/).
+Version 5.0.0 is not released yet. Still to come: the remaining performance work in [`PERF.md`](PERF.md), and deployment polish. The work is tracked in [issues labeled 5.0.0](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues?q=label%3A5.0.0). See the [roadmap](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/roadmap/).
 
 ## Risk analyses by SaberGuard
 
