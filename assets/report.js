@@ -450,7 +450,7 @@ const SRAReport = (function () {
     const findingCard = (c, n) => {
       const related = risksByControl[c.id] || [];
       return `<div class="rpt-finding ${STATUSES[c.status].tone}">
-        <div class="rpt-finding-head"><span class="id">F-${pad2(n)} · ${c.id}</span><h4>${esc(c.title)}</h4><span class="cite">${cite(c)} · ${esc(c.type)}</span>${chip(c.status)}</div>
+        <div class="rpt-finding-head"><span class="id">F-${pad2(n)} · ${c.id}</span><h3>${esc(c.title)}</h3><span class="cite">${cite(c)} · ${esc(c.type)}</span>${chip(c.status)}</div>
         <p class="req">${c.regulation ? esc(c.regulation) : `<i>SaberGuard's summary:</i> ${esc(c.summary)}`}</p>
         <dl>
           <dt>Finding</dt><dd>${text(c.notes, 'Not provided')}</dd>

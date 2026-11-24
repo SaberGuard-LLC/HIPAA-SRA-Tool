@@ -82,4 +82,70 @@ Observations:
 
 ## Changes
 
-None yet.
+Each entry names the change, what was measured before and after with the method above, and whether it was kept. Figures are medians of five runs (Lighthouse: three).
+
+### 1. Smaller interface logo and a separate favicon (kept)
+
+The header used the 4000 by 1008 `SaberGuard_1.png` (80 KB) and the same file as the favicon. It now uses `assets/logo.png` (230 by 55, 11.5 KB) with `width` and `height` set, and `assets/favicon.png` (64 by 64, 6.5 KB). The original stays for the README, the docs site, and the printed letterhead.
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Image transfer on load | 78 KB | 11 KB |
+| Lighthouse mobile largest contentful paint | 2.40 s | 2.10 s |
+| Lighthouse desktop largest contentful paint | 0.56 s | 0.56 s |
+
+Landed together with the redesign, so the mobile paint figure reflects both. The image saving is attributable to this change alone.
+
+### 2. One view per step (kept)
+
+The workspace drew every step, including all 65 catalog cards, on one page. It now shows one view at a time and renders a view when it is opened. Edits refresh only the open view; the others are marked stale and drawn when you go to them. Dashboard work after an edit is coalesced into one animation frame, and the flow map is drawn only on its own view.
+
+| Measure | Before | After |
+| --- | --- | --- |
+| DOM nodes after load | 3,054 | 573 |
+| DOM nodes with the sample open, catalog shown | 6,806 | 1,321 |
+| INP switching catalog filters | 64 ms (56 to 72) | 24 ms (24 to 24) |
+| Long tasks switching filters | 1 | 0 |
+| INP while typing in a catalog note | 40 ms (32 to 56) | 32 ms (24 to 40) |
+
+The typing figures overlap from run to run, so no typing improvement is claimed. The coalescing and the map change were not measured on their own; they are part of this change.
+
+### 3. Start screen in the initial markup (kept, fixes a regression from change 2)
+
+With views hidden until the script ran, the start screen appeared after load and pushed the footer down: cumulative layout shift 0.5. The start screen is now visible in the HTML, and the rail is hidden by a class on `<body>`.
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Cumulative layout shift on load | 0.5 | 0 |
+
+### Effect of new features on size
+
+Phases 2 to 4 added evidence hashing, the fingerprint, protected files, the risk analysis fields, the coverage panel, and the new interface. On first load, uncompressed scripts grew from 217 KB to 282 KB and the stylesheet from 42 KB to 55 KB. The sample (38 KB) is loaded only when the start screen asks for it. Total first-load transfer, uncompressed: 412 KB before, 438 KB after.
+
+| File | Raw | Gzip |
+| --- | --- | --- |
+| `assets/app.js` | 93,255 B | 26,564 B |
+| `assets/catalog.js` | 62,921 B | 16,235 B |
+| `assets/ephi-map.js` | 20,614 B | 6,998 B |
+| `assets/format.js` | 10,753 B | 3,692 B |
+| `assets/integrity.js` | 8,031 B | 3,088 B |
+| `assets/report.js` | 67,392 B | 18,863 B |
+| `assets/theme.js` | 977 B | 463 B |
+| `assets/ward.js` | 22,768 B | 7,483 B |
+| `assets/styles.css` | 56,184 B | 11,662 B |
+| `assets/sample.js`, loaded on request | 38,173 B | 10,604 B |
+
+### Unchanged
+
+| Measure | Baseline | After phases 2 to 4 |
+| --- | --- | --- |
+| Attach a 10 MB file, until listed | 1,513 ms | 1,508 ms |
+| Longest task during that attach | 1,110 ms | 1,074 ms |
+| Save, 10 MB of evidence | 92 ms | 102 ms |
+| Save, 25 MB of evidence | 239 ms | 250 ms |
+
+Attaching now hashes the file as well, with no measurable cost. The long task on attach remains: the file is still held as a base64 data URL.
+
+## Not yet attempted
+
+These items from the 5.0.0 plan have not been tried, so there is nothing to keep or revert yet: holding evidence as `ArrayBuffer` and encoding only on save (the next candidate, given the attach long task), preloading only `inter-latin-400-normal.woff2`, moving the scripts into `<head>` with `defer`, and a size budget test.
