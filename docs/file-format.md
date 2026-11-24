@@ -1,6 +1,6 @@
 ---
 title: File format and hosting
-nav_order: 9
+nav_order: 10
 description: The saved assessment file, how older versions open, and the functions a host can call.
 ---
 
@@ -73,7 +73,7 @@ The key is a 256-bit AES-GCM key derived from the passphrase with PBKDF2-SHA-256
 
 ## Saving to the same file
 
-Where the browser offers the File System Access API (Chrome and Edge), the first **Save file** asks where to save, and later saves in the same tab write to that file. A protected save keeps its own file the same way. The location is held in memory only and is forgotten when the tab closes or another assessment is opened. Other browsers download a new copy on each save.
+Where the browser offers the File System Access API (Chrome and Edge), the first **Save** asks where to save, and later saves in the same tab write to that file. A protected save keeps its own file the same way. The location is held in memory only and is forgotten when the tab closes or another assessment is opened. Other browsers download a new copy on each save.
 
 ## Opening older files
 
@@ -105,6 +105,8 @@ The public page keeps nothing. A host that serves its own copy can keep the asse
 | `markSaved(message)` | Clears the unsaved-changes warning once the host has stored the snapshot. |
 | `saveFile()`, `saveProtected()` | The workspace's own save and protected save, as the buttons run them. |
 | `isDirty()` | `true` when there are edits since the last save or open. |
+| `navigate(step)` | Shows a step: `overview`, `profile`, `inventory`, `map`, `catalog`, `risks`, `attestation`, or `report`. `navigate('catalog', 'A05')` selects a catalog row. |
+| `loadSample()` | Opens the sample assessment. |
 | `setTheme('light' or 'dark')` | Sets the theme. |
 
-SaberGuard's Ward does this behind its own sign-in. The public page uses `snapshot()` and `importAssessment()` only for **Save file** and **Open**, never calls `markSaved()`, and makes no network connection.
+SaberGuard's Ward does this behind its own sign-in. The public page uses `snapshot()` and `importAssessment()` only for **Save** and **Open**, never calls `markSaved()`, and makes no network connection.

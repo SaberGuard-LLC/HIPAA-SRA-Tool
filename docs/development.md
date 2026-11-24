@@ -1,6 +1,6 @@
 ---
 title: Development
-nav_order: 11
+nav_order: 12
 description: Repository layout, checks, refreshing the regulation text, and previewing these pages.
 ---
 
@@ -19,12 +19,15 @@ assets/
   ephi-map.js           the flow map
   report.js             metrics and the report renderer
   ward.js               Ward evidence import
-  app.js                workspace logic, save and open, print
+  app.js                views, workspace logic, save and open, print
+  sample.js             the sample, generated from samples/ (npm run sample)
+  logo.png, favicon.png the header logo and the favicon
   fonts/                Inter, weights 400 and 500 (SIL Open Font License)
 samples/                a fictitious assessment
 tests/                  tests, the regulation text, fixtures
 scripts/lint-text.mjs   text lint
 scripts/fingerprint.mjs the fingerprint of a saved file
+scripts/build-sample.mjs writes assets/sample.js from the sample JSON
 scripts/measure-perf.mjs the measurements in PERF.md (needs Playwright)
 docs/                   these pages
 _config.yml             Jekyll configuration for these pages

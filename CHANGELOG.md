@@ -7,6 +7,9 @@ Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versionin
 Version 5.0.0 is in progress. The work is tracked in the 5.0.0 milestones on GitHub.
 
 ### Changed
+- The header logo is a 12 KB image sized in the markup, in place of the 80 KB original, and the page has its own favicon.
+- Colors: secondary text, borders, and the page background are adjusted, status pills use the agreed pairs, and a partial fill color is added for bars and the heat map. Pills and chips are fully rounded, header buttons are at least 36 px tall, and status choices at least 40 px.
+- Long help text on each step is a one-sentence lede with the full text under "How to complete this step". The affiliation bar under the header and the second disclaimer on the overview are removed; the disclaimer stays in the rail, the footer, and the report.
 - File format version 5. Files from versions 1, 3, and 4 open without loss and save as version 5.
 - The license is now the [PolyForm Shield License 1.0.0](LICENSE). Anyone may use, modify, and run the workspace, including an organization assessing itself. Selling it, hosting it as a service, or using it to compete with SaberGuard's products and services, including paid risk assessments, needs a commercial license. Versions up to and including 4.2.0 remain available under the MIT License.
 - `package.json` declares `SEE LICENSE IN LICENSE`, because PolyForm Shield has no SPDX identifier.
@@ -20,6 +23,12 @@ Version 5.0.0 is in progress. The work is tracked in the 5.0.0 milestones on Git
 - A coverage panel in the risk register: inventory rows considered, flagged rows and flows linked to an open risk, catalog gaps linked to a risk, and risks with an owner and a target date, each with the list of what is missing. An inventory row can record why no reasonably anticipated threat applies. Appendix B prints the four figures.
 - An interview and document log in step 1, printed in the report's methodology section.
 - **Export CSV** in the risk register: the remediation plan as RFC 4180 CSV, UTF-8 with a byte order mark, with formula-like values neutralized.
+- A redesigned interface. A start screen offers a new assessment, a saved file, or the sample clinic. The overview shows readiness with a link to each open check, four summary figures, the catalog status by safeguard, open risks by target date, and the highest risks. Each step is its own view with its own address, so Back and Forward work and a catalog row can be linked (`#catalog/A05`). The step rail shows each step's status in words.
+- The catalog review is a list grouped by safeguard beside the selected row, with filters that show counts, a search across id, citation, title, and regulation text, status and verification basis as radio groups, notes and recommendation side by side, linked risks, and an evidence table. J and K move between rows, 1 to 6 set the status, and slash searches.
+- The risk register is a table with filters (High, Open, In progress, Past target date, Accepted), a form that opens under the chosen row, a 5 by 5 heat map for inherent or residual ratings, and the coverage panel.
+- A File menu in the header holds Open, Save, Save protected file, Save without evidence, and Export remediation plan (CSV). The header shows the organization, the report version and status, and when the file was last saved.
+- `docs/accessibility.md`: an automated axe check of every view in both themes, with no violations, and a keyboard-only walkthrough.
+- `SRA.navigate(step)` and `SRA.loadSample()` for hosts and automation.
 - The sample is now a version 5 assessment with threats and vulnerabilities on its risks, an interview log, and evidence hashes.
 - `PERF.md`, with the baseline measurements and `scripts/measure-perf.mjs`.
 - `CONTRIBUTING.md`, and an updated security policy.

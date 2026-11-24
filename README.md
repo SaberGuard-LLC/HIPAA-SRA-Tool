@@ -40,18 +40,20 @@ This is not the HHS Security Risk Assessment (SRA) Tool. It is published by Sabe
 ## Try it in two minutes
 
 1. Open <https://sra.saberguard.tech>. There is nothing to install and no account.
-2. Download the sample, [`samples/example-health-clinic-hipaa-sra-2026-09-06.json`](samples/example-health-clinic-hipaa-sra-2026-09-06.json), press **Open**, and choose it. It is a finished assessment of a fictitious clinic.
+2. Press **Explore the sample clinic** on the start screen. It is a finished assessment of a fictitious clinic. The same file is in [`samples/`](samples/example-health-clinic-hipaa-sra-2026-09-06.json).
 3. Press **Preview report**, then **Print / PDF**.
 
 The copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/> is a mirror of the same files. To run it offline, clone the repository and open `index.html`.
 
 <p align="center">
-  <img src="docs/assets/screenshots/workspace-light.png" width="760" alt="The workspace in the light theme: the overview with progress figures and the first step, organization and scope">
+  <img src="docs/assets/screenshots/workspace-light.png" width="760" alt="The overview in the light theme: readiness, the implementation score, catalog gaps, high risks, evidence files, catalog status by safeguard, and open risks by target date">
 </p>
 
-| Catalog review, dark theme | ePHI flow map |
+| Catalog review, dark theme | Risk register |
 | --- | --- |
-| <img src="docs/assets/screenshots/catalog-dark.png" width="400" alt="Catalog review in the dark theme: a row with its citation, regulation text, status buttons and verification basis"> | <img src="docs/assets/screenshots/flow-map-light.png" width="400" alt="The ePHI flow map: people and devices, systems, and outside parties, with risk tags and one flow marked not encrypted"> |
+| <img src="docs/assets/screenshots/catalog-dark.png" width="400" alt="Catalog review in the dark theme: the list of rows grouped by safeguard beside the selected row, with its regulation text, status choices and verification basis"> | <img src="docs/assets/screenshots/risk-register-light.png" width="400" alt="The risk register: filters, a table of risks with threat, ratings, owner and target date, and one risk open for editing"> |
+| **Start screen** | **ePHI flow map** |
+| <img src="docs/assets/screenshots/start-light.png" width="400" alt="The start screen: start a new assessment, open a saved file, or explore the sample clinic"> | <img src="docs/assets/screenshots/flow-map-light.png" width="400" alt="The ePHI flow map: people and devices, systems, and outside parties, with risk tags and one flow marked not encrypted"> |
 | **Report cover on letterhead** | **Signature page** |
 | <img src="docs/assets/screenshots/report-cover.png" width="400" alt="Report cover with the firm letterhead, the title, the organization and the document details"> | <img src="docs/assets/screenshots/report-signatures.png" width="400" alt="Section 09 of the report: the assessor's statement, the management statement and three signature boxes"> |
 

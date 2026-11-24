@@ -6,7 +6,7 @@ description: The seven steps of an assessment, from scope to the printed report.
 
 # Using the workspace
 
-Work stays in the tab's memory. Save a file with **Save file**, or Ctrl + S (Cmd + S on a Mac), before closing the tab. See [data handling]({{ '/docs/data-handling/' | relative_url }}).
+Work stays in the tab's memory. Save a file with **File**, then **Save**, or Ctrl + S (Cmd + S on a Mac), before closing the tab. See [data handling]({{ '/docs/data-handling/' | relative_url }}).
 {: .warning }
 
 ## Step 1: organization and scope
@@ -61,18 +61,36 @@ The layout is deterministic. The same file always produces the same drawing, and
   <img src="{{ '/docs/assets/screenshots/catalog-dark.png' | relative_url }}" width="760" alt="The catalog review in the dark theme, showing a row with its regulation text, status buttons and verification basis">
 </p>
 
-Each row shows its citation, whether it is a standard, a Required specification or an Addressable one, the regulation's own wording, SaberGuard's plain-language summary, and a prompt for the assessor.
+The catalog review is a list beside a detail panel. The list on the left groups the 65 rows by safeguard, with the number of rows and gaps in each group, and shows each row's id, title, citation, type, and status in words. The panel on the right shows the selected row: its citation, whether it is a standard, a Required specification or an Addressable one, the regulation's own wording under "Regulation text, as published", SaberGuard's plain-language summary, and what to ask about.
 
 For each row:
 
-1. Choose a status. See [the catalog and scoring]({{ '/docs/catalog/' | relative_url }}) for what each one means.
+1. Choose a status. Addressable rows also offer Alternative measure in place and Not implemented, decision documented. See [the catalog and scoring]({{ '/docs/catalog/' | relative_url }}) for what each one means.
 2. Choose the verification basis: observed, document reviewed, or stated by the client.
-3. Open the notes to record what was verified, a recommendation for any gap, and supporting evidence.
+3. Record what was verified in the notes and a recommendation for any gap, side by side.
+4. Link the risks that affect the row, or start a new one from it.
+5. Attach evidence. The table lists each file with its size, source (upload or Ward), a shortened SHA-256, and the date it was added.
+
+**Previous** and **Next** at the bottom name the neighbouring rows. Selecting a row puts it in the address, for example `#catalog/A05`, so a row can be linked.
 
 Evidence must not show patient identifiers. Redact names, dates of birth, record numbers, and similar identifiers before attaching a file.
 {: .warning }
 
-The filters narrow the list to one section of the rule, to gaps, or to rows not yet reviewed.
+The filters above the list show their counts and narrow it to one section of the rule, to gaps, to rows not yet reviewed, or to rows with no evidence. The search field matches the id, citation, title, and regulation text.
+
+### Keyboard shortcuts
+
+While focus is not in a text field, a list, or the File menu:
+
+| Key | Does |
+| --- | --- |
+| J and K | Next and previous row |
+| 1, 2, 3, 4 | Met, Partially met, Not met, Not applicable |
+| 5, 6 | Alternative measure in place, Not implemented, decision documented (addressable rows) |
+| / | Search the catalog |
+| ? | List the shortcuts |
+
+The status and verification basis choices are radio groups: Tab moves into a group, and the arrow keys choose within it.
 
 ### Ward evidence
 
@@ -83,6 +101,14 @@ When the file lists the services, devices, and mail domains Ward saw, the worksp
 ## Step 5: risk register
 
 Write each risk as a statement, then name its threat (the source and the event, for example an external attacker sending a phishing message) and its vulnerability (the weakness the threat would exploit) in their own fields, and mark whether it affects confidentiality, integrity, availability, or more than one. A risk with a statement but no threat or vulnerability shows a prompt to split it. Link the risk to the inventory rows, data flows, and catalog rows involved. Rate likelihood and impact, choose a treatment decision, name an owner and a target date, write the remediation plan, and rate the expected residual risk.
+
+<p align="center">
+  <img src="{{ '/docs/assets/screenshots/risk-register-light.png' | relative_url }}" width="760" alt="The risk register: filters, a table of risks with threat, inherent rating, treatment, owner, target and residual rating, and one risk open for editing">
+</p>
+
+The register is a table: id, the threat with its vulnerability and affected rows underneath, the inherent rating written out (for example "4 × 4 = 16 High"), treatment, owner, target date, residual rating, and status. Choose a risk's id to open its form below the row. The filters show All, High, Open, In progress, Past target date, and Accepted, with counts.
+
+Beside the table, a 5 by 5 heat map counts the risks in each cell, for inherent or residual ratings.
 
 The risk scenario library holds 18 scenarios that can start an entry, each with its threat, vulnerability, and the properties it affects filled in. They are risks an assessor may record, not requirements of the Security Rule.
 
