@@ -14,7 +14,7 @@ description: SaberGuard SRA Workspace is a browser workspace for documenting a H
 Document a HIPAA Security Rule risk analysis in the browser, then print a report laid out for signature.
 {: .fs-6 .fw-300 .text-center }
 
-[Open the workspace]({{ '/' | relative_url }}){: .btn .btn-primary .mr-2 }
+[Open the workspace](https://sra.saberguard.tech){: .btn .btn-primary .mr-2 }
 [Get started]({{ '/docs/getting-started/' | relative_url }}){: .btn }
 {: .text-center }
 
@@ -26,6 +26,17 @@ Document a HIPAA Security Rule risk analysis in the browser, then print a report
 
 This is not the HHS Security Risk Assessment (SRA) Tool. It is published by SaberGuard LLC, is not affiliated with or endorsed by HHS, OCR, or ONC, and does not replace the HHS tool. See [how it relates to the HHS SRA Tool]({{ '/docs/hhs-sra-tool/' | relative_url }}).
 {: .note }
+
+## Who it is for
+
+A practice or business associate assessing itself.
+: Work through the Security Rule one provision at a time, beside the regulation's own wording, and keep the result as one file.
+
+An assessor working for a client.
+: Record how each finding was verified, tie risks to the systems and data flows they affect, and print a report on your letterhead for signature.
+
+A product that hosts its own copy.
+: Keep assessments for your users through a small set of functions on `window.SRA`. See [file format and hosting]({{ '/docs/file-format/' | relative_url }}).
 
 ## What the workspace records and prints
 
@@ -59,4 +70,6 @@ Nowhere. The page makes no network connection, sets no cookies, and uses no brow
 - [The catalog and scoring]({{ '/docs/catalog/' | relative_url }}): rows, statuses, addressable specifications, and the scales.
 - [Report and printing]({{ '/docs/report/' | relative_url }}): letterhead, page setup, and signing.
 - [Sources and verification]({{ '/docs/sources/' | relative_url }}): what every regulatory statement rests on and when it was last checked.
-- [Roadmap]({{ '/docs/roadmap/' | relative_url }}): what is planned and what is deliberately left out.
+- [Security]({{ '/docs/security/' | relative_url }}): how the page protects what you enter, the checks every change passes, and how to report a problem.
+- [Roadmap]({{ '/docs/roadmap/' | relative_url }}): what is planned for 5.0.0 and what is deliberately left out.
+- [License]({{ '/docs/license/' | relative_url }}): what the PolyForm Shield License allows, in plain language.

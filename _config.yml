@@ -10,7 +10,7 @@ color_scheme: light
 
 aux_links:
   Open the workspace:
-    - https://saberguard-llc.github.io/HIPAA-SRA-Tool/
+    - https://sra.saberguard.tech
   GitHub:
     - https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool
 
@@ -39,7 +39,7 @@ gh_edit_repository: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool
 gh_edit_branch: main
 gh_edit_view_mode: tree
 
-footer_content: 'Published by SaberGuard LLC. Code is MIT licensed. Not the HHS Security Risk Assessment (SRA) Tool, and not affiliated with or endorsed by HHS, OCR, or ONC. Not legal advice.'
+footer_content: 'Published by SaberGuard LLC. Source available under the PolyForm Shield License 1.0.0. Not the HHS Security Risk Assessment (SRA) Tool, and not affiliated with or endorsed by HHS, OCR, or ONC. Not legal advice.'
 
 plugins:
   - jekyll-remote-theme
@@ -58,6 +58,7 @@ exclude:
   - README.md
   - CHANGELOG.md
   - SECURITY.md
+  - CONTRIBUTING.md
   - VERIFICATION.md
   - LICENSE
 

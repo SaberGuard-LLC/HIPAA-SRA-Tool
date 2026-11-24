@@ -1,6 +1,6 @@
 ---
 title: Development
-nav_order: 10
+nav_order: 11
 description: Repository layout, checks, refreshing the regulation text, and previewing these pages.
 ---
 
@@ -25,7 +25,10 @@ tests/                  tests, the regulation text, fixtures
 scripts/lint-text.mjs   text lint
 docs/                   these pages
 _config.yml             Jekyll configuration for these pages
+.github/workflows/      checks, CodeQL, security scans, Scorecard, release
 VERIFICATION.md         every regulatory statement, its source, the date checked
+CONTRIBUTING.md         how to propose a change and the rules it must meet
+SECURITY.md             how to report a security problem
 ```
 
 The scripts are plain browser scripts with no build step and no dependencies. `report.js`, `format.js`, `ward.js`, and `ephi-map.js` do not touch the page, so the tests run them directly under Node.
@@ -41,7 +44,35 @@ This command runs both of these, as does every pull request and every push to `m
 - **Text lint** (`npm run lint`): no em dashes, no emoji, and none of a list of filler phrases in anything a reader sees. Quoted regulation text is exempt.
 - **Tests** (`npm test`, Node 22 or later): the regulation comparison, the file format and its upgrades, the completeness checks, the report, the flow map against a golden file, the Ward import, the hosting seam, and the stylesheet rules.
 
-CodeQL scans the JavaScript. The checks workflow also builds these pages with the same Jekyll setup GitHub Pages uses and confirms the workspace files are published unchanged. Dependabot opens weekly updates for the GitHub Actions the workflows use.
+The checks workflow also builds these pages with the same Jekyll setup GitHub Pages uses and confirms the workspace files are published unchanged.
+
+## Security scans
+
+Every pull request and push to `main` also runs:
+
+| Workflow | Jobs |
+| --- | --- |
+| `codeql.yml` | CodeQL on the JavaScript and on the workflows, `security-extended` queries. |
+| `security.yml` | Semgrep (JavaScript, cross-site scripting, secrets, and GitHub Actions rules), gitleaks over the full history, actionlint and zizmor on the workflows, and dependency review on pull requests. |
+| `scorecard.yml` | OpenSSF Scorecard, weekly and on push to `main`. |
+
+To run the same scans locally before you push, install the tools and run, from the repository root:
+
+```bash
+semgrep scan --metrics=off --config p/javascript --config p/xss --config p/secrets --config p/github-actions --error
+```
+
+```bash
+gitleaks git --redact .
+```
+
+```bash
+actionlint && zizmor .github/workflows
+```
+
+When you add or change a workflow: pin every action to a full commit SHA with the version after it, start from `permissions: {}` and grant each job only what it needs, set `persist-credentials: false` on checkout, and pass untrusted values to `run` steps through `env`, never as an expression inside the script. The workflow lint job checks for these.
+
+Dependabot opens weekly updates for the actions. The Semgrep container digest, the actionlint image digest, and the gitleaks version and SHA-256 in `security.yml` are not updated by Dependabot and are refreshed by hand.
 
 ## Refreshing the regulation text
 
@@ -96,4 +127,18 @@ bundle exec jekyll serve --baseurl ""
 
 ## Releases and version numbers
 
-Versions follow [semantic versioning](https://semver.org/). The major version tracks the file format version. Record changes in `CHANGELOG.md`.
+Versions follow [semantic versioning](https://semver.org/). The major version tracks the file format version. Record changes in `CHANGELOG.md` under a heading of the form `## [4.2.0] - 2026-11-11`.
+
+To publish a release:
+
+1. Set `version` in `package.json`, and date the version's heading in `CHANGELOG.md`.
+2. Merge to `main`.
+3. Push a tag of the form `v4.2.0` on that commit, or run the **Release** workflow from the Actions tab with the tag and the commit.
+
+The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`) and a `SHA256SUMS` file, so an assessor can run a known version offline and check what they downloaded:
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+Vercel serves <https://sra.saberguard.tech>, and GitHub Pages serves the mirror and these pages.

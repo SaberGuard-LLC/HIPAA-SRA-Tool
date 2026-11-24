@@ -2,6 +2,19 @@
 
 Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versioning](https://semver.org/). The major version tracks the saved file format.
 
+## [5.0.0] - Unreleased
+
+Version 5.0.0 is in progress. The work is tracked in the 5.0.0 milestones on GitHub.
+
+### Changed
+- The license is now the [PolyForm Shield License 1.0.0](LICENSE). Anyone may use, modify, and run the workspace, including an organization assessing itself. Selling it, hosting it as a service, or using it to compete with SaberGuard's products and services, including paid risk assessments, needs a commercial license. Versions up to and including 4.2.0 remain available under the MIT License.
+- `package.json` declares `SEE LICENSE IN LICENSE`, because PolyForm Shield has no SPDX identifier.
+
+### Added
+- `CONTRIBUTING.md`, and an updated security policy.
+- Security scanning on every pull request and push to `main`: Semgrep, gitleaks over the full history, actionlint and zizmor for the workflows, dependency review, and OpenSSF Scorecard. CodeQL also analyzes the workflows. Every action is pinned to a commit.
+- A release workflow that publishes a GitHub release from the changelog, with a zip of the workspace and its SHA-256.
+
 ## [4.2.0] - 2026-11-11
 
 More from a Ward evidence file: inventory rows and draft risks, offered for the assessor to add, and no repeat attachments when nothing changed.
@@ -53,6 +66,7 @@ The state of `main` before this changelog began.
 - A hosting seam on `window.SRA`: `snapshot()`, `importAssessment()`, `markSaved()`, and `isDirty()`.
 - A catalog of 65 rows with the regulation wording kept separate from SaberGuard's summaries, and a verification log.
 
-[4.2.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/5ac4490...HEAD
+[5.0.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/e69f1ce...HEAD
+[4.2.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/5ac4490...e69f1ce
 [4.1.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/0cbf5e5...5ac4490
 [4.0.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/commit/0cbf5e5
