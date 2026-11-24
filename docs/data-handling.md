@@ -41,11 +41,12 @@ A letterhead logo is limited to 512 KB and is also kept in the saved file.
 
 The workspace is static files. Any web server can host it, and it also runs from a local folder.
 
-- On Vercel, `vercel.json` sends the Content Security Policy and related headers.
+- On Vercel, `vercel.json` sends a Content Security Policy header with `frame-ancestors 'none'`, and `Referrer-Policy`, `X-Content-Type-Options`, and `Permissions-Policy` headers. This is how <https://sra.saberguard.tech> is served, with HTTPS enforced by `Strict-Transport-Security`.
 - GitHub Pages does not send those headers. The policy in the page's own `<meta>` tag still applies.
+- Offering the workspace to others as a hosted service needs a commercial license from SaberGuard. Hosting a copy for your own organization does not. See [license]({{ '/docs/license/' | relative_url }}).
 
 A host can keep assessments for its users through three functions on `window.SRA`: `snapshot()` returns the assessment as the object a saved file holds, `importAssessment()` opens one, and `markSaved()` clears the unsaved-changes warning. `setTheme('dark')` sets the theme. The public page uses `snapshot()` and `importAssessment()` only for **Save file** and **Open**, and never calls `markSaved()`. See [file format]({{ '/docs/file-format/' | relative_url }}).
 
 ## Reporting a security problem
 
-Use GitHub's private reporting on the repository: **Security**, then **Report a vulnerability**. See the [security policy](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/blob/main/SECURITY.md).
+Use GitHub's private reporting on the repository: **Security**, then **Report a vulnerability**. See [security]({{ '/docs/security/' | relative_url }}) and the [security policy](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/blob/main/SECURITY.md).

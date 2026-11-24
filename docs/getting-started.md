@@ -8,7 +8,7 @@ description: Open the workspace, load the sample, and save your work.
 
 ## Open the workspace
 
-Use the hosted copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/>, or run it from a folder:
+Use the hosted copy at <https://sra.saberguard.tech>. The copy at <https://saberguard-llc.github.io/HIPAA-SRA-Tool/> is a mirror of the same files. To work offline, run it from a folder:
 
 ```bash
 git clone https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool.git
