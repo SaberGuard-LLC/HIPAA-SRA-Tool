@@ -26,11 +26,11 @@ The following are built on the `v5-assessor-desk` branch and tested, and are not
 - A threat, a vulnerability, and the affected properties on every risk, with an advisory check that becomes required in a later release.
 - A coverage panel, an interview and document log, and a remediation plan CSV export.
 - A redesigned interface: a start screen, an overview, one view per step with its own address, a catalog review laid out as a list beside the selected row with keyboard shortcuts, and a risk register table with a heat map. An automated accessibility check with axe reports no violations in either theme. See [accessibility]({{ '/docs/accessibility/' | relative_url }}).
+- For hosts: `SRA.configure({ embedded: true })` hides the start screen, the open and save controls, and the footer when a host's own interface owns saving, and `sra:dirty`, `sra:saved`, and `sra:save-requested` events let the host react without polling. See [file format and hosting]({{ '/docs/file-format/' | relative_url }}).
 
 ### Still to do for 5.0.0
 
 - A review with VoiceOver and NVDA, done by a person.
-- For hosts: `SRA.configure({ embedded: true })` to hide the start screen and the save controls when a host's own interface owns saving, and `sra:dirty` and `sra:saved` events.
 - The remaining performance work in `PERF.md`: holding evidence as bytes until save, font preloading, and size budgets.
 - Deployment: one canonical address, aligned security headers, and share images.
 

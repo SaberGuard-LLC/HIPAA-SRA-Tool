@@ -26,11 +26,11 @@
       <div class="menu-wrap">
         <button class="btn" id="fileBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="fileMenu">File</button>
         <div class="menu" id="fileMenu" role="menu" aria-labelledby="fileBtn" hidden>
-          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="open">Open</button>
-          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save">Save<span class="kbd" aria-hidden="true">Ctrl or Cmd + S</span></button>
-          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save-protected" id="menuProtected">Save protected file</button>
-          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save-lean">Save without evidence</button>
-          <div class="menu-sep" role="separator"></div>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="open" data-host-hide>Open</button>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save" data-host-hide>Save<span class="kbd" aria-hidden="true">Ctrl or Cmd + S</span></button>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save-protected" id="menuProtected" data-host-hide>Save protected file</button>
+          <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="save-lean" data-host-hide>Save without evidence</button>
+          <div class="menu-sep" role="separator" data-host-hide></div>
           <button class="menu-item" type="button" role="menuitem" tabindex="-1" data-action="export-csv">Export remediation plan (CSV)</button>
         </div>
       </div>
@@ -269,12 +269,12 @@
         <div class="output-actions no-print">
           <button class="btn" id="previewBtn2" type="button">Preview report</button>
           <button class="btn primary" id="printBtn2" type="button">Print / Save as PDF</button>
-          <button class="btn" id="exportBtn2" type="button">Save assessment file</button>
-          <button class="btn" id="exportNoEvidenceBtn" type="button">Save file without evidence</button>
-          <button class="btn" id="saveProtectedBtn" type="button">Save protected file</button>
+          <button class="btn" id="exportBtn2" type="button" data-host-hide>Save assessment file</button>
+          <button class="btn" id="exportNoEvidenceBtn" type="button" data-host-hide>Save file without evidence</button>
+          <button class="btn" id="saveProtectedBtn" type="button" data-host-hide>Save protected file</button>
         </div>
-        <p class="help">"Save file without evidence" writes the same file with the names, sizes, and SHA-256 of attached evidence but not the files themselves, for sharing the assessment without the attachments. Evidence stays in this tab until you save the full file.</p>
-        <p class="help" id="protectNote">"Save protected file" encrypts the whole assessment, evidence included, with a passphrase you choose. Opening it asks for the passphrase. A lost passphrase cannot be recovered.</p>
+        <p class="help" data-host-hide>"Save file without evidence" writes the same file with the names, sizes, and SHA-256 of attached evidence but not the files themselves, for sharing the assessment without the attachments. Evidence stays in this tab until you save the full file.</p>
+        <p class="help" id="protectNote" data-host-hide>"Save protected file" encrypts the whole assessment, evidence included, with a passphrase you choose. Opening it asks for the passphrase. A lost passphrase cannot be recovered.</p>
         <div class="fingerprint-line"><span>Assessment file fingerprint</span> <span class="hash" id="fingerprint"></span><p class="help">A SHA-256 over the assessment's contents and the SHA-256 of every evidence file. The printed report carries the same value, so a signed report can be matched to the file it came from.</p></div>
         <div class="notice"><strong>Print tips:</strong> in the print dialog choose <em>Save as PDF</em> or your printer, paper size <em>Letter</em>, margins <em>Default</em>, and turn off <em>Headers and footers</em> so the browser's URL and timestamp do not print. Recent versions of Chrome and Edge print the running header, footer, and "Page 2 of N" numbering in the page margins. A browser without CSS page margin boxes prints the header and footer without page numbers. Backgrounds and status colors are forced on by the report styles. The report always prints on white, whichever theme the workspace is using.</div>
         <div class="notice"><strong>Retention:</strong> the Security Rule requires documentation to be kept for 6 years from the date it was created or the date it was last in effect, whichever is later (45 CFR 164.316(b)(2)(i)). Keep the final analysis and the records that support it at least that long. State law or contracts may require longer. The saved JSON file can contain sensitive security information. Store it only on an approved, encrypted device.</div>

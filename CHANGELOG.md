@@ -28,12 +28,15 @@ Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on Git
 - The risk register is a table with filters (High, Open, In progress, Past target date, Accepted), a form that opens under the chosen row, a 5 by 5 heat map for inherent or residual ratings, and the coverage panel.
 - A File menu in the header holds Open, Save, Save protected file, Save without evidence, and Export remediation plan (CSV). The header shows the organization, the report version and status, and when the file was last saved.
 - `docs/accessibility.md`: an automated axe check of every view in both themes, with no violations, and a keyboard-only walkthrough.
-- `SRA.navigate(step)` and `SRA.loadSample()` for hosts and automation.
+- For hosts: `SRA.configure({ embedded: true })` hides the start screen, the open and save controls, and the footer, and Ctrl or Cmd + S then fires `sra:save-requested` for the host. The page fires `sra:dirty` on the first edit after an open or save and `sra:saved` when a save completes, so a host need not poll `isDirty()`. `SRA.navigate(step)` and `SRA.loadSample()` are also exposed.
 - The sample is now a version 5 assessment with threats and vulnerabilities on its risks, an interview log, and evidence hashes.
 - `PERF.md`, with the baseline measurements and `scripts/measure-perf.mjs`.
 - `CONTRIBUTING.md`, and an updated security policy.
 - Security scanning on every pull request and push to `main`: Semgrep, gitleaks over the full history, actionlint and zizmor for the workflows, dependency review, and OpenSSF Scorecard. CodeQL also analyzes the workflows. Every action is pinned to a commit.
 - A release workflow that publishes a GitHub release from the changelog, with a zip of the workspace and its SHA-256.
+
+### Fixed
+- Leaving a field without changing it no longer marks the assessment as having unsaved changes.
 
 ## [4.2.0] - 2026-11-11
 

@@ -108,5 +108,40 @@ The public page keeps nothing. A host that serves its own copy can keep the asse
 | `navigate(step)` | Shows a step: `overview`, `profile`, `inventory`, `map`, `catalog`, `risks`, `attestation`, or `report`. `navigate('catalog', 'A05')` selects a catalog row. |
 | `loadSample()` | Opens the sample assessment. |
 | `setTheme('light' or 'dark')` | Sets the theme. |
+| `configure({ embedded: true })` | Embeds the workspace in a host that owns opening and saving. See below. Returns the current settings. `configure({ embedded: false })` undoes it. |
 
-SaberGuard's Ward does this behind its own sign-in. The public page uses `snapshot()` and `importAssessment()` only for **Save** and **Open**, never calls `markSaved()`, and makes no network connection.
+### Embedding
+
+After `configure({ embedded: true })`:
+
+- The start screen is never shown. A page on the start screen moves to the overview.
+- The File menu keeps only **Export remediation plan (CSV)**. Open, Save, Save protected file, and Save without evidence are hidden, as are the save buttons in step 7.
+- The footer is hidden.
+- Ctrl + S (Cmd + S on a Mac) saves nothing and fires `sra:save-requested` instead, so the host can save.
+
+Everything else stays: the steps, the report preview, printing, the theme, Ward evidence, and the CSV export. A page that never calls `configure` behaves exactly as before.
+
+### Events
+
+The page fires these on `document`, so a host can react without polling `isDirty()`:
+
+| Event | Fired when | `detail` |
+| --- | --- | --- |
+| `sra:dirty` | The first edit after an open or a save. It fires once, not on every keystroke. | `{ dirty: true }` |
+| `sra:saved` | A save completes: the workspace wrote a file, or the host called `markSaved()`. | `{ how, savedAt }`, where `how` is `download`, `in-place`, `protected`, or `host` |
+| `sra:save-requested` | Ctrl or Cmd + S is pressed while embedded. | `{}` |
+
+A host that stores the assessment would:
+
+```js
+document.addEventListener('sra:dirty', () => showUnsaved());
+document.addEventListener('sra:save-requested', () => store());
+async function store() {
+  await upload(window.SRA.snapshot());
+  window.SRA.markSaved('Saved');
+}
+```
+
+Opening a file with `importAssessment()` clears the unsaved state without firing `sra:saved`.
+
+SaberGuard's Ward does this behind its own sign-in. The public page uses `snapshot()` and `importAssessment()` only for **Save** and **Open**, never calls `markSaved()` or `configure()`, and makes no network connection.
