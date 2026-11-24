@@ -15,8 +15,10 @@ const CATALOG_SOURCE = {
 
 /* Saved-file format. The name is the import check, so it stays unchanged.
    Version 4 adds the entity profile, typed inventory rows, the flows table,
-   id-based risk links, the verification basis and evidence without data. */
-const FILE_FORMAT = { name: 'SaberGuard HIPAA SRA', version: 4 };
+   id-based risk links, the verification basis and evidence without data.
+   Version 5 records a SHA-256 hash, the date added and the source on each
+   evidence file. */
+const FILE_FORMAT = { name: 'SaberGuard HIPAA SRA', version: 5 };
 
 /* Opening a version 3 file: the three old 164.314 rows move to the rows that
    hold the same subject under the current regulation. Old ids are never

@@ -175,6 +175,21 @@ select{appearance:auto}
 .evidence-list{font-size:12px;color:var(--text-2);margin-top:6px;display:grid;gap:3px}
 .evidence-list .file{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .evidence-list .file button{border:0;background:none;color:var(--crit-ink);font-size:12px;font-weight:var(--medium);padding:0 4px}
+.evidence-none{margin:0;font-size:12px;color:var(--text-2)}
+.evidence-table{width:100%;border-collapse:collapse;font-size:12px;color:var(--text-2)}
+.evidence-table th{text-align:left;font-weight:var(--medium);color:var(--text-3);padding:4px 8px 4px 0;border-bottom:1px solid var(--border)}
+.evidence-table td{padding:5px 8px 5px 0;border-bottom:1px solid var(--border);vertical-align:middle}
+.evidence-table td:first-child{color:var(--text);word-break:break-word}
+.nowrap{white-space:nowrap}
+.hash{font-variant-numeric:tabular-nums;white-space:nowrap}
+.fingerprint-line{margin-top:14px;font-size:13px;color:var(--text-2)}
+.fingerprint-line .hash{color:var(--text);white-space:normal;word-break:break-all}
+.dialog{border:1px solid var(--border-strong);border-radius:var(--radius);background:var(--surface);color:var(--text);padding:22px 24px;width:min(460px,calc(100vw - 32px))}
+.dialog::backdrop{background:rgba(15,20,27,.55)}
+.dialog h2{margin:0 0 6px;font-size:18px;font-weight:var(--medium)}
+.dialog .field{margin-top:12px}
+.dialog-error{min-height:18px;margin:10px 0 0;font-size:13px;color:var(--crit-ink)}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
 
 .assets{display:grid;gap:12px;margin-top:4px}
 .asset-card{border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:var(--radius);padding:14px 16px;background:var(--surface)}
@@ -403,6 +418,9 @@ body.report-mode .layout{display:block}
 
 .rpt-kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6pt 16pt;margin:4pt 0 8pt}
 .rpt-kv.three{grid-template-columns:repeat(3,1fr)}
+.rpt .hash{font-variant-numeric:tabular-nums;word-break:break-all;color:var(--r-ink)}
+.rpt-fingerprint{margin:2pt 0 6pt}
+.rpt-fingerprint b{font-weight:500;margin-right:6pt}
 .rpt-kv div{border-bottom:1px solid var(--r-line-2);padding:3pt 0 4pt;break-inside:avoid}
 .rpt-kv span{display:block;font-size:8.25pt;color:var(--r-faint);overflow-wrap:normal}
 .rpt-kv b{font-weight:500;font-size:10pt;display:block}

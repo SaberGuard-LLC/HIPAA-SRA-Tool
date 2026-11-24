@@ -169,6 +169,11 @@ const SRAReport = (function () {
   }
 
   /* ---- Report ------------------------------------------------------------ */
+  function fingerprintOf(state) {
+    if (typeof SRAIntegrity === 'undefined' || typeof SRAFormat === 'undefined') return '';
+    return SRAIntegrity.fingerprint(SRAFormat.serialize(state));
+  }
+
   function render(state, S) {
     const m = state.meta || {};
     const org = (m.orgName || '').trim();
@@ -192,6 +197,7 @@ const SRAReport = (function () {
     const entityLabel = Object.fromEntries(ENTITY_TYPES)[m.entityType] || '';
     const yesNo = v => v === 'yes' ? 'Yes' : v === 'no' ? 'No' : '<span class="placeholder">Not answered</span>';
     const assetName = id => { const a = S.assets.find(x => x.id === id); return a ? (a.name.trim() || 'Unnamed row') : 'Removed row'; };
+    const print = fingerprintOf(state);
 
     const sections = [
       ['01', 'Document control'], ['02', 'Executive summary'], ['03', 'Scope, environment & method'], ['04', 'ePHI systems & data-flow inventory'],
@@ -227,6 +233,7 @@ const SRAReport = (function () {
             <div><span>Prepared by</span><b>${preparedBy}</b></div>
             <div><span>Security official</span><b>${plain(m.securityOfficial)}</b></div>
             <div><span>Executive approver</span><b>${plain(m.executive, 'Not named')}</b><small class="muted">Signature in section 09</small></div>
+            <div><span>Assessment file fingerprint</span><b class="hash">${esc(print.slice(0, 16))}</b><small class="muted">SHA-256, first 16 characters. Full value in Appendix B</small></div>
           </div>
           ${S.isDraft ? `<div class="rpt-draft-note"><b>Draft report${S.missing.length ? ` · ${S.missing.length} completeness ${S.missing.length === 1 ? 'check' : 'checks'} open` : ' · report status not set to Final'}</b>${S.missing.length ? 'The open checks are listed in Appendix B. This report is not ready for signature.' : 'Every completeness check passed. Set the report status to Final in the workspace before signing.'}</div>` : ''}
         </div>
@@ -249,6 +256,7 @@ const SRAReport = (function () {
           <tr><td>Security official</td><td>${plain(m.securityOfficial)}</td></tr>
           <tr><td>Executive approver</td><td>${plain(m.executive, 'Not named')}. Approval is recorded by signature and date in section 09.</td></tr>
           <tr><td>Classification</td><td>${esc(classification)}</td></tr>
+          <tr><td>File fingerprint</td><td><span class="hash">${esc(print.slice(0, 16))}</span>, the first 16 characters of the SHA-256 fingerprint of the assessment file this report was printed from. The full value is in Appendix B.</td></tr>
           <tr><td>Next planned review</td><td>${fmtDate(m.nextReview, 'Not set')}, or sooner if environmental or operational changes affect the security of ePHI (45 CFR 164.306(e) and 164.316(b)(2)(iii)). The date is the organization's planned cadence. The Security Rule does not set a fixed interval.</td></tr>
           <tr><td>Retention</td><td>Retain this analysis and the records that support it for at least 6 years from the date of creation or the date it was last in effect, whichever is later (45 CFR 164.316(b)(2)(i)). State law or contracts may require longer.</td></tr>
         </tbody></table>
@@ -520,7 +528,7 @@ const SRAReport = (function () {
     const appendixA = `
       <section class="rpt-section pb">
         ${head('A', 'Appendix A · Evidence index')}
-        ${evidenceRows.length ? `<p class="small muted">${evidenceRows.length} evidence file${evidenceRows.length === 1 ? '' : 's'} attached to the assessment. Files are embedded in the saved assessment JSON unless it was saved without evidence, and are not reproduced in this report.${omitted ? ` ${omitted} file${omitted === 1 ? ' is' : 's are'} listed by name only because the opened file did not embed ${omitted === 1 ? 'it' : 'them'}.` : ''}</p><table class="tbl compact"><thead><tr><th class="c7">ID</th><th class="c28">Row</th><th>File</th><th class="c16">Type</th><th class="c9">Size</th></tr></thead><tbody>${evidenceRows.map(({ c, e }) => `<tr><td class="id">${c.id}</td><td>${esc(c.title)}</td><td>${esc(e.name)}${e.omitted ? ' <span class="placeholder">(not embedded)</span>' : ''}</td><td class="small">${esc(e.type || 'Unknown')}</td><td class="small">${formatBytes(e.size || 0)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No evidence files were attached to this assessment. Attach policies, screenshots, reports, and agreements to the relevant catalog rows in the workspace so they are indexed here and preserved in the assessment file. Evidence must not show patient identifiers.</p>'}
+        ${evidenceRows.length ? `<p class="small muted">${evidenceRows.length} evidence file${evidenceRows.length === 1 ? '' : 's'} attached to the assessment. Files are embedded in the saved assessment JSON unless it was saved without evidence, and are not reproduced in this report. The SHA-256 of each file was recorded when it was attached, so a copy of the file can be checked against this index.${omitted ? ` ${omitted} file${omitted === 1 ? ' is' : 's are'} listed by name only because the opened file did not embed ${omitted === 1 ? 'it' : 'them'}.` : ''}</p><table class="tbl compact evidence-index"><thead><tr><th class="c7">ID</th><th class="c24">Row</th><th>File and SHA-256</th><th class="c12">Source</th><th class="c12">Added</th><th class="c9">Size</th></tr></thead><tbody>${evidenceRows.map(({ c, e }) => `<tr><td class="id">${c.id}</td><td>${esc(c.title)}</td><td>${esc(e.name)}${e.omitted ? ' <span class="placeholder">(not embedded)</span>' : ''}<br><span class="hash">${e.sha256 ? esc(SRAIntegrity.grouped(e.sha256)) : '<span class="placeholder">SHA-256 not recorded</span>'}</span>${e.mismatch ? '<br><b>The embedded file does not match the recorded SHA-256.</b>' : ''}</td><td class="small">${e.source === 'ward' ? 'Ward' : e.source === 'upload' ? 'Upload' : '<span class="placeholder">Not recorded</span>'}</td><td class="small">${e.addedAt ? fmtShort(e.addedAt) : '<span class="placeholder">Not recorded</span>'}</td><td class="small">${formatBytes(e.size || 0)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No evidence files were attached to this assessment. Attach policies, screenshots, reports, and agreements to the relevant catalog rows in the workspace so they are indexed here and preserved in the assessment file. Evidence must not show patient identifiers.</p>'}
       </section>`;
 
     /* Appendix B Completeness ------------------------------------------- */
@@ -541,6 +549,8 @@ const SRAReport = (function () {
           <div><span>Workspace</span><b>SaberGuard SRA Workspace · file format version ${FILE_FORMAT.version}</b></div>
           <div><span>Catalog</span><b>${esc(CATALOG_SOURCE.label)}${CATALOG_SOURCE.checked ? `, compared with the eCFR text on ${fmtDate(CATALOG_SOURCE.checked)}` : ', not yet compared with the eCFR text'}</b></div>
         </div>
+        <p class="small rpt-fingerprint"><b>Assessment file fingerprint</b> <span class="hash">${esc(SRAIntegrity.grouped(print))}</span></p>
+        <p class="small muted">The fingerprint is a SHA-256 over the assessment's contents, including the SHA-256 of every evidence file but not the files themselves or the save time. A saved assessment file with the same fingerprint holds exactly what this report was printed from. The workspace shows the fingerprint of the open assessment in step 7.</p>
         <p class="small muted">Produced with the SaberGuard SRA Workspace. SaberGuard publishes the workspace and did not review this report unless named as the assessor. The workspace is not the HHS Security Risk Assessment (SRA) Tool, is not affiliated with or endorsed by HHS, and does not replace the HHS tool. The report records the assessor's work and judgment. It is not legal advice and does not by itself establish compliance with the HIPAA Security Rule.</p>
       </section>`;
 

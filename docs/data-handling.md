@@ -26,14 +26,14 @@ Your work is in the tab's memory until you save a JSON file or print. Closing or
 The saved file and the printed report describe an organization's security weaknesses.
 {: .warning }
 
-- Store them only in an approved, encrypted location. The workspace does not encrypt the file it saves.
+- Store them only in an approved, encrypted location. **Save file** writes plain JSON. **Save protected file** encrypts the file with a passphrase; see [file format]({{ '/docs/file-format/' | relative_url }}). A PDF of the report is never encrypted by the workspace.
 - Do not attach evidence that shows patient identifiers. Redact names, dates of birth, record numbers, and similar identifiers first. The workspace warns at the attach control but cannot inspect what you attach.
 - Share the report only with people who need it: leadership, the security and privacy officials, counsel, and those doing the remediation.
 - Retain the analysis and its supporting records for at least 6 years (45 CFR 164.316(b)(2)(i)), or longer if state law or a contract requires.
 
 ## Size limits for evidence and logos
 
-Attachments are limited to 10 MB per file and 25 MB per assessment. They are embedded in the saved file. "Save file without evidence" writes the same file with the names and sizes of the attachments but not their contents.
+Attachments are limited to 10 MB per file and 25 MB per assessment. They are embedded in the saved file, with the SHA-256 of each recorded when it is attached. "Save file without evidence" writes the same file with the names and sizes of the attachments but not their contents.
 
 A letterhead logo is limited to 512 KB and is also kept in the saved file.
 

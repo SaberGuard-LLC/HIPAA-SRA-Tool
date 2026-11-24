@@ -14,7 +14,8 @@ assets/
   styles.css            design tokens, workspace, report preview, print
   theme.js              light or dark, from the address
   catalog.js            Security Rule catalog, statuses, scales, scenarios, checks
-  format.js             the saved file: read any version, write version 4
+  format.js             the saved file: read any version, write version 5
+  integrity.js          SHA-256, the assessment fingerprint, protected files
   ephi-map.js           the flow map
   report.js             metrics and the report renderer
   ward.js               Ward evidence import
@@ -23,6 +24,8 @@ assets/
 samples/                a fictitious assessment
 tests/                  tests, the regulation text, fixtures
 scripts/lint-text.mjs   text lint
+scripts/fingerprint.mjs the fingerprint of a saved file
+scripts/measure-perf.mjs the measurements in PERF.md (needs Playwright)
 docs/                   these pages
 _config.yml             Jekyll configuration for these pages
 .github/workflows/      checks, CodeQL, security scans, Scorecard, release
@@ -31,7 +34,7 @@ CONTRIBUTING.md         how to propose a change and the rules it must meet
 SECURITY.md             how to report a security problem
 ```
 
-The scripts are plain browser scripts with no build step and no dependencies. `report.js`, `format.js`, `ward.js`, and `ephi-map.js` do not touch the page, so the tests run them directly under Node.
+The scripts are plain browser scripts with no build step and no dependencies. `report.js`, `format.js`, `integrity.js`, `ward.js`, and `ephi-map.js` do not touch the page, so the tests run them directly under Node.
 
 ## Checks: text lint and tests
 

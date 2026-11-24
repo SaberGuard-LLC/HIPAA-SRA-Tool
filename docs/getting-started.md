@@ -29,8 +29,10 @@ Download the [sample assessment]({{ '/samples/example-health-clinic-hipaa-sra-20
 Nothing is saved for you. The workspace keeps the assessment in the tab's memory and warns you before you close the tab with unsaved changes. The top bar shows "Unsaved changes" when there are edits since the last save.
 
 - **Save file** (or Ctrl + S, Cmd + S on a Mac) downloads the assessment as a JSON file, with attached evidence embedded.
+- **Save protected file**, in step 7, writes the same file encrypted with a passphrase you choose. It opens only with that passphrase, and a lost passphrase cannot be recovered.
+- In Chrome and Edge, the first save asks where to put the file and later saves write to the same file. Other browsers download a new copy each time.
 - **Save file without evidence**, in step 7, writes the same file with the names and sizes of attachments but not the files. Use it to share the assessment without the evidence.
-- **Open** reads a saved file back in. Files from earlier versions open without loss; see [file format]({{ '/docs/file-format/' | relative_url }}).
+- **Open** reads a saved file back in, and asks for the passphrase if the file is protected. Files from earlier versions open without loss; see [file format]({{ '/docs/file-format/' | relative_url }}).
 
 A saved file describes an organization's security weaknesses. Store it only in an approved, encrypted location.
 {: .warning }

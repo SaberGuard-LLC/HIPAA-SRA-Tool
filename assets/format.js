@@ -1,7 +1,7 @@
 /* ============================================================================
    SaberGuard SRA Workspace: saved-file format
    SRAFormat.upgrade(data)      -> workspace state from any saved file
-   SRAFormat.serialize(state)   -> the object written to a version 4 file
+   SRAFormat.serialize(state)   -> the object written to a version 5 file
    Pure functions. No DOM. Loaded after catalog.js.
 
    Version history
@@ -11,6 +11,7 @@
       free-text assets and controls
    4  entity profile in meta; typed inventory rows; flows; risks link by id;
       verification basis per row; evidence may be saved without data
+   5  evidence records sha256, addedAt and source
    ========================================================================== */
 const SRAFormat = (function () {
   'use strict';
@@ -80,17 +81,26 @@ const SRAFormat = (function () {
     };
   }
 
+  const HASH = /^[0-9a-f]{64}$/;
+  const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+  const SOURCES = ['upload', 'ward'];
+  function newEvidence(e = {}) {
+    const item = { name: str(e.name), type: str(e.type), size: Number(e.size) || 0 };
+    const hash = str(e.sha256).toLowerCase();
+    if (HASH.test(hash)) item.sha256 = hash;
+    if (ISO_DATE.test(str(e.addedAt))) item.addedAt = e.addedAt;
+    if (SOURCES.includes(e.source)) item.source = e.source;
+    if (typeof e.data === 'string' && e.data) item.data = e.data; else item.omitted = true;
+    return item;
+  }
+
   function newControl(c = {}) {
     const out = {
       status: STATUSES[c.status] ? c.status : '',
       notes: str(c.notes),
       recommendation: str(c.recommendation),
       basis: BASIS.some(([k]) => k === c.basis) ? c.basis : '',
-      evidence: Array.isArray(c.evidence) ? c.evidence.filter(e => e && typeof e === 'object').map(e => {
-        const item = { name: str(e.name), type: str(e.type), size: Number(e.size) || 0 };
-        if (typeof e.data === 'string' && e.data) item.data = e.data; else item.omitted = true;
-        return item;
-      }) : []
+      evidence: Array.isArray(c.evidence) ? c.evidence.filter(e => e && typeof e === 'object').map(newEvidence) : []
     };
     if (c.carried === true) out.carried = true;
     return out;
@@ -164,7 +174,14 @@ const SRAFormat = (function () {
     const controls = {};
     Object.entries(state.controls || {}).forEach(([id, c]) => {
       const out = { status: c.status || '', notes: c.notes || '', recommendation: c.recommendation || '', basis: c.basis || '',
-        evidence: (c.evidence || []).map(e => includeEvidence && e.data ? { name: e.name, type: e.type, size: e.size, data: e.data } : { name: e.name, type: e.type, size: e.size, omitted: true }) };
+        evidence: (c.evidence || []).map(e => {
+          const item = { name: e.name, type: e.type, size: e.size };
+          if (HASH.test(e.sha256 || '')) item.sha256 = e.sha256;
+          if (ISO_DATE.test(e.addedAt || '')) item.addedAt = e.addedAt;
+          if (SOURCES.includes(e.source)) item.source = e.source;
+          if (includeEvidence && e.data) item.data = e.data; else item.omitted = true;
+          return item;
+        }) };
       if (c.carried) out.carried = true;
       controls[id] = out;
     });
@@ -182,6 +199,6 @@ const SRAFormat = (function () {
     };
   }
 
-  return { upgrade, serialize, newAsset, newFlow, newRisk, newControl, parseIds };
+  return { upgrade, serialize, newAsset, newFlow, newRisk, newControl, newEvidence, parseIds };
 })();
 if (typeof window !== 'undefined') window.SRAFormat = SRAFormat;

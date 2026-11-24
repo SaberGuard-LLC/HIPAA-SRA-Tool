@@ -176,7 +176,7 @@ test('the rendered report prints real counts, no prefilled approval, and no em d
   assert.ok(html.includes('did not review this report unless named as the assessor'));
   assert.ok(!/MIT/.test(html), 'no software license in the report');
   assert.ok(html.includes('Date: ________________'));
-  assert.ok(html.includes('file format version 4'));
+  assert.ok(html.includes('file format version 5'));
 });
 
 test('the version 3 sample upgrades and renders without errors', () => {

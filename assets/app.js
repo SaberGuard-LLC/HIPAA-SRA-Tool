@@ -21,6 +21,20 @@
   const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
   const formatBytes = n => n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`;
   const toDataUrl = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
+  const sourceLabel = e => e.source === 'ward' ? 'Ward' : e.source === 'upload' ? 'Upload' : '<span class="muted">Not recorded</span>';
+  function hashCell(e) {
+    if (!e.sha256) return '<span class="muted">Not recorded</span>';
+    return `<span class="hash"><span aria-hidden="true">${esc(SRAIntegrity.shortHash(e.sha256))}</span><span class="sr-only">SHA-256 ${esc(e.sha256)}</span></span>${e.mismatch ? ' <span class="chip-gap">Does not match the embedded file</span>' : ''}`;
+  }
+  function evidenceTable(s, title) {
+    if (!s.evidence.length) return '<p class="evidence-none">No files attached. Files stay in memory until you save the assessment.</p>';
+    return `<div class="table-scroll"><table class="evidence-table"><caption class="sr-only">Evidence for ${esc(title)}</caption><thead><tr><th scope="col">File</th><th scope="col">Size</th><th scope="col">Source</th><th scope="col">SHA-256</th><th scope="col">Added</th><th scope="col" class="no-print"><span class="sr-only">Remove</span></th></tr></thead><tbody>${s.evidence.map((e, i) => `<tr><td>${esc(e.name)}${e.omitted ? '<span class="muted"> · not embedded in the opened file</span>' : ''}</td><td class="nowrap">${formatBytes(e.size)}</td><td>${sourceLabel(e)}</td><td>${hashCell(e)}</td><td class="nowrap">${e.addedAt ? esc(e.addedAt) : '<span class="muted">Not recorded</span>'}</td><td class="no-print"><button type="button" class="btn small danger remove-evidence" data-index="${i}" aria-label="Remove ${esc(e.name)}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+  }
+  async function evidenceFrom(file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const sha256 = await SRAIntegrity.sha256File(bytes);
+    return { name: file.name, type: file.type, size: file.size, data: `data:${file.type || 'application/octet-stream'};base64,${SRAIntegrity.toBase64(bytes)}`, sha256, addedAt: localToday(), source: 'upload' };
+  }
   const rating = v => { const n = Number(v); return n >= 1 && n <= 5 ? n : ''; };
   const options = (list, value, blankLabel) => (blankLabel != null ? `<option value="" ${!value ? 'selected' : ''}>${esc(blankLabel)}</option>` : '') + list.map(([k, label]) => `<option value="${esc(k)}" ${value === k ? 'selected' : ''}>${esc(label)}</option>`).join('');
   const assetLabel = (a, i) => `${i + 1} · ${a.name.trim() || 'Unnamed row'}`;
@@ -100,7 +114,7 @@
           <div class="field"><label>Recommendation / corrective action</label><small>Printed in the findings section when the row is partially met or not met.</small><textarea class="control-rec" placeholder="Implement..., assign an owner, and validate by...">${esc(s.recommendation)}</textarea></div>
           <div class="field full"><label>Supporting evidence</label><small class="warn-text">Do not attach files that show patient identifiers. Redact names, dates of birth, record numbers, and similar identifiers before attaching. Attached files are embedded in the saved assessment file unless you save without evidence.</small>
             <div class="evidence-box"><input class="evidence-input no-print" type="file" multiple aria-label="Attach evidence files for ${esc(c.title)}">
-              <div class="evidence-list">${s.evidence.length ? s.evidence.map((e, i) => `<div class="file"><span>${esc(e.name)} <span class="muted">(${formatBytes(e.size)})${e.omitted ? ' · not embedded in the opened file' : ''}</span></span><button type="button" class="remove-evidence no-print" data-index="${i}" title="Remove file">Remove</button></div>`).join('') : '<span>No files attached. Files stay in memory until you save the assessment.</span>'}</div>
+              <div class="evidence-list">${evidenceTable(s, c.title)}</div>
             </div>
           </div>
         </div>`;
@@ -125,7 +139,7 @@
         let added = 0, rejected = 0;
         for (const file of e.target.files) {
           if (file.size > MAX_FILE || current + added + file.size > MAX_TOTAL) { rejected++; continue; }
-          s.evidence.push({ name: file.name, type: file.type, size: file.size, data: await toDataUrl(file) });
+          s.evidence.push(await evidenceFrom(file));
           added += file.size;
         }
         if (rejected) $('saveStatus').textContent = `${rejected} file${rejected === 1 ? '' : 's'} not attached: limit is 10 MB per file and 25 MB per assessment.`;
@@ -380,12 +394,38 @@
     Object.entries(dots).forEach(([k, v]) => { const d = document.querySelector(`[data-dot="${k}"]`); if (d) { d.className = 'dot ' + v; d.title = dotLabel[v]; } });
     refreshLetterheadFields();
     showSaveState();
+    scheduleFingerprint();
   }
 
   function showSaveState() {
     const el = $('dirtyStatus');
-    el.textContent = state.dirty ? 'Unsaved changes' : (state.savedAt ? 'No unsaved changes' : '');
+    el.textContent = state.dirty ? 'Unsaved changes' : (state.protectedSave ? 'Saved, passphrase protected' : (state.savedAt ? 'No unsaved changes' : ''));
     el.classList.toggle('is-dirty', !!state.dirty);
+  }
+
+  let fingerprintTimer = null;
+  function scheduleFingerprint() {
+    clearTimeout(fingerprintTimer);
+    fingerprintTimer = setTimeout(() => {
+      const el = $('fingerprint');
+      if (el) el.textContent = SRAIntegrity.grouped(SRAIntegrity.fingerprint(SRAFormat.serialize(state)));
+    }, 250);
+  }
+
+  async function hashEvidence() {
+    let changed = false;
+    for (const c of Object.values(state.controls)) {
+      for (const e of (c.evidence || [])) {
+        if (!e.data) continue;
+        const bytes = SRAIntegrity.dataUrlBytes(e.data);
+        if (!bytes) continue;
+        const actual = await SRAIntegrity.sha256File(bytes);
+        if (e.sha256 && e.sha256 !== actual) { if (!e.mismatch) changed = true; e.mismatch = true; }
+        else if (e.sha256 !== actual) { e.sha256 = actual; changed = true; }
+      }
+    }
+    if (changed) { renderControls(); scheduleFingerprint(); }
+    return changed;
   }
 
   const MAX_LOGO = 512 * 1024;
@@ -481,28 +521,157 @@
     return SRAFormat.serialize(state, { includeEvidence });
   }
 
-  function exportAssessment(includeEvidence = true) {
-    const payload = snapshot(includeEvidence);
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const fileSlug = () => (state.meta.orgName || 'organization').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
+  const fileName = (includeEvidence, isProtected) => `${fileSlug()}-hipaa-sra-${state.meta.assessmentDate || 'draft'}${includeEvidence ? '' : '-no-evidence'}${isProtected ? '.sra' : ''}.json`;
+  const hasEmbedded = () => Object.values(state.controls).some(c => (c.evidence || []).some(e => e.data));
+
+  function download(text, name) {
+    const blob = new Blob([text], { type: 'application/json' });
     const a = document.createElement('a'), url = URL.createObjectURL(blob);
-    const slug = (state.meta.orgName || 'organization').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
     a.href = url;
-    a.download = `${slug}-hipaa-sra-${state.meta.assessmentDate || 'draft'}${includeEvidence ? '' : '-no-evidence'}.json`;
+    a.download = name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 500);
-    const embedded = Object.values(state.controls).some(c => (c.evidence || []).some(e => e.data));
+  }
+
+  function afterSave(includeEvidence, how) {
+    const embedded = hasEmbedded();
     state.dirty = !includeEvidence && embedded;
+    state.protectedSave = how === 'protected';
     showSaveState();
-    $('saveStatus').textContent = includeEvidence
-      ? `Assessment file created ${new Date(state.savedAt).toLocaleString()}. Changes made after this are not saved until you save again.`
-      : `Assessment file without evidence created ${new Date(state.savedAt).toLocaleString()}.${embedded ? ' The attached evidence is only in this tab until you save the full file.' : ''}`;
+    const when = new Date(state.savedAt).toLocaleString();
+    $('saveStatus').textContent = how === 'protected'
+      ? `Passphrase-protected file saved ${when}. It opens only with the passphrase, and a lost passphrase cannot be recovered.`
+      : includeEvidence
+        ? `Assessment file ${how === 'in-place' ? 'saved to the same file' : 'created'} ${when}. Changes made after this are not saved until you save again.`
+        : `Assessment file without evidence created ${when}.${embedded ? ' The attached evidence is only in this tab until you save the full file.' : ''}`;
+  }
+
+  function exportAssessment(includeEvidence = true) {
+    const payload = snapshot(includeEvidence);
+    download(JSON.stringify(payload, null, 2), fileName(includeEvidence, false));
+    afterSave(includeEvidence, 'download');
+  }
+
+  const handles = { plain: null, protected: null };
+  const canPick = () => typeof window.showSaveFilePicker === 'function';
+  async function writeInPlace(kind, text, name) {
+    let handle = handles[kind];
+    if (!handle) {
+      try {
+        handle = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Assessment file', accept: { 'application/json': ['.json'] } }] });
+      } catch (err) {
+        return err && err.name === 'AbortError' ? 'cancelled' : 'unavailable';
+      }
+      handles[kind] = handle;
+    }
+    try {
+      const w = await handle.createWritable();
+      await w.write(text);
+      await w.close();
+      return 'written';
+    } catch (err) {
+      handles[kind] = null;
+      return 'unavailable';
+    }
+  }
+
+  async function saveFile() {
+    if (!canPick()) { exportAssessment(true); return; }
+    const payload = snapshot(true);
+    const result = await writeInPlace('plain', JSON.stringify(payload, null, 2), fileName(true, false));
+    if (result === 'cancelled') return;
+    if (result === 'unavailable') { exportAssessment(true); return; }
+    afterSave(true, 'in-place');
+  }
+
+  async function saveProtected() {
+    if (!SRAIntegrity.available()) { $('saveStatus').textContent = protectUnavailableText; return; }
+    const passphrase = await askPassphrase('save');
+    if (!passphrase) return;
+    const payload = snapshot(true);
+    const wrapper = await SRAIntegrity.protect(JSON.stringify(payload), passphrase);
+    const text = JSON.stringify(wrapper);
+    const name = fileName(true, true);
+    const result = canPick() ? await writeInPlace('protected', text, name) : 'unavailable';
+    if (result === 'cancelled') return;
+    if (result === 'unavailable') download(text, name);
+    afterSave(true, 'protected');
+  }
+
+  const protectUnavailableText = 'Passphrase protection needs the browser\'s built-in cryptography, which this browser does not offer to a page opened this way. Open the workspace from https://sra.saberguard.tech or a local web server to use it.';
+
+  let passResolve = null, passCheck = null;
+  function askPassphrase(mode, fileLabel, check) {
+    const dlg = $('passDialog');
+    const saving = mode === 'save';
+    $('passTitle').textContent = saving ? 'Save a passphrase-protected file' : 'Open a passphrase-protected file';
+    $('passDesc').textContent = saving
+      ? 'The file is encrypted with AES-256-GCM using a key derived from this passphrase. Use at least 12 characters. A lost passphrase cannot be recovered, and nobody, including SaberGuard, can open the file without it.'
+      : `Enter the passphrase for ${fileLabel}.`;
+    $('passTwoField').hidden = !saving;
+    $('passOne').autocomplete = saving ? 'new-password' : 'current-password';
+    $('passOk').textContent = saving ? 'Save protected file' : 'Open file';
+    $('passOne').value = ''; $('passTwo').value = ''; $('passError').textContent = '';
+    passCheck = check || null;
+    return new Promise(resolve => {
+      passResolve = resolve;
+      dlg.showModal();
+      $('passOne').focus();
+    });
+  }
+  function closePassphrase(value) {
+    const dlg = $('passDialog');
+    if (dlg.open) dlg.close();
+    $('passOne').value = ''; $('passTwo').value = '';
+    const r = passResolve; passResolve = null; passCheck = null;
+    if (r) r(value);
+  }
+  $('passForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const one = $('passOne').value, saving = !$('passTwoField').hidden;
+    if (saving && one.length < SRAIntegrity.PROTECTED.minPassphrase) { $('passError').textContent = `Use at least ${SRAIntegrity.PROTECTED.minPassphrase} characters.`; $('passOne').focus(); return; }
+    if (saving && one !== $('passTwo').value) { $('passError').textContent = 'The two passphrases do not match.'; $('passTwo').focus(); return; }
+    if (!one) { $('passError').textContent = 'Enter the passphrase.'; $('passOne').focus(); return; }
+    if (passCheck) {
+      $('passOk').disabled = true;
+      $('passError').textContent = 'Checking the passphrase.';
+      const result = await passCheck(one);
+      $('passOk').disabled = false;
+      if (!result.ok) { $('passError').textContent = result.message; $('passOne').select(); return; }
+      closePassphrase(result.value);
+      return;
+    }
+    closePassphrase(one);
+  });
+  $('passCancel').onclick = () => closePassphrase(null);
+  $('passDialog').addEventListener('cancel', e => { e.preventDefault(); closePassphrase(null); });
+
+  async function readAssessmentText(file) {
+    const data = JSON.parse(await file.text());
+    if (!SRAIntegrity.isProtected(data)) return data;
+    try { SRAIntegrity.checkWrapper(data); } catch (err) {
+      throw new Error(err.message === 'version' ? 'This protected file was saved by a newer version of the workspace.' : 'This protected file is damaged or not a SaberGuard assessment.');
+    }
+    if (!SRAIntegrity.available()) throw new Error(protectUnavailableText);
+    const opened = await askPassphrase('open', file.name, async passphrase => {
+      try {
+        return { ok: true, value: JSON.parse(await SRAIntegrity.unprotect(data, passphrase)) };
+      } catch (err) {
+        return { ok: false, message: err.message === 'passphrase' ? 'That passphrase does not open this file, or the file has been changed since it was saved. Nothing was opened.' : 'The file could not be read. Nothing was opened.' };
+      }
+    });
+    if (!opened) throw new Error('Nothing was opened.');
+    return opened;
   }
 
   async function importAssessment(file) {
     try {
-      const data = JSON.parse(await file.text());
+      const data = await readAssessmentText(file);
       const up = SRAFormat.upgrade(data);
       state.meta = up.meta; state.assets = up.assets; state.flows = up.flows; state.controls = up.controls; state.risks = up.risks; state.savedAt = up.savedAt;
+      state.protectedSave = false;
+      handles.plain = null; handles.protected = null;
       activeFilter = 'all';
       document.querySelectorAll('.filter').forEach(x => x.classList.toggle('active', x.dataset.filter === 'all'));
       hydrateMeta();
@@ -512,10 +681,19 @@
       $('logoStatus').textContent = '';
       wardOffer = null; renderWardDrafts();
       if (reportMode) renderReportView();
-      const note = up.version < 4 ? ` This version ${up.version} file was read into format version ${FILE_FORMAT.version}. ${up.carried.length} answer${up.carried.length === 1 ? '' : 's'} carried over on rows that changed and marked for review; saving writes version ${FILE_FORMAT.version}.` : '';
+      const note = up.version < FILE_FORMAT.version ? ` This version ${up.version} file was read into format version ${FILE_FORMAT.version}.${up.carried.length ? ` ${up.carried.length} answer${up.carried.length === 1 ? '' : 's'} carried over on rows that changed and marked for review.` : ''} Saving writes version ${FILE_FORMAT.version}.` : '';
       $('saveStatus').textContent = `Opened ${file.name}. Changes remain in memory until saved.${note}`;
+      if (await hashEvidence()) {
+        const bad = Object.values(state.controls).flatMap(c => c.evidence || []).filter(e => e.mismatch).length;
+        if (bad) $('saveStatus').textContent += ` ${bad} evidence file${bad === 1 ? ' does' : 's do'} not match the SHA-256 recorded when ${bad === 1 ? 'it was' : 'they were'} attached.`;
+        if (reportMode) renderReportView();
+      }
+      return true;
     } catch (err) {
-      $('saveStatus').textContent = 'Could not open that file. Choose a valid SaberGuard assessment JSON file.';
+      $('saveStatus').textContent = err instanceof SyntaxError || !err.message || err.message === 'format' || err.message === 'not an assessment file'
+        ? 'Could not open that file. Choose a valid SaberGuard assessment JSON file.'
+        : err.message;
+      return false;
     }
   }
 
@@ -589,9 +767,10 @@
       return null;
     }
     const used = CONTROLS.reduce((n, x) => n + controlState(x.id).evidence.reduce((m, f) => m + (f.size || 0), 0), 0);
-    const result = SRAWard.apply(state.controls, plan, { budget: MAX_TOTAL - used });
+    const result = SRAWard.apply(state.controls, plan, { budget: MAX_TOTAL - used, today: localToday() });
     const changed = result.attached.length > 0;
     renderControls(); updateDashboard({ keepClean: !changed });
+    if (changed) await hashEvidence();
     wardOffer = SRAWard.drafts(state, ward);
     renderWardDrafts();
     const list = ids => ids.join(', ');
@@ -626,7 +805,9 @@
   const pick = $('scenarioPick');
   RISK_SCENARIOS.forEach((t, i) => { const o = document.createElement('option'); o.value = i; o.textContent = t.text.length > 90 ? t.text.slice(0, 88) + '...' : t.text; pick.appendChild(o); });
   pick.onchange = () => { const t = RISK_SCENARIOS[pick.value]; if (t) addRisk({ description: t.text, controlIds: SRAFormat.parseIds(t.controls) }); pick.value = ''; };
-  ['exportBtn', 'exportBtn2'].forEach(id => $(id).onclick = () => exportAssessment(true));
+  ['exportBtn', 'exportBtn2'].forEach(id => $(id).onclick = () => saveFile());
+  $('saveProtectedBtn').onclick = () => saveProtected();
+  if (!SRAIntegrity.available()) { $('saveProtectedBtn').disabled = true; $('protectNote').textContent = protectUnavailableText; }
   $('exportNoEvidenceBtn').onclick = () => exportAssessment(false);
   $('importBtn').onclick = () => $('importFile').click();
   $('importFile').onchange = e => { if (e.target.files[0]) importAssessment(e.target.files[0]); e.target.value = ''; };
@@ -651,7 +832,7 @@
   }
 
   window.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); exportAssessment(true); }
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); saveFile(); }
   });
 
   window.addEventListener('beforeunload', e => {
@@ -680,5 +861,5 @@
   const isDirty = () => !!state.dirty;
 
   /* Exposed for testing and for automation hooks (for example loading a sample file). */
-  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
+  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, saveFile, saveProtected, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
 })();

@@ -7,10 +7,16 @@ Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versionin
 Version 5.0.0 is in progress. The work is tracked in the 5.0.0 milestones on GitHub.
 
 ### Changed
+- File format version 5. Files from versions 1, 3, and 4 open without loss and save as version 5.
 - The license is now the [PolyForm Shield License 1.0.0](LICENSE). Anyone may use, modify, and run the workspace, including an organization assessing itself. Selling it, hosting it as a service, or using it to compete with SaberGuard's products and services, including paid risk assessments, needs a commercial license. Versions up to and including 4.2.0 remain available under the MIT License.
 - `package.json` declares `SEE LICENSE IN LICENSE`, because PolyForm Shield has no SPDX identifier.
 
 ### Added
+- Every evidence file records its SHA-256, the date it was attached, and whether it came from an upload or from Ward. The catalog row shows a shortened hash, and Appendix A of the report prints the full value with the source and date. Files opened from earlier versions are hashed when they are opened, if their contents are embedded, and an embedded file that no longer matches its recorded hash is marked.
+- An assessment file fingerprint: a SHA-256 over the assessment's contents, including every evidence hash. The report prints the first 16 characters on the cover and in section 01, and the full value in Appendix B. Step 7 shows the fingerprint of the open assessment, and `scripts/fingerprint.mjs` computes it for a saved file.
+- **Save protected file**: the assessment encrypted with AES-256-GCM, with a key derived from a passphrase of at least 12 characters by PBKDF2-SHA-256 with 600,000 iterations. **Open** asks for the passphrase. A wrong passphrase or a changed file opens nothing.
+- Save in place: in Chrome and Edge, later saves write to the file chosen at the first save instead of downloading a new copy.
+- `PERF.md`, with the baseline measurements and `scripts/measure-perf.mjs`.
 - `CONTRIBUTING.md`, and an updated security policy.
 - Security scanning on every pull request and push to `main`: Semgrep, gitleaks over the full history, actionlint and zizmor for the workflows, dependency review, and OpenSSF Scorecard. CodeQL also analyzes the workflows. Every action is pinned to a commit.
 - A release workflow that publishes a GitHub release from the changelog, with a zip of the workspace and its SHA-256.
