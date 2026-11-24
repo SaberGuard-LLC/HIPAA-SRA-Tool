@@ -82,13 +82,21 @@ async function run(browser, url) {
   }
   const filters = await slice(t0, await mark());
 
-  const ten = Buffer.alloc(10 * 1024 * 1024, 7);
-  const input = page.locator('.evidence-input').first();
+  const attachInPage = (names, sizes) => page.evaluate(async ([names, sizes]) => {
+    const input = document.querySelector('.evidence-input');
+    const dt = new DataTransfer();
+    names.forEach((n, i) => dt.items.add(new File([new Uint8Array(sizes[i]).fill(i + 7)], n, { type: 'application/octet-stream' })));
+    input.files = dt.files;
+    const a = performance.now();
+    input.dispatchEvent(new Event('change'));
+    const last = names[names.length - 1];
+    await new Promise(res => { const tick = () => [...document.querySelectorAll('.evidence-table')].some(el => el.textContent.includes(last)) ? res() : requestAnimationFrame(tick); tick(); });
+    return performance.now() - a;
+  }, [names, sizes]);
+
   t0 = await mark();
-  const attachStart = Date.now();
-  await input.setInputFiles({ name: 'ten.bin', mimeType: 'application/octet-stream', buffer: ten });
-  await page.waitForFunction(() => [...document.querySelectorAll('.evidence-list, .evidence-table')].some(el => el.textContent.includes('ten.bin')), null, { timeout: 60000 });
-  const attachMs = Date.now() - attachStart;
+  const attachMs = await attachInPage(['ten.bin'], [10 * 1024 * 1024]);
+  await page.waitForTimeout(300);
   const attach = await slice(t0, await mark());
 
   const saveOnce = () => page.evaluate(async () => {
@@ -102,14 +110,19 @@ async function run(browser, url) {
   });
   const save10 = await saveOnce();
 
-  const more = [Buffer.alloc(10 * 1024 * 1024, 8), Buffer.alloc(5 * 1024 * 1024 - 400, 9)];
-  await page.locator('.evidence-input').first().setInputFiles([
-    { name: 'ten-b.bin', mimeType: 'application/octet-stream', buffer: more[0] },
-    { name: 'five.bin', mimeType: 'application/octet-stream', buffer: more[1] }
-  ]);
-  await page.waitForFunction(() => [...document.querySelectorAll('.evidence-list, .evidence-table')].some(el => el.textContent.includes('five.bin')), null, { timeout: 60000 });
+  await attachInPage(['ten-b.bin', 'five.bin'], [10 * 1024 * 1024, 5 * 1024 * 1024 - 400]);
   const evidenceBytes = await page.evaluate(() => Object.values(window.SRA.state.controls).reduce((n, c) => n + (c.evidence || []).reduce((m, e) => m + (e.size || 0), 0), 0));
   const save25 = await saveOnce();
+
+  t0 = await mark();
+  const open25 = await page.evaluate(async () => {
+    const text = JSON.stringify(window.SRA.snapshot(true));
+    const a = performance.now();
+    await window.SRA.importAssessment({ name: 'big.json', text: async () => text });
+    return performance.now() - a;
+  });
+  await page.waitForTimeout(300);
+  const opened = await slice(t0, await mark());
 
   await page.close();
   const inp = s => Math.max(0, ...s.events.map(e => e.duration));
@@ -119,7 +132,7 @@ async function run(browser, url) {
     typingInp: inp(typing), typingLong: lt(typing).length, typingLongMax: Math.max(0, ...lt(typing).map(t => t.duration)),
     filterInp: inp(filters), filterLong: lt(filters).length,
     attachMs, attachLong: lt(attach).length, attachLongMax: Math.max(0, ...lt(attach).map(t => t.duration)),
-    save10, save25, evidenceMB: evidenceBytes / 1048576
+    save10, save25, open25, openLongMax: Math.max(0, ...lt(opened).map(t => t.duration)), evidenceMB: evidenceBytes / 1048576
   };
 }
 
