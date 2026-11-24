@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createServer } from 'node:http';
-import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
-import { join, extname, dirname } from 'node:path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, extname, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { gzipSync } from 'node:zlib';
@@ -15,12 +15,15 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
 
 function serve() {
   const server = createServer((req, res) => {
-    let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    let path;
+    try { path = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch (err) { res.statusCode = 400; res.end(); return; }
     if (path.endsWith('/')) path += 'index.html';
-    const file = join(ROOT, path);
-    if (!file.startsWith(ROOT) || !existsSync(file) || statSync(file).isDirectory()) { res.statusCode = 404; res.end(); return; }
+    const file = resolve(ROOT, '.' + path);
+    if (!file.startsWith(ROOT + sep)) { res.statusCode = 403; res.end(); return; }
+    let body;
+    try { body = readFileSync(file); } catch (err) { res.statusCode = 404; res.end(); return; }
     res.setHeader('content-type', TYPES[extname(file)] || 'application/octet-stream');
-    res.end(readFileSync(file));
+    res.end(body);
   });
   return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve(server)));
 }
