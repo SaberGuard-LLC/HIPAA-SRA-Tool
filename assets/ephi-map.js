@@ -95,6 +95,11 @@ const SRAMap = (function () {
       findings: m.risks.length
     };
   }
+  function flaggedOf(m) {
+    return m.assets.filter(flagged).map(a => ({ type: 'asset', id: a.id, ref: `#${a.index + 1}`, what: a.name.trim() || 'Unnamed row' }))
+      .concat(m.flows.filter(weak).map(f => ({ type: 'flow', id: f.id, ref: f.ref, what: `${m.byId[f.from].name.trim() || 'Unnamed row'} to ${m.byId[f.to].name.trim() || 'Unnamed row'}` })));
+  }
+
   /* Flags that no risk points at. The report stays in draft until empty. */
   function unlinkedOf(m) {
     const out = [];
@@ -345,6 +350,6 @@ const SRAMap = (function () {
     return `<span>${line('lg-yes')}Encrypted in transit</span><span>${line('lg-no')}Not encrypted</span><span>${line('lg-unk')}Not checked</span><span><svg width="24" height="12" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="9" rx="2.5" class="lg-box"></rect></svg>Heavy border and tag: a finding</span><span><svg width="24" height="12" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="9" rx="2.5" class="lg-unc"></rect></svg>Dashed border: unclassified row</span>`;
   }
 
-  return { build, toString, toElement, legendHtml, facts: state => facts(model(state)), unlinked: state => unlinkedOf(model(state)), ENC, L };
+  return { build, toString, toElement, legendHtml, facts: state => facts(model(state)), unlinked: state => unlinkedOf(model(state)), flagged: state => flaggedOf(model(state)), ENC, L };
 })();
 if (typeof window !== 'undefined') window.SRAMap = SRAMap;

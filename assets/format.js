@@ -11,7 +11,9 @@
       free-text assets and controls
    4  entity profile in meta; typed inventory rows; flows; risks link by id;
       verification basis per row; evidence may be saved without data
-   5  evidence records sha256, addedAt and source
+   5  evidence records sha256, addedAt and source; risks name a threat, a
+      vulnerability and cia; inventory rows may record noThreatNote; an
+      interview and document log
    ========================================================================== */
 const SRAFormat = (function () {
   'use strict';
@@ -40,7 +42,8 @@ const SRAFormat = (function () {
       mfa: pick(a.mfa, INVENTORY.yesNo, 'unknown'),
       count: Math.max(1, parseInt(a.count, 10) || 1),
       flow: str(a.flow),          /* version 3 flow notes, kept as legacy notes */
-      protection: str(a.protection)
+      protection: str(a.protection),
+      noThreatNote: str(a.noThreatNote)
     };
   }
 
@@ -63,6 +66,9 @@ const SRAFormat = (function () {
     return {
       id: str(r.id) || uid(),
       description: str(r.description),
+      threat: str(r.threat),
+      vulnerability: str(r.vulnerability),
+      cia: CIA.map(([k]) => k).filter(k => Array.isArray(r.cia) && r.cia.includes(k)),
       assetIds: ids(r.assetIds),
       flowIds: ids(r.flowIds),
       controlIds: ids(r.controlIds).map(x => x.toUpperCase()),
@@ -92,6 +98,17 @@ const SRAFormat = (function () {
     if (SOURCES.includes(e.source)) item.source = e.source;
     if (typeof e.data === 'string' && e.data) item.data = e.data; else item.omitted = true;
     return item;
+  }
+
+  function newInterview(v = {}) {
+    return {
+      id: str(v.id) || uid(),
+      participant: str(v.participant),
+      role: str(v.role),
+      date: /^\d{4}-\d{2}-\d{2}$/.test(str(v.date)) ? v.date : '',
+      topics: str(v.topics),
+      method: pick(v.method, INTERVIEW_METHODS, 'interview')
+    };
   }
 
   function newControl(c = {}) {
@@ -164,7 +181,9 @@ const SRAFormat = (function () {
     }) : [];
     risks.forEach(r => { r.assetIds = r.assetIds.filter(id => assetIds.has(id)); r.flowIds = r.flowIds.filter(id => flows.some(f => f.id === id)); });
 
-    return { version, meta, assets, flows, controls, risks, savedAt: data.savedAt || data.exportedAt || null, carried };
+    const interviews = Array.isArray(data.interviews) ? data.interviews.filter(v => v && typeof v === 'object').map(newInterview) : [];
+
+    return { version, meta, assets, flows, controls, risks, interviews, savedAt: data.savedAt || data.exportedAt || null, carried };
   }
 
   /* The object written to a file. With includeEvidence false, evidence keeps
@@ -195,10 +214,11 @@ const SRAFormat = (function () {
       flows: (state.flows || []).map(newFlow),
       controls,
       risks: (state.risks || []).map(newRisk),
+      interviews: (state.interviews || []).map(newInterview),
       savedAt: state.savedAt || null
     };
   }
 
-  return { upgrade, serialize, newAsset, newFlow, newRisk, newControl, newEvidence, parseIds };
+  return { upgrade, serialize, newAsset, newFlow, newRisk, newControl, newEvidence, newInterview, parseIds };
 })();
 if (typeof window !== 'undefined') window.SRAFormat = SRAFormat;

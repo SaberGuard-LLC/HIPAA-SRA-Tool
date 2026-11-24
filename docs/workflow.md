@@ -25,11 +25,15 @@ Rows marked this way are locked, and the report prints the basis.
 
 "Next planned review" is the organization's own planned date. The Security Rule sets no fixed interval for a risk analysis.
 
+Under the methodology, the interview and document log has one row per interview, walkthrough, or document review: the participant, their role, the date, the topics, and the method. The report prints it in section 03, after the methodology text.
+
 ## Step 2: ePHI inventory and data flows
 
 Add one row for every person, device, system, outside party, and backup that stores, receives, maintains, or transmits ePHI. Record electronic PHI only. Paper records are not ePHI.
 
 Each row records the kind, the zone, the ePHI held, the lifecycle stages, the owner, the vendor, whether a business associate agreement is on file, the location, encryption at rest, and multi-factor authentication.
+
+A row counts as considered when a risk in step 5 links to it. For a row no risk links, use "Why no risk applies" to record why no reasonably anticipated threat applies. The coverage panel in step 5 counts both.
 
 Then add one data flow for every connection that carries ePHI between two rows: what is carried, the transport, and whether it is encrypted in transit.
 
@@ -78,9 +82,18 @@ When the file lists the services, devices, and mail domains Ward saw, the worksp
 
 ## Step 5: risk register
 
-Write each risk as a statement of a threat, the vulnerability it could exploit, and the ePHI or process affected. Link it to the inventory rows, data flows, and catalog rows involved. Rate likelihood and impact, choose a treatment decision, name an owner and a target date, write the remediation plan, and rate the expected residual risk.
+Write each risk as a statement, then name its threat (the source and the event, for example an external attacker sending a phishing message) and its vulnerability (the weakness the threat would exploit) in their own fields, and mark whether it affects confidentiality, integrity, availability, or more than one. A risk with a statement but no threat or vulnerability shows a prompt to split it. Link the risk to the inventory rows, data flows, and catalog rows involved. Rate likelihood and impact, choose a treatment decision, name an owner and a target date, write the remediation plan, and rate the expected residual risk.
 
-The risk scenario library holds 18 scenarios that can start an entry. They are risks an assessor may record, not requirements of the Security Rule.
+The risk scenario library holds 18 scenarios that can start an entry, each with its threat, vulnerability, and the properties it affects filled in. They are risks an assessor may record, not requirements of the Security Rule.
+
+The coverage panel counts four things, and lists what is missing under each:
+
+- inventory rows considered: linked to a risk, or with a note on why no threat applies;
+- flagged inventory rows and flows linked to an open risk;
+- catalog rows rated Partially met or Not met that are linked to a risk;
+- risks with an owner and a target date.
+
+**Export CSV** downloads the remediation plan for a tracker or a spreadsheet: one row per risk with its id, statement, threat, vulnerability, inherent score and level, treatment decision, remediation plan, owner, target date, residual score and level, status, and linked catalog rows. The file is UTF-8 with a byte order mark so Excel reads it correctly, and a value that starts with `=`, `+`, `-`, or `@` is prefixed with an apostrophe so a spreadsheet does not run it as a formula.
 
 ## Step 6: summary and attestation
 
@@ -103,5 +116,6 @@ The completeness checks test whether fields are filled in. They do not test whet
 | Risks recorded | At least one risk is in the register. |
 | Risks complete | Every risk has a description, likelihood, impact, owner, target date, and treatment plan. |
 | Approval | The management approver is named. |
+| Threat and vulnerability (advisory) | Every risk names a threat and a vulnerability. In 5.0 this check is shown but does not hold the report in draft. It will become a completeness check in a later release. |
 
 When every check passes, set the report status to Final. Then choose a letterhead and print. See [report and printing]({{ '/docs/report/' | relative_url }}).

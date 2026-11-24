@@ -16,10 +16,11 @@ An assessment is saved as one JSON file, format name `SaberGuard HIPAA SRA`, cur
 | `savedAt`, `exportedAt` | When the file was written. |
 | `evidenceIncluded` | `false` when saved without evidence. |
 | `meta` | Step 1, step 6, the report status, and the letterhead settings. |
-| `assets` | Inventory rows: kind, zone, ePHI held, lifecycle, owner, vendor, business associate agreement, location, encryption at rest, multi-factor authentication. |
+| `assets` | Inventory rows: kind, zone, ePHI held, lifecycle, owner, vendor, business associate agreement, location, encryption at rest, multi-factor authentication, and `noThreatNote`, why no reasonably anticipated threat applies. |
 | `flows` | Data flows: from, to, direction, ePHI carried, transport, encryption in transit. |
 | `controls` | One entry per catalog row id: status, notes, recommendation, verification basis, evidence. Each evidence entry has `name`, `type`, `size`, `sha256`, `addedAt`, `source`, and either `data` or `omitted: true`. |
-| `risks` | The risk register, with ids of the linked inventory rows, flows, and catalog rows. |
+| `risks` | The risk register: statement, `threat`, `vulnerability`, `cia` (any of `confidentiality`, `integrity`, `availability`), rating, treatment, and the ids of the linked inventory rows, flows, and catalog rows. |
+| `interviews` | The interview and document log: `participant`, `role`, `date`, `topics`, and `method` (`interview`, `walkthrough`, or `document`). |
 
 The file name is built from the organization name and the assessment date, for example `example-health-clinic-hipaa-sra-2026-09-06.json`.
 

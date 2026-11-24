@@ -1,6 +1,6 @@
 {
   "format": "SaberGuard HIPAA SRA",
-  "version": 4,
+  "version": 5,
   "exportedAt": "2026-09-12T16:00:00.000Z",
   "evidenceIncluded": true,
   "meta": {
@@ -52,7 +52,8 @@
       "mfa": "yes",
       "count": 1,
       "flow": "",
-      "protection": "Vendor SOC 2 Type II; role-based access; MFA for remote access; vendor-managed encrypted backups"
+      "protection": "Vendor SOC 2 Type II; role-based access; MFA for remote access; vendor-managed encrypted backups",
+      "noThreatNote": ""
     },
     {
       "id": "a2",
@@ -75,7 +76,8 @@
       "mfa": "yes",
       "count": 1,
       "flow": "",
-      "protection": "Conditional access with MFA; encrypted email for ePHI; Intune-managed devices only; 90-day cloud backup"
+      "protection": "Conditional access with MFA; encrypted email for ePHI; Intune-managed devices only; 90-day cloud backup",
+      "noThreatNote": ""
     },
     {
       "id": "a3",
@@ -95,7 +97,8 @@
       "mfa": "no",
       "count": 1,
       "flow": "",
-      "protection": "NTFS permissions by role; server closet keyed; nightly encrypted backup; no external access"
+      "protection": "NTFS permissions by role; server closet keyed; nightly encrypted backup; no external access",
+      "noThreatNote": ""
     },
     {
       "id": "a4",
@@ -117,7 +120,8 @@
       "mfa": "yes",
       "count": 24,
       "flow": "",
-      "protection": "BitLocker; EDR; Intune compliance; 15-minute screen lock; privacy screens in clinical areas"
+      "protection": "BitLocker; EDR; Intune compliance; 15-minute screen lock; privacy screens in clinical areas",
+      "noThreatNote": ""
     },
     {
       "id": "a5",
@@ -138,7 +142,8 @@
       "mfa": "yes",
       "count": 1,
       "flow": "",
-      "protection": "TLS in transit; restricted mailbox; 30-day retention in the fax portal"
+      "protection": "TLS in transit; restricted mailbox; 30-day retention in the fax portal",
+      "noThreatNote": "Considered misdirected faxes and a breach at the vendor. A business associate agreement is on file, transmission is encrypted, and the vendor portal requires multi-factor authentication. No further risk recorded."
     },
     {
       "id": "a6",
@@ -159,7 +164,8 @@
       "mfa": "yes",
       "count": 1,
       "flow": "",
-      "protection": "SFTP with key authentication; clearinghouse SOC 2 report reviewed"
+      "protection": "SFTP with key authentication; clearinghouse SOC 2 report reviewed",
+      "noThreatNote": "Considered a breach at the clearinghouse and interception of claim files. A business associate agreement is on file and claims move over SFTP. No further risk recorded."
     },
     {
       "id": "a7",
@@ -180,7 +186,8 @@
       "mfa": "n/a",
       "count": 18,
       "flow": "",
-      "protection": "Annual security training; role-based EHR access; signed confidentiality agreements"
+      "protection": "Annual security training; role-based EHR access; signed confidentiality agreements",
+      "noThreatNote": "Threats from workforce access are recorded against the systems they use (R-01, R-03, R-06), not against this row."
     },
     {
       "id": "a8",
@@ -201,7 +208,8 @@
       "mfa": "n/a",
       "count": 3,
       "flow": "",
-      "protection": "Clinic-issued laptops only; remote work agreement; annual security training"
+      "protection": "Clinic-issued laptops only; remote work agreement; annual security training",
+      "noThreatNote": "Threats from remote access are recorded against Microsoft 365 and the EHR (R-02, R-06), not against this row."
     },
     {
       "id": "a9",
@@ -222,7 +230,8 @@
       "mfa": "n/a",
       "count": 1,
       "flow": "",
-      "protection": "Portal accounts verified in person; reminder texts limited to date, time, and the clinic phone number"
+      "protection": "Portal accounts verified in person; reminder texts limited to date, time, and the clinic phone number",
+      "noThreatNote": ""
     },
     {
       "id": "a10",
@@ -243,7 +252,8 @@
       "mfa": "n/a",
       "count": 1,
       "flow": "",
-      "protection": "Disclosures for treatment; encrypted email or the fax service only"
+      "protection": "Disclosures for treatment; encrypted email or the fax service only",
+      "noThreatNote": "Considered misdirected referrals and results. Exchange runs through the EHR portal and the fax service, both covered by other rows. No further risk recorded."
     },
     {
       "id": "a11",
@@ -263,7 +273,8 @@
       "mfa": "yes",
       "count": 1,
       "flow": "",
-      "protection": "Encrypted at rest with vendor-held keys; 90-day retention; restore tested for single files only"
+      "protection": "Encrypted at rest with vendor-held keys; 90-day retention; restore tested for single files only",
+      "noThreatNote": ""
     },
     {
       "id": "a12",
@@ -283,7 +294,8 @@
       "mfa": "yes",
       "count": 1,
       "flow": "",
-      "protection": "Named technician accounts with MFA; session logging; service accounts not yet on a rotation schedule"
+      "protection": "Named technician accounts with MFA; session logging; service accounts not yet on a rotation schedule",
+      "noThreatNote": ""
     }
   ],
   "flows": [
@@ -527,7 +539,10 @@
           "name": "KnowBe4-training-completion-2026-03.txt",
           "type": "text/plain",
           "size": 64,
-          "data": "data:text/plain;base64,VHJhaW5pbmcgY29tcGxldGlvbiBleHBvcnQ6IDI3IG9mIDI3IHdvcmtmb3JjZSBtZW1iZXJzIGNvbXBsZXRlLg=="
+          "data": "data:text/plain;base64,VHJhaW5pbmcgY29tcGxldGlvbiBleHBvcnQ6IDI3IG9mIDI3IHdvcmtmb3JjZSBtZW1iZXJzIGNvbXBsZXRlLg==",
+          "sha256": "6cb84c417080c3e49f67f70e1b978b9f9cc105f762565fcb4aa09722ed81d42e",
+          "addedAt": "2026-08-27",
+          "source": "upload"
         }
       ]
     },
@@ -590,7 +605,10 @@
           "name": "restore-test-2026-04-12.txt",
           "type": "text/plain",
           "size": 80,
-          "data": "data:text/plain;base64,UmVzdG9yZSB0ZXN0IGxvZzogZmlsZSBzaGFyZSByZXN0b3JlIGNvbXBsZXRlZCBpbiA0MiBtaW51dGVzLCBjaGVja3N1bSB2ZXJpZmllZC4="
+          "data": "data:text/plain;base64,UmVzdG9yZSB0ZXN0IGxvZzogZmlsZSBzaGFyZSByZXN0b3JlIGNvbXBsZXRlZCBpbiA0MiBtaW51dGVzLCBjaGVja3N1bSB2ZXJpZmllZC4=",
+          "sha256": "f50c4d5309b5091fd74275e1e3a49b57c27ecfa2ad1e09242c14f17cc47ed06b",
+          "addedAt": "2026-08-27",
+          "source": "upload"
         }
       ]
     },
@@ -639,7 +657,10 @@
           "name": "BAA-inventory-2026.txt",
           "type": "text/plain",
           "size": 65,
-          "data": "data:text/plain;base64,QnVzaW5lc3MgYXNzb2NpYXRlIGludmVudG9yeSB3aXRoIGV4ZWN1dGlvbiBhbmQgZXhwaXJhdGlvbiBkYXRlcy4="
+          "data": "data:text/plain;base64,QnVzaW5lc3MgYXNzb2NpYXRlIGludmVudG9yeSB3aXRoIGV4ZWN1dGlvbiBhbmQgZXhwaXJhdGlvbiBkYXRlcy4=",
+          "sha256": "9fd6935a0c711115f5a92bd386519812d5d317d27b6d1b32986681a46b598e90",
+          "addedAt": "2026-08-27",
+          "source": "upload"
         }
       ]
     },
@@ -765,7 +786,10 @@
           "name": "intune-bitlocker-compliance.txt",
           "type": "text/plain",
           "size": 50,
-          "data": "data:text/plain;base64,SW50dW5lIGNvbXBsaWFuY2UgcmVwb3J0OiAyNC8yNCBkZXZpY2VzIGVuY3J5cHRlZC4="
+          "data": "data:text/plain;base64,SW50dW5lIGNvbXBsaWFuY2UgcmVwb3J0OiAyNC8yNCBkZXZpY2VzIGVuY3J5cHRlZC4=",
+          "sha256": "ae42b327d6ba355dc1f2019d115c84a2dd32b5270f40c969181cde8516d92f04",
+          "addedAt": "2026-08-27",
+          "source": "upload"
         }
       ]
     },
@@ -928,7 +952,13 @@
       "treatment": "Implement a monthly documented log review for the EHR and Microsoft 365; enable file-share access auditing with one-year retention; define escalation criteria in IR-01; validate with the first two monthly review records.",
       "status": "In progress",
       "residualLikelihood": 2,
-      "residualImpact": 4
+      "residualImpact": 4,
+      "threat": "Workforce member or outside attacker (adversarial) uses EHR or file-share access in a way nobody notices.",
+      "vulnerability": "EHR and file-share audit logs are not reviewed on a schedule, and file-share auditing is not turned on.",
+      "cia": [
+        "confidentiality",
+        "integrity"
+      ]
     },
     {
       "id": "r2",
@@ -956,7 +986,14 @@
       "treatment": "Enable Entra ID password protection; move service-account credentials to the MSP vault with 90-day rotation; review privileged role assignments quarterly.",
       "status": "Open",
       "residualLikelihood": 1,
-      "residualImpact": 5
+      "residualImpact": 5,
+      "threat": "External attacker (adversarial) signs in with a leaked or guessed password for a service or administrator account.",
+      "vulnerability": "Service-account passwords are never rotated, and breached-password protection is off.",
+      "cia": [
+        "confidentiality",
+        "integrity",
+        "availability"
+      ]
     },
     {
       "id": "r3",
@@ -981,7 +1018,12 @@
       "treatment": "Reduce the EHR session timeout to 15 minutes; configure kiosk auto-lock at 5 minutes via Intune; verify with a walkthrough.",
       "status": "Open",
       "residualLikelihood": 1,
-      "residualImpact": 3
+      "residualImpact": 3,
+      "threat": "Patient or visitor (accidental or curious) views or uses an EHR session left open in an exam room or at a kiosk.",
+      "vulnerability": "The EHR session timeout is 8 hours, and kiosks do not lock themselves.",
+      "cia": [
+        "confidentiality"
+      ]
     },
     {
       "id": "r4",
@@ -1006,7 +1048,13 @@
       "treatment": "Add a mandatory backup verification step to the device and media procedure and MSP repair ticket template.",
       "status": "Open",
       "residualLikelihood": 1,
-      "residualImpact": 3
+      "residualImpact": 3,
+      "threat": "Hardware failure or handling damage (accidental) during repair or relocation of the file server.",
+      "vulnerability": "No procedure requires a verified backup before the server is moved or repaired.",
+      "cia": [
+        "availability",
+        "integrity"
+      ]
     },
     {
       "id": "r5",
@@ -1030,7 +1078,13 @@
       "treatment": "Enable volume shadow copies and file integrity monitoring with alerting; document the reasonable-and-appropriate analysis.",
       "status": "Open",
       "residualLikelihood": 1,
-      "residualImpact": 2
+      "residualImpact": 2,
+      "threat": "Workforce member, malware, or an outside attacker (accidental or adversarial) changes or deletes scanned records.",
+      "vulnerability": "The file share has no versioning or integrity monitoring.",
+      "cia": [
+        "integrity",
+        "availability"
+      ]
     },
     {
       "id": "r6",
@@ -1056,7 +1110,13 @@
       "treatment": "Complete a full access recertification for all systems and adopt a semi-annual schedule with documented sign-off.",
       "status": "Open",
       "residualLikelihood": 1,
-      "residualImpact": 3
+      "residualImpact": 3,
+      "threat": "Former workforce member or a staff member who changed roles (accidental or adversarial) keeps using access they no longer need.",
+      "vulnerability": "Access has not been recertified since 2024.",
+      "cia": [
+        "confidentiality",
+        "integrity"
+      ]
     },
     {
       "id": "r7",
@@ -1085,7 +1145,12 @@
       "treatment": "Perform an annual full restoration test and record results and runbook revisions in BC-01.",
       "status": "Open",
       "residualLikelihood": 1,
-      "residualImpact": 3
+      "residualImpact": 3,
+      "threat": "Hardware failure, ransomware, or a cloud service outage (accidental, adversarial, or environmental) takes the file share or Microsoft 365 offline.",
+      "vulnerability": "The recovery runbook has never been tested end to end.",
+      "cia": [
+        "availability"
+      ]
     },
     {
       "id": "r8",
@@ -1107,7 +1172,13 @@
       "treatment": "Backfill the re-keying record and maintain a physical security maintenance log going forward. Residual risk accepted by management given badge and alarm coverage.",
       "status": "In progress",
       "residualLikelihood": 1,
-      "residualImpact": 2
+      "residualImpact": 2,
+      "threat": "Intruder (adversarial) enters the clinic using a key or code from before the 2025 move.",
+      "vulnerability": "Locks were not re-keyed after the relocation, and physical maintenance is not documented.",
+      "cia": [
+        "confidentiality",
+        "availability"
+      ]
     },
     {
       "id": "r9",
@@ -1133,7 +1204,62 @@
       "treatment": "Record the decision in the transmission security standard (IT-09). Confirm the reminder template carries no diagnosis, provider specialty, or test information. Review the wording and the opt-out list once a year.",
       "status": "In progress",
       "residualLikelihood": 1,
-      "residualImpact": 2
+      "residualImpact": 2,
+      "threat": "Someone other than the patient (accidental disclosure) reads an appointment reminder on a shared or borrowed phone.",
+      "vulnerability": "Reminders are sent as standard text messages that are not encrypted.",
+      "cia": [
+        "confidentiality"
+      ]
+    }
+  ],
+  "interviews": [
+    {
+      "id": "i1",
+      "participant": "Practice owner (fictitious)",
+      "role": "Executive approver",
+      "date": "2026-08-25",
+      "topics": "Scope, risk tolerance, budget for remediation, business associates",
+      "method": "interview"
+    },
+    {
+      "id": "i2",
+      "participant": "Practice administrator (fictitious)",
+      "role": "HIPAA security official",
+      "date": "2026-08-25",
+      "topics": "Policies, workforce onboarding and termination, training, incidents, contingency plan",
+      "method": "interview"
+    },
+    {
+      "id": "i3",
+      "participant": "Billing lead (fictitious)",
+      "role": "Billing and clearinghouse contact",
+      "date": "2026-08-26",
+      "topics": "Claims flow, clearinghouse access, email and fax use",
+      "method": "interview"
+    },
+    {
+      "id": "i4",
+      "participant": "MSP account engineer (fictitious)",
+      "role": "IT service provider",
+      "date": "2026-08-26",
+      "topics": "Microsoft 365 conditional access, Intune compliance, backups and restore tests, firewall rules",
+      "method": "interview"
+    },
+    {
+      "id": "i5",
+      "participant": "Practice administrator (fictitious)",
+      "role": "HIPAA security official",
+      "date": "2026-08-27",
+      "topics": "Physical walkthrough of the clinic: doors, exam rooms, kiosks, server closet",
+      "method": "walkthrough"
+    },
+    {
+      "id": "i6",
+      "participant": "Assessor (fictitious)",
+      "role": "Lead assessor",
+      "date": "2026-08-28",
+      "topics": "Policy manual, business associate agreements, training records, incident records, backup and restore logs, 2025 risk analysis",
+      "method": "document"
     }
   ],
   "savedAt": "2026-09-12T16:00:00.000Z"

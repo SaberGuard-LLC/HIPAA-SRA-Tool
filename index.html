@@ -87,6 +87,10 @@
           <div class="field"><label for="environment">Environment summary</label><small>EHR, cloud services, endpoints, facilities, network, and vendors.</small><textarea class="meta" id="environment" placeholder="EHR platform, Microsoft 365, 24 managed laptops, one clinic location..."></textarea></div>
           <div class="field"><label for="methodology">Methodology &amp; participants</label><small>Interviews, document review, technical validation, sampling, and who took part.</small><textarea class="meta" id="methodology" placeholder="Interviews with the practice administrator and IT vendor; review of policies, business associate agreements, and training records; configuration review of..."></textarea></div>
         </div>
+        <div class="sub-head"><h3>Interview and document log</h3><p class="help">One row per interview, walkthrough, or document review. The report prints this table in its methodology section, after the text above.</p></div>
+        <div class="table-scroll"><table class="data-table interview-table"><thead><tr><th class="w16">Participant</th><th class="w16">Role</th><th class="w12">Date</th><th>Topics</th><th class="w16">Method</th><th class="no-print w36px"><span class="sr-only">Remove</span></th></tr></thead><tbody id="interviewRows"></tbody></table></div>
+        <div class="empty" id="interviewEmpty">No interviews, walkthroughs, or document reviews recorded.</div>
+        <div class="output-actions no-print"><button class="btn" id="addInterview" type="button">Add log entry</button></div>
       </section>
 
       <section class="section" id="inventory">
@@ -143,9 +147,11 @@
           <div><div class="step">Step 5 of 7</div><h2>Risk register &amp; remediation plan</h2><p class="help">Record reasonably anticipated threats and the vulnerabilities they could exploit as risk statements tied to affected systems, data flows, and catalog rows. Scoring method: inherent score = likelihood × impact, each rated 1 to 5. Low 1 to 7, Medium 8 to 14, High 15 to 25. These scales and thresholds are SaberGuard's own. Record the treatment decision, owner, target date, and the expected residual risk.</p></div>
           <div class="risk-toolbar no-print">
             <select id="scenarioPick" aria-label="Add a risk from the risk scenario library"><option value="">Add from risk scenario library</option></select>
+            <button class="btn" id="csvBtn" type="button">Export CSV</button>
             <button class="btn primary" id="addRisk" type="button">Add risk</button>
           </div>
         </div>
+        <div class="coverage" id="coverage"></div>
         <div class="risks" id="riskRows"></div>
         <div class="empty" id="riskEmpty">No risks recorded yet. Add risks identified during interviews, evidence review, or the catalog review, or start from the risk scenario library.</div>
       </section>

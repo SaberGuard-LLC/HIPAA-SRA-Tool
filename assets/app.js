@@ -11,7 +11,7 @@
 
   /* `dirty` is set on every edit and cleared when a file is saved or opened.
      The unsaved-work warning reads it. */
-  const state = { meta: {}, assets: [], flows: [], controls: {}, risks: [], savedAt: null, dirty: false };
+  const state = { meta: {}, assets: [], flows: [], controls: {}, risks: [], interviews: [], savedAt: null, dirty: false };
   let activeFilter = 'all';
   let reportMode = false;
 
@@ -183,6 +183,7 @@
           <div class="field"><label>Multi-factor authentication</label><select data-k="mfa">${options(INVENTORY.yesNo, a.mfa)}</select></div>
           <div class="field"><label>Count</label><small>How many of this row, for example 24 laptops.</small><input class="input" data-k="count" type="number" min="1" step="1" value="${a.count}"></div>
           <div class="field span2"><label>Protection and notes</label><textarea data-k="protection" placeholder="Encryption, access, backup, agreements">${esc(a.protection)}</textarea></div>
+          <div class="field span2"><label>Why no risk applies</label><small>Leave empty when a risk in step 5 links this row. Otherwise explain why no reasonably anticipated threat applies, so the row counts as considered.</small><textarea data-k="noThreatNote" placeholder="Read-only reference copy, no ePHI stored">${esc(a.noThreatNote)}</textarea></div>
           ${a.flow ? `<div class="field span2"><label>Flow notes from version 3</label><small>Legacy text. Record the connections as data flows below.</small><textarea data-k="flow">${esc(a.flow)}</textarea></div>` : ''}
         </div>`;
       wrap.appendChild(card);
@@ -291,7 +292,10 @@
           <button class="btn danger small remove no-print" type="button" title="Remove risk">Remove</button>
         </div>
         <div class="risk-grid">
-          <div class="field full"><label>Risk statement</label><small>Threat, vulnerability, and the ePHI or process affected.</small><textarea data-k="description" placeholder="Phishing could compromise a clinician's email account, exposing ePHI in mailboxes, because the account is protected by a password alone.">${esc(r.description)}</textarea></div>
+          <div class="field full"><label>Risk statement</label><small>Threat, vulnerability, and the ePHI or process affected.</small><textarea data-k="description" placeholder="Phishing could compromise a clinician's email account, exposing ePHI in mailboxes, because the account is protected by a password alone.">${esc(r.description)}</textarea>${r.description.trim() && !(r.threat.trim() && r.vulnerability.trim()) ? '<p class="split-prompt">Split into threat and vulnerability: name the threat source and event and the weakness it would exploit in the two fields below.</p>' : ''}</div>
+          <div class="field span2"><label>Threat</label><small>The threat source and the event, for example an external attacker sending a phishing message.</small><textarea data-k="threat" placeholder="External attacker (adversarial) sends a phishing message to a clinician">${esc(r.threat)}</textarea></div>
+          <div class="field span2"><label>Vulnerability</label><small>The weakness the threat would exploit.</small><textarea data-k="vulnerability" placeholder="Email accounts protected by a password alone">${esc(r.vulnerability)}</textarea></div>
+          <fieldset class="field full cia"><legend>Affects</legend><div class="checks">${CIA.map(([k, label]) => `<label><input type="checkbox" data-cia="${k}" ${r.cia.includes(k) ? 'checked' : ''}> ${esc(label)}</label>`).join('')}</div></fieldset>
           <div class="field span2"><label>Affected systems, people, or parties</label>${pickerHtml('assetIds', r.assetIds, assetChoices, state.assets.length ? 'Add an inventory row' : 'No inventory rows yet', r.legacyAssets, 'Version 3 text')}</div>
           <div class="field span2"><label>Affected data flows</label>${pickerHtml('flowIds', r.flowIds, flowChoices, state.flows.length ? 'Add a data flow' : 'No data flows yet')}</div>
           <div class="field span2"><label>Related catalog rows</label>${pickerHtml('controlIds', r.controlIds, controlChoices, 'Add a catalog row', r.legacyControls, 'Version 3 text')}</div>
@@ -311,6 +315,17 @@
         const k = e.target.dataset.k, v = e.target.value;
         r[k] = ['likelihood', 'impact', 'residualLikelihood', 'residualImpact'].includes(k) ? rating(v) : v;
         if (['likelihood', 'impact', 'residualLikelihood', 'residualImpact', 'decision', 'status'].includes(k)) renderRisks();
+        if (['description', 'threat', 'vulnerability'].includes(k)) {
+          const show = r.description.trim() && !(r.threat.trim() && r.vulnerability.trim());
+          const prompt = card.querySelector('.split-prompt');
+          if (!show && prompt) prompt.remove();
+          if (show && !prompt) card.querySelector('[data-k="description"]').insertAdjacentHTML('afterend', '<p class="split-prompt">Split into threat and vulnerability: name the threat source and event and the weakness it would exploit in the two fields below.</p>');
+        }
+        updateDashboard();
+      });
+      card.querySelectorAll('[data-cia]').forEach(el => el.onchange = e => {
+        const k = e.target.dataset.cia;
+        r.cia = CIA.map(([x]) => x).filter(x => x === k ? e.target.checked : r.cia.includes(x));
         updateDashboard();
       });
       card.querySelectorAll('.picker').forEach(p => {
@@ -344,6 +359,51 @@
     $('mapAttention').innerHTML = `<h3>What needs attention</h3><p class="help">Tags on the map are risk register references. This list is the key, highest rated first.</p><ul>${items.join('') || '<li><span class="muted">Nothing flagged.</span></li>'}</ul>`;
   }
 
+  /* ---- Interview and document log ---------------------------------------- */
+  function addInterview(v = {}) {
+    state.interviews.push(SRAFormat.newInterview(v));
+    renderInterviews();
+    updateDashboard();
+    const rows = $('interviewRows').querySelectorAll('tr');
+    rows[rows.length - 1]?.querySelector('input')?.focus();
+  }
+  function renderInterviews() {
+    const body = $('interviewRows');
+    body.innerHTML = '';
+    $('interviewEmpty').hidden = state.interviews.length > 0;
+    state.interviews.forEach((v, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><input class="input" data-k="participant" aria-label="Participant ${i + 1}" placeholder="Name" value="${esc(v.participant)}"></td>
+        <td><input class="input" data-k="role" aria-label="Role ${i + 1}" placeholder="Practice administrator" value="${esc(v.role)}"></td>
+        <td><input class="input" data-k="date" type="date" aria-label="Date ${i + 1}" value="${esc(v.date)}"></td>
+        <td><textarea data-k="topics" aria-label="Topics ${i + 1}" placeholder="Access control, backups">${esc(v.topics)}</textarea></td>
+        <td><select data-k="method" aria-label="Method ${i + 1}">${options(INTERVIEW_METHODS, v.method)}</select></td>
+        <td class="no-print"><button class="btn danger small remove" type="button" aria-label="Remove entry ${i + 1}">Remove</button></td>`;
+      body.appendChild(tr);
+      tr.querySelectorAll('[data-k]').forEach(el => el.oninput = el.onchange = e => { v[e.target.dataset.k] = e.target.value; updateDashboard(); });
+      tr.querySelector('.remove').onclick = () => { state.interviews.splice(i, 1); renderInterviews(); updateDashboard(); };
+    });
+  }
+
+  /* ---- Coverage ---------------------------------------------------------- */
+  function renderCoverage(S) {
+    const box = $('coverage');
+    if (!box) return;
+    box.innerHTML = `<h3>Coverage</h3>${Object.entries(S.coverage).map(([k, f]) => `<details class="cov-item ${f.total && f.done < f.total ? 'has-gap' : ''}"><summary><b>${f.done} of ${f.total}</b> <span>${esc(SRAReport.COVERAGE_LABELS[k])}</span></summary>${f.missing.length ? `<ul>${f.missing.map(x => `<li>${esc(x.ref)} ${esc(x.what)}</li>`).join('')}</ul>` : '<p class="muted">Nothing missing.</p>'}</details>`).join('')}`;
+  }
+
+  function exportRemediationCsv() {
+    collectMeta();
+    const text = SRAReport.remediationCsv(state);
+    const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'), url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = `${fileSlug()}-remediation-plan-${state.meta.assessmentDate || 'draft'}.csv`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+    $('saveStatus').textContent = `Remediation plan exported as CSV with ${state.risks.length} risk${state.risks.length === 1 ? '' : 's'}.`;
+  }
+
   /* ---- Metadata, dashboard, completeness checks -------------------------- */
   function collectMeta() { document.querySelectorAll('.meta').forEach(el => state.meta[el.id] = el.value); }
   function hydrateMeta() { document.querySelectorAll('.meta').forEach(el => { el.value = state.meta[el.id] != null ? state.meta[el.id] : ''; }); }
@@ -370,7 +430,9 @@
     renderMap(S);
     $('filters').querySelector('[data-filter="carried"]').hidden = !S.carried && activeFilter !== 'carried';
 
-    $('readinessList').innerHTML = S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mark">${c.ok ? 'Done' : 'Open'}</span><span>${esc(c.label)}</span></li>`).join('');
+    $('readinessList').innerHTML = S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mark">${c.ok ? 'Done' : 'Open'}</span><span>${esc(c.label)}</span></li>`).join('')
+      + S.advisory.map(c => `<li class="${c.ok ? 'ok' : 'advisory'}"><span class="mark">${c.ok ? 'Done' : 'Advisory'}</span><span>${esc(c.label)}. Advisory in this version: it does not hold the report in draft.</span></li>`).join('');
+    renderCoverage(S);
     const badge = $('readinessBadge');
     badge.textContent = S.missing.length ? `${S.checks.length - S.missing.length} of ${S.checks.length} checks passed` : (S.isDraft ? 'Checks passed, status Draft' : 'Final');
     badge.classList.toggle('ready', !S.missing.length);
@@ -669,13 +731,13 @@
     try {
       const data = await readAssessmentText(file);
       const up = SRAFormat.upgrade(data);
-      state.meta = up.meta; state.assets = up.assets; state.flows = up.flows; state.controls = up.controls; state.risks = up.risks; state.savedAt = up.savedAt;
+      state.meta = up.meta; state.assets = up.assets; state.flows = up.flows; state.controls = up.controls; state.risks = up.risks; state.interviews = up.interviews; state.savedAt = up.savedAt;
       state.protectedSave = false;
       handles.plain = null; handles.protected = null;
       activeFilter = 'all';
       document.querySelectorAll('.filter').forEach(x => x.classList.toggle('active', x.dataset.filter === 'all'));
       hydrateMeta();
-      renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard({ keepClean: true });
+      renderAssets(); renderFlows(); renderControls(); renderRisks(); renderInterviews(); updateDashboard({ keepClean: true });
       state.dirty = false;
       showSaveState();
       $('logoStatus').textContent = '';
@@ -804,7 +866,9 @@
   $('addRisk').onclick = () => addRisk();
   const pick = $('scenarioPick');
   RISK_SCENARIOS.forEach((t, i) => { const o = document.createElement('option'); o.value = i; o.textContent = t.text.length > 90 ? t.text.slice(0, 88) + '...' : t.text; pick.appendChild(o); });
-  pick.onchange = () => { const t = RISK_SCENARIOS[pick.value]; if (t) addRisk({ description: t.text, controlIds: SRAFormat.parseIds(t.controls) }); pick.value = ''; };
+  pick.onchange = () => { const t = RISK_SCENARIOS[pick.value]; if (t) addRisk({ description: t.text, threat: t.threat, vulnerability: t.vulnerability, cia: t.cia, controlIds: SRAFormat.parseIds(t.controls) }); pick.value = ''; };
+  $('csvBtn').onclick = exportRemediationCsv;
+  $('addInterview').onclick = () => addInterview();
   ['exportBtn', 'exportBtn2'].forEach(id => $(id).onclick = () => saveFile());
   $('saveProtectedBtn').onclick = () => saveProtected();
   if (!SRAIntegrity.available()) { $('saveProtectedBtn').disabled = true; $('protectNote').textContent = protectUnavailableText; }
@@ -842,7 +906,7 @@
   /* ---- Init -------------------------------------------------------------- */
   $('assessmentDate').value = localToday();
   showTheme();
-  renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard({ keepClean: true });
+  renderAssets(); renderFlows(); renderControls(); renderRisks(); renderInterviews(); updateDashboard({ keepClean: true });
 
   /* ---- Host seam ---------------------------------------------------------
      This page keeps nothing and talks to nothing. A host that serves a copy
@@ -861,5 +925,5 @@
   const isDirty = () => !!state.dirty;
 
   /* Exposed for testing and for automation hooks (for example loading a sample file). */
-  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, saveFile, saveProtected, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); updateDashboard(); } };
+  window.SRA = { state, snapshot, markSaved, isDirty, setTheme, importAssessment, attachWardEvidence, exportAssessment, saveFile, saveProtected, renderReportView, showReport, hideReport, updateDashboard, addAsset, addFlow, addRisk, exportRemediationCsv, addInterview, renderAll() { hydrateMeta(); renderAssets(); renderFlows(); renderControls(); renderRisks(); renderInterviews(); updateDashboard(); } };
 })();

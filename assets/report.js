@@ -159,14 +159,39 @@ const SRAReport = (function () {
       approval: !!meta.executive
     };
     const checks = READINESS_CHECKS.map(ch => ({ ...ch, ok: !!checkResults[ch.key] }));
+    const advisoryResults = { threatVuln: risks.every(r => r.threat.trim() && r.vulnerability.trim()) };
+    const advisory = ADVISORY_CHECKS.map(ch => ({ ...ch, ok: !!advisoryResults[ch.key] }));
+    const coverage = coverageOf(assets, controls, risks, unlinked, SRAMap.flagged(state));
     const missing = checks.filter(c => !c.ok);
     const finalRequested = meta.reportStatus === 'Final';
     const isDraft = missing.length > 0 || !finalRequested;
 
     return { total: CONTROLS.length, reviewed: all.reviewed, met: all.met, partial: all.partial, notMet: all['not-met'], alt: all.alt, doc: all.doc, na: all.na,
       applicable: all.applicable, score: all.score, evidence, carried, derived, byCategory, controls, assets, flows, facts, unlinked, assetRef, flowRef, risks, risksByAsset, risksByFlow,
-      high, medium, low, unrated, open, checks, missing, finalRequested, isDraft };
+      high, medium, low, unrated, open, checks, missing, advisory, coverage, finalRequested, isDraft };
   }
+
+  function coverageOf(assets, controls, risks, unlinked, flagged) {
+    const linkedAssets = new Set(risks.flatMap(r => r.assetIds));
+    const linkedControls = new Set(risks.flatMap(r => r.controlIds));
+    const unlinkedIds = new Set(unlinked.map(u => u.id));
+    const figure = (all, isDone, describe) => {
+      const missing = all.filter(x => !isDone(x)).map(describe);
+      return { done: all.length - missing.length, total: all.length, missing };
+    };
+    return {
+      inventory: figure(assets.map((a, i) => ({ a, i })), ({ a }) => linkedAssets.has(a.id) || a.noThreatNote.trim(), ({ a, i }) => ({ type: 'asset', id: a.id, ref: `#${i + 1}`, what: a.name.trim() || 'Unnamed row' })),
+      flagged: figure(flagged, f => !unlinkedIds.has(f.id), f => f),
+      gaps: figure(controls.filter(c => ['partial', 'not-met'].includes(c.status)), c => linkedControls.has(c.id), c => ({ type: 'control', id: c.id, ref: c.id, what: c.title })),
+      owned: figure(risks, r => r.owner.trim() && r.target, r => ({ type: 'risk', id: r.id, ref: r.ref, what: r.description.trim() || r.threat.trim() || 'No description' }))
+    };
+  }
+  const COVERAGE_LABELS = {
+    inventory: 'Inventory rows considered: linked to a risk, or with a note on why no reasonably anticipated threat applies',
+    flagged: 'Flagged inventory rows and flows linked to an open risk',
+    gaps: 'Catalog gaps (partially met or not met) linked to a risk',
+    owned: 'Risks with an owner and a target date'
+  };
 
   /* ---- Report ------------------------------------------------------------ */
   function fingerprintOf(state) {
@@ -198,6 +223,12 @@ const SRAReport = (function () {
     const yesNo = v => v === 'yes' ? 'Yes' : v === 'no' ? 'No' : '<span class="placeholder">Not answered</span>';
     const assetName = id => { const a = S.assets.find(x => x.id === id); return a ? (a.name.trim() || 'Unnamed row') : 'Removed row'; };
     const print = fingerprintOf(state);
+    const interviews = (state.interviews || []).map(v => SRAFormat.newInterview(v));
+    const methodLabel = Object.fromEntries(INTERVIEW_METHODS);
+    const interviewLog = interviews.length ? `<h3>Interviews, walkthroughs and document reviews</h3>
+        <table class="tbl compact"><thead><tr><th class="c22">Participant</th><th class="c18">Role</th><th class="c12">Date</th><th class="c14">Method</th><th>Topics</th></tr></thead><tbody>
+        ${interviews.map(v => `<tr><td>${plain(v.participant, 'Not named')}</td><td>${plain(v.role, 'Not recorded')}</td><td class="keep">${fmtShort(v.date, 'Not recorded')}</td><td>${esc(methodLabel[v.method])}</td><td>${text(v.topics, 'Not recorded')}</td></tr>`).join('')}
+        </tbody></table>` : '';
 
     const sections = [
       ['01', 'Document control'], ['02', 'Executive summary'], ['03', 'Scope, environment & method'], ['04', 'ePHI systems & data-flow inventory'],
@@ -320,6 +351,7 @@ const SRAReport = (function () {
         <h3>Scope statement</h3><p>${text(m.scope, 'Scope statement not provided.')}</p>
         <h3>Environment summary</h3><p>${text(m.environment, 'Environment summary not provided.')}</p>
         <h3>Methodology &amp; participants</h3><p>${text(m.methodology, 'Methodology not provided.')}</p>
+        ${interviewLog}
         <h3>Assessment approach</h3>
         <p>This assessment uses SaberGuard's method. It is organized around the elements listed under "Elements of a Risk Analysis" in the HHS Office for Civil Rights Guidance on Risk Analysis. HHS states that it does not endorse or recommend any particular risk analysis model, and that guidance does not prescribe the rating scales used here. The catalog review in section 05 covers the Security Rule ${rowsLabel} in 45 CFR 164.308, 164.310, 164.312, 164.314, and 164.316 as rated by the assessor, with the basis on which each rating was verified. The steps were:</p>
         <table class="tbl compact"><colgroup><col class="c6"></colgroup><tbody>
@@ -470,6 +502,9 @@ const SRAReport = (function () {
     const riskDetails = sortedRisks.map(r => `<div class="rpt-risk ${r.level ? r.level.key : 'none'}">
         <div class="rpt-risk-head"><span class="id">${r.ref}</span><span class="stmt">${text(r.description, 'No description')}</span>${levelChip(r.level, r.score)}</div>
         <dl>
+          <dt>Threat</dt><dd>${text(r.threat, 'Not recorded')}</dd>
+          <dt>Vulnerability</dt><dd>${text(r.vulnerability, 'Not recorded')}</dd>
+          <dt>Affects</dt><dd>${r.cia.length ? esc(r.cia.map(k => Object.fromEntries(CIA)[k]).join(', ')) : '<span class="placeholder">Not recorded</span>'}</dd>
           <dt>Affected rows</dt><dd>${affected(r)}</dd>
           <dt>Data flows</dt><dd>${flowsOf(r)}</dd>
           <dt>Catalog rows</dt><dd>${rowsOf(r)}</dd>
@@ -537,6 +572,10 @@ const SRAReport = (function () {
         ${head('B', 'Appendix B · Report completeness checks')}
         <p class="small muted">Checks the workspace applies to the report fields before removing the Draft watermark. They test whether fields are filled in. They do not test whether the risk analysis is accurate or thorough. ${S.missing.length ? 'Items marked open were outstanding when this report was generated.' : 'All checks passed when this report was generated.'}</p>
         <ul class="rpt-checks">${S.checks.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? 'Done' : 'Open'}</span><span>${esc(c.label)}</span></li>`).join('')}</ul>
+        <p class="small muted">Advisory checks are reported but do not hold the report in draft in this version.</p>
+        <ul class="rpt-checks">${S.advisory.map(c => `<li class="${c.ok ? 'ok' : 'todo'}"><span class="mk">${c.ok ? 'Done' : 'Advisory'}</span><span>${esc(c.label)}</span></li>`).join('')}</ul>
+        <h3>Coverage</h3>
+        <div class="rpt-kv">${Object.entries(S.coverage).map(([k, f]) => `<div><span>${esc(COVERAGE_LABELS[k])}</span><b>${f.done} of ${f.total}</b></div>`).join('')}</div>
         ${S.facts.unclassified ? `<p class="small muted">Inventory rows not yet classified by kind and zone: ${S.assets.map((a, i) => (a.kind === 'unknown' || a.zone === 'unknown') ? `#${i + 1} ${esc(a.name.trim() || 'Unnamed row')}` : null).filter(Boolean).join(', ')}.</p>` : ''}
         ${S.unlinked.length ? `<p class="small muted">Flagged on the map with no linked risk: ${S.unlinked.map(u => `${esc(u.ref)} ${esc(u.what)} (${esc(u.why)})`).join('; ')}.</p>` : ''}
         <div class="rpt-kv three">
@@ -589,6 +628,17 @@ const SRAReport = (function () {
     return `<p class="lead">${parts.join(' ')}</p>`;
   }
 
-  return { stats, render, fmtDate, pageStrings, letterheadOf, logoData, LOGO_TYPES };
+  const CSV_COLUMNS = ['Risk ID', 'Risk statement', 'Threat', 'Vulnerability', 'Inherent score', 'Inherent level', 'Treatment decision', 'Remediation plan', 'Owner', 'Target date', 'Residual score', 'Residual level', 'Status', 'Linked catalog rows'];
+  function csvField(value) {
+    let v = value == null ? '' : String(value);
+    if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`;
+    return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  }
+  function remediationCsv(state, S = stats(state)) {
+    const rows = S.risks.map(r => [r.ref, r.description, r.threat, r.vulnerability, r.score ?? '', r.level ? r.level.label : '', r.decision, r.treatment, r.owner, r.target, r.rScore ?? '', r.rLevel ? r.rLevel.label : '', r.status, r.controlIds.join(' ')]);
+    return '\uFEFF' + [CSV_COLUMNS, ...rows].map(row => row.map(csvField).join(',')).join('\r\n') + '\r\n';
+  }
+
+  return { stats, render, fmtDate, pageStrings, letterheadOf, logoData, LOGO_TYPES, COVERAGE_LABELS, remediationCsv, csvField, CSV_COLUMNS };
 })();
 if (typeof window !== 'undefined') window.SRAReport = SRAReport;

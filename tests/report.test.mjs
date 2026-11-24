@@ -248,9 +248,9 @@ test('the page margin strings name the document, its status and the preparer', (
   assert.equal(SRAReport.pageStrings(empty, SRAReport.stats(empty)).bottomLeft, 'Preparer not named');
 });
 
-test('the shipped sample is a complete version 4 assessment that prints as Final', () => {
+test('the shipped sample is a complete version 5 assessment that prints as Final', () => {
   const data = JSON.parse(read('samples/example-health-clinic-hipaa-sra-2026-09-06.json'));
-  assert.equal(data.version, 4);
+  assert.equal(data.version, 5);
   const state = SRAFormat.upgrade(data);
   const S = SRAReport.stats(state);
   assert.equal(S.missing.map(c => c.key).join(' '), '');

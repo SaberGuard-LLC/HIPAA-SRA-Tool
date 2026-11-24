@@ -190,6 +190,17 @@ select{appearance:auto}
 .dialog .field{margin-top:12px}
 .dialog-error{min-height:18px;margin:10px 0 0;font-size:13px;color:var(--crit-ink)}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.split-prompt{margin:6px 0 0;font-size:12px;color:var(--warn-ink)}
+.cia{border:0;padding:0;margin:0}
+.cia legend{font-size:13px;font-weight:var(--medium);padding:0;margin-bottom:6px}
+.coverage{margin:14px 0;display:grid;gap:6px}
+.coverage h3{margin:0 0 2px;font-size:14px;font-weight:var(--medium)}
+.cov-item{border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;background:var(--surface)}
+.cov-item summary{cursor:pointer}
+.cov-item summary b{font-variant-numeric:tabular-nums;margin-right:6px}
+.cov-item.has-gap{border-color:var(--warn-line)}
+.cov-item ul{margin:6px 0 0;padding-left:18px;color:var(--text-2)}
+.checklist li.advisory .mark{color:var(--warn-ink)}
 
 .assets{display:grid;gap:12px;margin-top:4px}
 .asset-card{border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:var(--radius);padding:14px 16px;background:var(--surface)}
