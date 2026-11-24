@@ -4,7 +4,7 @@ Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versionin
 
 ## [5.0.0] - Unreleased
 
-Version 5.0.0 is in progress. The work is tracked in the 5.0.0 milestones on GitHub.
+Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on GitHub.
 
 ### Changed
 - The header logo is a 12 KB image sized in the markup, in place of the 80 KB original, and the page has its own favicon.
