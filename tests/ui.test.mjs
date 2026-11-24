@@ -89,6 +89,14 @@ for (const [name, t] of [['light', light], ['dark', dark]]) {
   });
 }
 
+test('narrow screens keep everything inside the page width', () => {
+  assert.match(css, /\.table-scroll\{overflow:auto;position:relative\}/, 'visually hidden table labels stay inside their scroll area');
+  assert.match(css, /\.steps a\{position:relative;/, 'visually hidden step names stay inside the rail');
+  assert.match(css, /\.risk-main,\.risk-side\{min-width:0\}/);
+  assert.match(css, /\.brand \.mark\{display:block\}/, 'the header shows the small mark on a phone');
+  assert.match(html, /<img class="mark" src="assets\/favicon\.png" width="28" height="28" alt="">/);
+});
+
 test('targets are large enough and focus is never hidden under the header', () => {
   assert.match(css, /scroll-padding-top:calc\(var\(--header-h\) \+ 12px\)/);
   assert.match(css, /\.top-actions \.btn\{min-height:36px\}/);

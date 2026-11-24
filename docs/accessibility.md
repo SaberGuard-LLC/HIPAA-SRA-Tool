@@ -39,6 +39,12 @@ A scripted walkthrough with the keyboard alone, in Chromium:
 - The passphrase dialog takes focus, keeps it inside the dialog, closes with Escape, and returns focus to the button that opened it.
 - A focused control has a visible 2 px outline, and `scroll-padding-top` keeps it clear of the sticky header (WCAG 2.4.11).
 
+## Screen widths
+
+Every view, empty and with the sample open, was checked at 320, 768, 1024, and 1440 px wide for content wider than the page and for script errors. Nothing scrolls sideways except wide tables, which scroll inside their own frame (WCAG 1.4.10 allows this for data tables). On a phone the header shows the shield mark in place of the full logo, the step rail becomes a row of step numbers, and the catalog list sits above the selected row.
+
+Found and fixed: the header buttons, the catalog search tools, and the risk register were wider than a 320 px screen, and visually hidden labels in the rail and in tables widened the page.
+
 ## Other design rules that support accessibility
 
 - Status is always written in words: in the list, in the rail ("65 of 65, 11 gaps"), on the overview, and in the report. No colored dot is the only signal.

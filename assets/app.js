@@ -516,6 +516,8 @@
     const shown = S.risks.filter(r => riskMatches(r, riskFilter) || r.id === openRiskId);
     $('riskEmpty').hidden = state.risks.length > 0;
     $('riskTable').hidden = !state.risks.length;
+    $('riskFilters').hidden = !state.risks.length;
+    $('heatTitle').closest('.panel').hidden = !state.risks.length;
     $('riskRows').innerHTML = shown.map(r => riskRowHtml(r) + (r.id === openRiskId ? `<tr class="edit-row" id="edit-${esc(r.id)}"><td colspan="8"></td></tr>` : '')).join('')
       || '<tr><td colspan="8" class="muted">No risks match this filter.</td></tr>';
     wireRowButtons();
