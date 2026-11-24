@@ -3,7 +3,7 @@
   "version": "4.2.0",
   "private": true,
   "description": "A workspace for documenting a HIPAA Security Rule risk analysis.",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "scripts": {
     "test": "node --test \"tests/*.test.mjs\"",

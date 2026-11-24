@@ -50,7 +50,7 @@ Set the letterhead in step 7 under "Letterhead and signatures". The report print
 
 For the logo, choose the SaberGuard logo or an image file from your computer (PNG, JPEG, WebP, or SVG, up to 512 KB). A chosen image is kept inside the saved assessment file, so it travels with the file.
 
-The SaberGuard name and logo are for reports prepared by SaberGuard LLC. They are not covered by the MIT license.
+The SaberGuard name and logo are for reports prepared by SaberGuard LLC. The software license does not cover them.
 {: .note }
 
 The letterhead settings are saved in the assessment file. Appendix B always states that SaberGuard publishes the workspace and did not review the report unless named as the assessor.

@@ -20,7 +20,7 @@
   <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/checks.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/checks.yml/badge.svg" alt="Checks"></a>
   <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/codeql.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="package.json"><img src="https://img.shields.io/github/package-json/v/SaberGuard-LLC/HIPAA-SRA-Tool" alt="Version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/SaberGuard-LLC/HIPAA-SRA-Tool" alt="License: MIT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-1f5fbf" alt="License: PolyForm Shield 1.0.0"></a>
   <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/commits/main"><img src="https://img.shields.io/github/last-commit/SaberGuard-LLC/HIPAA-SRA-Tool" alt="Last commit"></a>
   <a href="VERIFICATION.md"><img src="https://img.shields.io/badge/45%20CFR%20164%20Subpart%20C-checked%202026--11--11-1f5fbf" alt="Regulation text checked against eCFR on 2026-11-11"></a>
   <img src="https://img.shields.io/badge/network%20and%20storage-none-1a7f37" alt="No network connection and no browser storage">
@@ -113,4 +113,12 @@ A host that serves its own copy can keep assessments for its users through `wind
 
 ## License
 
-Code is released under the [MIT License](LICENSE). The SaberGuard name and logo are not covered by that license. The bundled Inter font is under the SIL Open Font License; see `assets/fonts/LICENSE-Inter`.
+The code is source available under the [PolyForm Shield License 1.0.0](LICENSE).
+
+**Summary, not the license.** This summary is for convenience only. The license text in [`LICENSE`](LICENSE) is what governs.
+
+- Anyone may use, read, modify, and run the software, including a covered entity or business associate assessing its own organization.
+- Without a commercial license from SaberGuard, you may not sell the software, offer it as a hosted service, or use it to provide a product or service that competes with SaberGuard's, including paid risk assessment services.
+- Versions up to and including 4.2.0 remain available under the MIT License.
+- For a commercial license, contact SaberGuard at <https://saberguard.tech/contact> or info@saberguard.tech.
+- The SaberGuard name and logo are not licensed. The bundled Inter font is under the SIL Open Font License; see `assets/fonts/LICENSE-Inter`.
