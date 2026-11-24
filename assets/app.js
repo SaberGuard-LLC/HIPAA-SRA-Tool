@@ -55,7 +55,8 @@
     if (name === 'start' && !state.pristine) name = 'overview';
     if (name !== 'start') state.pristine = false;
     if (reportMode) hideReport();
-    if (name === 'catalog' && sub && CONTROL_BY_ID[sub.toUpperCase()]) selectedId = sub.toUpperCase();
+    const row = name === 'catalog' && sub ? CONTROLS.find(c => c.id === sub.toUpperCase()) : null;
+    if (row) selectedId = row.id;
     const changed = name !== view;
     showView(name);
     if (!changed && name === 'catalog') { renderCatalogDetail(); markCurrentItem(); renderCatalogFoot(); }
