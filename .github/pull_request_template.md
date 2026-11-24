@@ -7,4 +7,5 @@
 - [ ] Printed or previewed the report, if the report changed
 - [ ] `VERIFICATION.md` updated, if a statement about the regulation was added or changed
 - [ ] `CHANGELOG.md` updated, if an assessor will notice
+- [ ] No new network call, browser storage, dependency, or build step
 - [ ] No real assessment data, and nothing that identifies a patient or a client, in the change or its screenshots

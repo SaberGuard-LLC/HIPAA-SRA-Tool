@@ -58,6 +58,7 @@ exclude:
   - README.md
   - CHANGELOG.md
   - SECURITY.md
+  - CONTRIBUTING.md
   - VERIFICATION.md
   - LICENSE
 
