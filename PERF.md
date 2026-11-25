@@ -87,7 +87,7 @@ Each entry names the change, what was measured before and after with the method 
 
 ### 1. Smaller interface logo and a separate favicon (kept)
 
-The header used the 4000 by 1008 `SaberGuard_1.png` (80 KB) and the same file as the favicon. It now uses `assets/logo.png` (230 by 55, 11.5 KB) with `width` and `height` set, and `assets/favicon.png` (64 by 64, 6.5 KB). The original stays for the README, the docs site, and the printed letterhead.
+The header used the 4000 by 1008 `SaberGuard_1.png` (80 KB) and the same file as the favicon. It now uses `assets/logo.png` (230 by 55, 11.5 KB) with `width` and `height` set, and `assets/favicon.png` (64 by 64, 6.5 KB). The original stays for the docs site and the printed letterhead.
 
 | Measure | Before | After |
 | --- | --- | --- |

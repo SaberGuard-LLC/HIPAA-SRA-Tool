@@ -1,11 +1,11 @@
-<p align="center">
-  <img src="SaberGuard_1.png" width="320" alt="SaberGuard logo: a line-drawn shield beside the word SaberGuard">
-</p>
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/banner-dark.png">
+    <img src=".github/readme/banner-light.png" width="800" alt="SaberGuard SRA Workspace. Document a HIPAA Security Rule risk analysis in your browser, then print a report laid out for signature.">
+  </picture>
+</h1>
 
-<h1 align="center">SaberGuard SRA Workspace</h1>
-
 <p align="center">
-  Document a HIPAA Security Rule risk analysis in the browser, then print a report laid out for signature.<br>
   Nothing to install, no account, and nothing leaves the page.
 </p>
 
