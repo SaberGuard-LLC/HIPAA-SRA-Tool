@@ -75,15 +75,24 @@ jobs:
           done
           (cd dist && zip -qr "$name.zip" "$name")
           (cd dist && sha256sum "$name.zip" > SHA256SUMS)
-      - name: Create the release
+      - name: Create the release, or attach the files to an existing one
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           sha="$(git rev-parse HEAD)"
-          gh release create "$TAG" \
-            --target "$sha" \
-            --title "$TAG" \
-            --notes-file release-notes.md \
-            "dist/saberguard-sra-workspace-${TAG}.zip" \
-            dist/SHA256SUMS
+          files=("dist/saberguard-sra-workspace-${TAG}.zip" dist/SHA256SUMS)
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            tagged="$(gh api "repos/${GH_REPO}/commits/${TAG}" --jq .sha)"
+            if [ "$tagged" != "$sha" ]; then
+              echo "Release $TAG exists on $tagged, but this run built $sha"
+              exit 1
+            fi
+            gh release upload "$TAG" "${files[@]}" --clobber
+          else
+            gh release create "$TAG" \
+              --target "$sha" \
+              --title "$TAG" \
+              --notes-file release-notes.md \
+              "${files[@]}"
+          fi
