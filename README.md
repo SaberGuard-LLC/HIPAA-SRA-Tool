@@ -130,7 +130,7 @@ Contributions are welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first. Repo
 
 ## What remains before the 5.0.0 release
 
-Version 5.0.0 is not released yet. Still to come: the remaining performance work in [`PERF.md`](PERF.md), and deployment polish. The work is tracked in [issues labeled 5.0.0](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues?q=label%3A5.0.0). See the [roadmap](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/roadmap/).
+Version 5.0.0 is not released yet. Still to come: deployment polish. Performance measurements are in [`PERF.md`](PERF.md). The work is tracked in [issues labeled 5.0.0](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues?q=label%3A5.0.0). See the [roadmap](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/roadmap/).
 
 ## Risk analyses by SaberGuard
 

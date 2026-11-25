@@ -60,11 +60,13 @@ const SRAIntegrity = (function () {
   }
 
   function toBase64(bytes) {
+    if (typeof bytes.toBase64 === 'function') return bytes.toBase64();
     let out = '';
     for (let i = 0; i < bytes.length; i += 0x8000) out += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
     return btoa(out);
   }
   function fromBase64(b64) {
+    if (typeof Uint8Array.fromBase64 === 'function') return Uint8Array.fromBase64(b64);
     const bin = atob(b64);
     const out = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);

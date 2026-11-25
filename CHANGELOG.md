@@ -7,6 +7,7 @@ Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versionin
 Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on GitHub.
 
 ### Changed
+- Attaching a large evidence file and opening a file that holds large evidence are about twice as fast, using the browser's own base64 conversion where it has one. A 10 MB attachment is listed in about 56 ms, down from 132 ms, with no long task.
 - The header logo is a 12 KB image sized in the markup, in place of the 80 KB original, and the page has its own favicon.
 - Colors: secondary text, borders, and the page background are adjusted, status pills use the agreed pairs, and a partial fill color is added for bars and the heat map. Pills and chips are fully rounded, header buttons are at least 36 px tall, and status choices at least 40 px.
 - Long help text on each step is a one-sentence lede with the full text under "How to complete this step". The affiliation bar under the header and the second disclaimer on the overview are removed; the disclaimer stays in the rail, the footer, and the report.
@@ -30,7 +31,8 @@ Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on Git
 - `docs/accessibility.md`: an automated axe check of every view in both themes, with no violations, and a keyboard-only walkthrough.
 - For hosts: `SRA.configure({ embedded: true })` hides the start screen, the open and save controls, and the footer, and Ctrl or Cmd + S then fires `sra:save-requested` for the host. The page fires `sra:dirty` on the first edit after an open or save and `sra:saved` when a save completes, so a host need not poll `isDirty()`. `SRA.navigate(step)` and `SRA.loadSample()` are also exposed.
 - The sample is now a version 5 assessment with threats and vulnerabilities on its risks, an interview log, and evidence hashes.
-- `PERF.md`, with the baseline measurements and `scripts/measure-perf.mjs`.
+- `PERF.md`, with the baseline measurements, every performance change kept or reverted, and `scripts/measure-perf.mjs`.
+- A gzip size budget for every script and the stylesheet, checked by `tests/budget.test.mjs`.
 - `CONTRIBUTING.md`, and an updated security policy.
 - Security scanning on every pull request and push to `main`: Semgrep, gitleaks over the full history, actionlint and zizmor for the workflows, dependency review, and OpenSSF Scorecard. CodeQL also analyzes the workflows. Every action is pinned to a commit.
 - A release workflow that publishes a GitHub release from the changelog, with a zip of the workspace and its SHA-256.

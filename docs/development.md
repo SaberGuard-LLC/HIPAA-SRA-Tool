@@ -48,7 +48,7 @@ npm run check
 This command runs both of these, as does every pull request and every push to `main`:
 
 - **Text lint** (`npm run lint`): no em dashes, no emoji, and none of a list of filler phrases in anything a reader sees. Quoted regulation text is exempt.
-- **Tests** (`npm test`, Node 22 or later): the regulation comparison, the file format and its upgrades, the completeness checks, the report, the flow map against a golden file, the Ward import, the hosting seam, and the stylesheet rules.
+- **Tests** (`npm test`, Node 22 or later): the regulation comparison, the file format and its upgrades, the completeness checks, the report, the flow map against a golden file, the Ward import, the hosting seam, the stylesheet rules, and a gzip size budget for every script and the stylesheet (`tests/budget.test.mjs`). A change that passes a budget either shrinks the file or raises the budget in a commit that says why, with the measurement in `PERF.md`.
 
 The checks workflow also builds these pages with the same Jekyll setup GitHub Pages uses and confirms the workspace files are published unchanged.
 
