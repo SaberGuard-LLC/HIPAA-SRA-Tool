@@ -15,9 +15,9 @@ The workspace is built so that what an assessor enters cannot leave the page.
 - There are no runtime dependencies, no third-party scripts or fonts, no analytics, and no build step. The files in the repository are the files that run.
 - Every value read from a saved file or a Ward evidence file is validated on open, and text from a file is escaped before it is shown. A letterhead logo is accepted only as an embedded PNG, JPEG, WebP, or SVG image.
 
-The hosted copy at <https://sra.saberguard.tech> also sends security headers: a Content Security Policy with `frame-ancestors 'none'`, `Strict-Transport-Security`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, and a `Permissions-Policy` that turns off the camera, microphone, geolocation, and payment.
+The hosted copy at <https://sra.saberguard.tech> also sends security headers: the same Content Security Policy as the page, with `frame-ancestors 'none'` added, `Cross-Origin-Opener-Policy: same-origin`, `Strict-Transport-Security`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, and a `Permissions-Policy` that turns off the camera, microphone, geolocation, and payment.
 
-What the workspace cannot do for you is described in [data handling]({{ '/docs/data-handling/' | relative_url }}): the saved file and the printed report are not encrypted, and their protection is where you keep them.
+What the workspace cannot do for you is described in [data handling]({{ '/docs/data-handling/' | relative_url }}): a saved file is plain JSON unless you use Save protected file, a printed PDF is never encrypted, and their protection is where you keep them.
 
 ## In the repository
 

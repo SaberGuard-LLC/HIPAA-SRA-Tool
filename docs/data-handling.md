@@ -41,7 +41,7 @@ A letterhead logo is limited to 512 KB and is also kept in the saved file.
 
 The workspace is static files. Any web server can host it, and it also runs from a local folder.
 
-- On Vercel, `vercel.json` sends a Content Security Policy header with `frame-ancestors 'none'`, and `Referrer-Policy`, `X-Content-Type-Options`, and `Permissions-Policy` headers. This is how <https://sra.saberguard.tech> is served, with HTTPS enforced by `Strict-Transport-Security`.
+- On Vercel, `vercel.json` sends the page's own Content Security Policy as a header, with `frame-ancestors 'none'` added, and `Cross-Origin-Opener-Policy: same-origin`, `Strict-Transport-Security`, `Referrer-Policy`, `X-Content-Type-Options`, and `Permissions-Policy` headers. This is how <https://sra.saberguard.tech>, the canonical address, is served. It also sends `/docs` addresses to these pages.
 - GitHub Pages does not send those headers. The policy in the page's own `<meta>` tag still applies.
 - Offering the workspace to others as a hosted service needs a commercial license from SaberGuard. Hosting a copy for your own organization does not. See [license]({{ '/docs/license/' | relative_url }}).
 
