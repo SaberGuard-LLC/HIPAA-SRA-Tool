@@ -72,5 +72,5 @@ Nowhere. The page makes no network connection, sets no cookies, and uses no brow
 - [Sources and verification]({{ '/docs/sources/' | relative_url }}): what every regulatory statement rests on and when it was last checked.
 - [Accessibility]({{ '/docs/accessibility/' | relative_url }}): what has been checked, and what is still to do.
 - [Security]({{ '/docs/security/' | relative_url }}): how the page protects what you enter, the checks every change passes, and how to report a problem.
-- [Roadmap]({{ '/docs/roadmap/' | relative_url }}): what is planned for 5.0.0 and what is deliberately left out.
+- [Roadmap]({{ '/docs/roadmap/' | relative_url }}): what 5.0.0 added, what is planned next, and what is deliberately left out.
 - [License]({{ '/docs/license/' | relative_url }}): what the PolyForm Shield License allows, in plain language.

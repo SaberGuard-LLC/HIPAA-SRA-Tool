@@ -128,9 +128,9 @@ There are no dependencies and no build step. The repository layout, the design r
 
 Contributions are welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first. Report security problems privately as described in [`SECURITY.md`](SECURITY.md).
 
-## What remains before the 5.0.0 release
+## Version 5.0.0
 
-Version 5.0.0 is not released yet. Still to come: a review with VoiceOver and NVDA, done by a person. Performance measurements are in [`PERF.md`](PERF.md). The work is tracked in [issues labeled 5.0.0](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues?q=label%3A5.0.0). See the [roadmap](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/roadmap/).
+Version 5.0.0 is the current release. It saves files in format version 5, opens files from every earlier version without loss, and is licensed under PolyForm Shield 1.0.0. What changed is in [`CHANGELOG.md`](CHANGELOG.md). Still to come: a review with VoiceOver and NVDA, done by a person. Performance measurements are in [`PERF.md`](PERF.md). See the [roadmap](https://saberguard-llc.github.io/HIPAA-SRA-Tool/docs/roadmap/).
 
 ## Risk analyses by SaberGuard
 
