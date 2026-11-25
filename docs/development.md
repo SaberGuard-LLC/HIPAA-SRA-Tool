@@ -61,6 +61,7 @@ Every pull request and push to `main` also runs:
 | `codeql.yml` | CodeQL on the JavaScript and on the workflows, `security-extended` queries. |
 | `security.yml` | Semgrep (JavaScript, cross-site scripting, secrets, and GitHub Actions rules), gitleaks over the full history, actionlint and zizmor on the workflows, and dependency review on pull requests. |
 | `scorecard.yml` | OpenSSF Scorecard, weekly and on push to `main`. |
+| `scanner-pins.yml` | On the first of each month: compares the Semgrep, gitleaks, and actionlint pins in `security.yml` with their latest releases. |
 
 To run the same scans locally before you push, install the tools and run, from the repository root:
 
@@ -78,7 +79,22 @@ actionlint && zizmor .github/workflows
 
 When you add or change a workflow: pin every action to a full commit SHA with the version after it, start from `permissions: {}` and grant each job only what it needs, set `persist-credentials: false` on checkout, and pass untrusted values to `run` steps through `env`, never as an expression inside the script. The workflow lint job checks for these.
 
-Dependabot opens weekly updates for the actions. The Semgrep container digest, the actionlint image digest, and the gitleaks version and SHA-256 in `security.yml` are not updated by Dependabot and are refreshed by hand.
+Dependabot opens weekly updates for the actions. The Semgrep container digest, the actionlint image digest, and the gitleaks version and SHA-256 in `security.yml` are not updated by Dependabot.
+
+### Keeping scanner pins current
+
+On the first of each month, `scanner-pins.yml` runs `scripts/scanner-pins.mjs`. It compares each pin with the latest release on GitHub and checks that the pinned digest or checksum still matches what upstream publishes for that version. The run fails, with a table in its summary, when a newer release exists or a pinned value no longer matches. Run it from the Actions tab at any time, or locally with `node scripts/scanner-pins.mjs`.
+
+To bump a pin:
+
+1. Take the new value from the failed run's summary, then confirm it against upstream yourself:
+   - Semgrep and actionlint: the digest of the version tag on Docker Hub (`semgrep/semgrep`, `rhysd/actionlint`), for example with `docker buildx imagetools inspect semgrep/semgrep:<version>`.
+   - gitleaks: the `gitleaks_<version>_linux_x64.tar.gz` line in `gitleaks_<version>_checksums.txt` on the GitHub release.
+2. Read the release notes for changes to rules or exit codes.
+3. Change the version and the digest or checksum together in `security.yml`, in one commit per scanner.
+4. Open a pull request. The Security workflow runs the new version, and gitleaks checks the tarball against the new checksum before running it.
+
+A pinned value that no longer matches upstream for the same version means the tag or release was replaced. Do not update the pin until you know why.
 
 ## Refreshing the regulation text
 
@@ -141,10 +157,22 @@ To publish a release:
 2. Merge to `main`.
 3. Push a tag of the form `v4.2.0` on that commit, or run the **Release** workflow from the Actions tab with the tag and the commit.
 
-The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`) and a `SHA256SUMS` file, so an assessor can run a known version offline and check what they downloaded. If the release already exists, for example because it was created by hand, the workflow attaches the two files to it instead, after checking that the tag points at the commit it built:
+The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`), a `SHA256SUMS` file, and a signed build provenance attestation for the zip, so an assessor can run a known version offline and check what they downloaded. If the release already exists, for example because it was created by hand, the workflow attaches the files to it instead, after checking that the tag points at the commit it built.
+
+The zip is reproducible: every file carries the commit's timestamp and the entries are sorted, so running the workflow again for the same tag builds the same zip with the same SHA-256.
+
+To check a download against the checksum:
 
 ```bash
 sha256sum -c SHA256SUMS
 ```
+
+To check that the zip was built by this repository's release workflow, from the commit the release names, with the GitHub CLI:
+
+```bash
+gh attestation verify saberguard-sra-workspace-v5.0.0.zip --repo SaberGuard-LLC/HIPAA-SRA-Tool
+```
+
+The attestation is also attached to the release as `<zip>.sigstore.json`. To check it without a GitHub account, use that file with `gh attestation verify --bundle` or with Sigstore's own tools.
 
 Vercel serves <https://sra.saberguard.tech>, the canonical address, and redirects its `/docs` addresses to these pages. GitHub Pages serves the mirror and these pages. The page's canonical link and its share image (`assets/share.png`, 1200 by 630) point at the Vercel address. A change to the Content Security Policy goes in both `index.html` and `vercel.json`; a test checks that they match.

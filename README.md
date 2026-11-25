@@ -1,11 +1,11 @@
-<p align="center">
-  <img src="SaberGuard_1.png" width="320" alt="SaberGuard logo: a line-drawn shield beside the word SaberGuard">
-</p>
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/banner-dark.png">
+    <img src=".github/readme/banner-light.png" width="800" alt="SaberGuard SRA Workspace. Document a HIPAA Security Rule risk analysis in your browser, then print a report laid out for signature.">
+  </picture>
+</h1>
 
-<h1 align="center">SaberGuard SRA Workspace</h1>
-
 <p align="center">
-  Document a HIPAA Security Rule risk analysis in the browser, then print a report laid out for signature.<br>
   Nothing to install, no account, and nothing leaves the page.
 </p>
 
@@ -21,6 +21,7 @@
   <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/checks.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/checks.yml/badge.svg" alt="Checks"></a>
   <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/codeql.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/security.yml"><img src="https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/SaberGuard-LLC/HIPAA-SRA-Tool"><img src="https://api.scorecard.dev/projects/github.com/SaberGuard-LLC/HIPAA-SRA-Tool/badge" alt="OpenSSF Scorecard"></a>
   <a href="package.json"><img src="https://img.shields.io/github/package-json/v/SaberGuard-LLC/HIPAA-SRA-Tool" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-1f5fbf" alt="License: PolyForm Shield 1.0.0"></a>
   <a href="VERIFICATION.md"><img src="https://img.shields.io/badge/45%20CFR%20164%20Subpart%20C-checked%202026--11--11-1f5fbf" alt="Regulation text checked against eCFR on 2026-11-11"></a>
