@@ -141,7 +141,7 @@ To publish a release:
 2. Merge to `main`.
 3. Push a tag of the form `v4.2.0` on that commit, or run the **Release** workflow from the Actions tab with the tag and the commit.
 
-The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`) and a `SHA256SUMS` file, so an assessor can run a known version offline and check what they downloaded:
+The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`) and a `SHA256SUMS` file, so an assessor can run a known version offline and check what they downloaded. If the release already exists, for example because it was created by hand, the workflow attaches the two files to it instead, after checking that the tag points at the commit it built:
 
 ```bash
 sha256sum -c SHA256SUMS
