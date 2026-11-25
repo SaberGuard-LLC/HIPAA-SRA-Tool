@@ -157,10 +157,22 @@ To publish a release:
 2. Merge to `main`.
 3. Push a tag of the form `v4.2.0` on that commit, or run the **Release** workflow from the Actions tab with the tag and the commit.
 
-The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`) and a `SHA256SUMS` file, so an assessor can run a known version offline and check what they downloaded. If the release already exists, for example because it was created by hand, the workflow attaches the two files to it instead, after checking that the tag points at the commit it built:
+The release workflow checks that the tag matches `package.json`, runs `npm run check`, and publishes a GitHub release whose notes are the version's section of `CHANGELOG.md`. It attaches a zip of the workspace (`index.html`, `assets/`, `samples/`, the logo, and `LICENSE`), a `SHA256SUMS` file, and a signed build provenance attestation for the zip, so an assessor can run a known version offline and check what they downloaded. If the release already exists, for example because it was created by hand, the workflow attaches the files to it instead, after checking that the tag points at the commit it built.
+
+The zip is reproducible: every file carries the commit's timestamp and the entries are sorted, so running the workflow again for the same tag builds the same zip with the same SHA-256.
+
+To check a download against the checksum:
 
 ```bash
 sha256sum -c SHA256SUMS
 ```
+
+To check that the zip was built by this repository's release workflow, from the commit the release names, with the GitHub CLI:
+
+```bash
+gh attestation verify saberguard-sra-workspace-v5.0.0.zip --repo SaberGuard-LLC/HIPAA-SRA-Tool
+```
+
+The attestation is also attached to the release as `<zip>.sigstore.json`. To check it without a GitHub account, use that file with `gh attestation verify --bundle` or with Sigstore's own tools.
 
 Vercel serves <https://sra.saberguard.tech>, the canonical address, and redirects its `/docs` addresses to these pages. GitHub Pages serves the mirror and these pages. The page's canonical link and its share image (`assets/share.png`, 1200 by 630) point at the Vercel address. A change to the Content Security Policy goes in both `index.html` and `vercel.json`; a test checks that they match.

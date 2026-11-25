@@ -34,7 +34,7 @@ Every pull request and every push to `main` runs these checks.
 | actionlint and zizmor | Mistakes and security problems in the workflows, such as template injection or excessive permissions. |
 | Dependency review | A pull request that adds a dependency or action with a known vulnerability. |
 
-OpenSSF Scorecard rates the repository's practices every week and on every push to `main`. Its results are public on the [Scorecard viewer](https://scorecard.dev/viewer/?uri=github.com/SaberGuard-LLC/HIPAA-SRA-Tool). CodeQL and the security workflow also run weekly, so a newly published rule is applied to code that has not changed. On the first of each month, a workflow checks that the pinned Semgrep, gitleaks, and actionlint versions are current. Findings appear in the repository's code scanning alerts.
+OpenSSF Scorecard rates the repository's practices every week and on every push to `main`. Its results are public on the [Scorecard viewer](https://scorecard.dev/viewer/?uri=github.com/SaberGuard-LLC/HIPAA-SRA-Tool). Each release zip has a signed build provenance attestation; [development]({{ '/docs/development/' | relative_url }}) shows how to verify one. CodeQL and the security workflow also run weekly, so a newly published rule is applied to code that has not changed. On the first of each month, a workflow checks that the pinned Semgrep, gitleaks, and actionlint versions are current. Findings appear in the repository's code scanning alerts.
 
 The workflows follow the same rules they check:
 

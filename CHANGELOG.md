@@ -2,6 +2,12 @@
 
 Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versioning](https://semver.org/). The major version tracks the saved file format.
 
+## [Unreleased]
+
+### Added
+- Each release zip has a signed build provenance attestation, attached as `<zip>.sigstore.json` and checkable with `gh attestation verify`. The zip is built reproducibly, so the same tag always gives the same SHA-256.
+- A monthly workflow checks the Semgrep, gitleaks, and actionlint pins against upstream.
+
 ## [5.0.0] - 2026-11-25
 
 Version 5.0.0 changes the saved file format to version 5 and the license to PolyForm Shield 1.0.0. Files from every earlier version open without loss, and a version 4 file marked Final still prints as Final.
@@ -94,6 +100,7 @@ The state of `main` before this changelog began.
 - A hosting seam on `window.SRA`: `snapshot()`, `importAssessment()`, `markSaved()`, and `isDirty()`.
 - A catalog of 65 rows with the regulation wording kept separate from SaberGuard's summaries, and a verification log.
 
+[Unreleased]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/v5.0.0...HEAD
 [5.0.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/e69f1ce...v5.0.0
 [4.2.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/5ac4490...e69f1ce
 [4.1.0]: https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/compare/0cbf5e5...5ac4490
