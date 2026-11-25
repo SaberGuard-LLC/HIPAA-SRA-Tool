@@ -69,3 +69,4 @@ defaults:
       type: pages
     values:
       layout: default
+      image: /assets/share.png
