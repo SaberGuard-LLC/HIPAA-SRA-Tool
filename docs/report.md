@@ -55,6 +55,10 @@ The SaberGuard name and logo are for reports prepared by SaberGuard LLC. The sof
 
 The letterhead settings are saved in the assessment file. Appendix B always states that SaberGuard publishes the workspace and did not review the report unless named as the assessor.
 
+## Last line of the report
+
+The report ends with the line "Prepared with SaberGuard SRA Workspace, sra.saberguard.tech". To leave it out, clear the checkbox in step 7 above the print buttons. The choice is saved in the assessment file. A file saved before 5.0.0 opens with the line turned on. The statement in Appendix B about SaberGuard and HHS prints either way.
+
 ## Printing to paper or PDF
 
 1. Press **Print / PDF**, or Ctrl + P (Cmd + P on a Mac).

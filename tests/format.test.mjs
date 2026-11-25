@@ -155,6 +155,13 @@ test('letterhead settings survive a save and open, and invalid values fall back 
   assert.equal('letterheadLogoData' in bad.meta, false);
 });
 
+test('the report colophon is on unless a file turns it off, and survives a save and open', () => {
+  assert.equal(SRAFormat.upgrade({ format: FILE_FORMAT.name, version: 4, meta: {} }).meta.colophon, 'on');
+  assert.equal(SRAFormat.upgrade({ format: FILE_FORMAT.name, version: 5, meta: { colophon: 'maybe' } }).meta.colophon, 'on');
+  const off = SRAFormat.upgrade({ format: FILE_FORMAT.name, version: 5, meta: { colophon: 'off' } });
+  assert.equal(SRAFormat.upgrade(plain(SRAFormat.serialize(off))).meta.colophon, 'off');
+});
+
 test('a file saved before letterheads existed opens with no letterhead', () => {
   const state = SRAFormat.upgrade(plain(v3));
   assert.equal(state.meta.letterhead, '');

@@ -227,6 +227,14 @@ test('pre-printed letterhead paper leaves the chosen space on the cover and prin
   assert.ok(renderWith({ letterhead: 'preprinted', letterheadSpace: 'huge' }).includes('rpt-letterhead-space s20'));
 });
 
+test('the last line of the report names the workspace and its address unless the colophon is turned off', () => {
+  const line = 'Prepared with SaberGuard SRA Workspace, sra.saberguard.tech';
+  const on = renderWith({});
+  assert.ok(on.includes(line));
+  assert.ok(on.lastIndexOf(line) > on.lastIndexOf('Appendix B'));
+  assert.ok(!renderWith({ colophon: 'off' }).includes(line));
+});
+
 test('the signature block has a line, a printed name and a date for each of the three signers', () => {
   const html = renderWith({ securityOfficial: 'S. Official' });
   const block = html.slice(html.indexOf('class="rpt-sign"'));

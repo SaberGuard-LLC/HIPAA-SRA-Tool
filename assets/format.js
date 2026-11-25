@@ -123,7 +123,7 @@ const SRAFormat = (function () {
     return out;
   }
 
-  const META_DEFAULTS = { reportVersion: '1.0', classification: 'Confidential', reportStatus: 'Draft', entityType: '', clearinghouse: '', groupHealthPlan: '', letterhead: '', letterheadSpace: '20', firmName: '', firmAddress: '', firmContact: '', firmLogo: '' };
+  const META_DEFAULTS = { reportVersion: '1.0', classification: 'Confidential', reportStatus: 'Draft', entityType: '', clearinghouse: '', groupHealthPlan: '', letterhead: '', letterheadSpace: '20', firmName: '', firmAddress: '', firmContact: '', firmLogo: '', colophon: 'on' };
   const LOGO_DATA = /^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
 
   /* Reads a saved file of any version into workspace state. Nothing in the
@@ -143,6 +143,7 @@ const SRAFormat = (function () {
     if (!['firm', 'preprinted'].includes(meta.letterhead)) meta.letterhead = '';
     if (!['15', '20', '25'].includes(meta.letterheadSpace)) meta.letterheadSpace = '20';
     if (!['saberguard', 'custom'].includes(meta.firmLogo)) meta.firmLogo = '';
+    if (meta.colophon !== 'off') meta.colophon = 'on';
     if (typeof meta.letterheadLogoData !== 'string' || !LOGO_DATA.test(meta.letterheadLogoData)) delete meta.letterheadLogoData;
 
     const assets = Array.isArray(data.assets) ? data.assets.filter(a => a && typeof a === 'object').map(newAsset) : [];

@@ -16,9 +16,9 @@ Version 5.0.0 changes the saved file format to version 5. Files from every earli
 
 Done, pending release: the license changes to the [PolyForm Shield License 1.0.0]({{ '/docs/license/' | relative_url }}). Version 4.2.0 is the last release under the MIT License, published as the `v4.2.0` release so it is easy to find.
 
-### Built on the development branch
+### On the main branch, not released yet
 
-The following are built on the `v5-assessor-desk` branch and tested, and are not released yet:
+The following are merged to `main` and tested, and are not in a release yet:
 
 - SHA-256 for every evidence file, recorded with the date added and the source, shown in the catalog and printed in Appendix A.
 - An assessment fingerprint on the report cover and in Appendix B, tying a signed PDF to its JSON file.
@@ -27,12 +27,12 @@ The following are built on the `v5-assessor-desk` branch and tested, and are not
 - A coverage panel, an interview and document log, and a remediation plan CSV export.
 - A redesigned interface: a start screen, an overview, one view per step with its own address, a catalog review laid out as a list beside the selected row with keyboard shortcuts, and a risk register table with a heat map. An automated accessibility check with axe reports no violations in either theme. See [accessibility]({{ '/docs/accessibility/' | relative_url }}).
 - For hosts: `SRA.configure({ embedded: true })` hides the start screen, the open and save controls, and the footer when a host's own interface owns saving, and `sra:dirty`, `sra:saved`, and `sra:save-requested` events let the host react without polling. See [file format and hosting]({{ '/docs/file-format/' | relative_url }}).
+- Deployment: <https://sra.saberguard.tech> is the canonical address, the hosted copy's security headers match the page's own policy, and the page has a share image. The report can end with a line naming the workspace, which a checkbox in step 7 turns off.
 - Performance work measured change by change in `PERF.md`: a smaller logo, one view at a time, faster attaching and opening of large evidence, and size budgets enforced by test. Changes that did not beat run-to-run variance were reverted and are logged there too.
 
 ### Still to do for 5.0.0
 
 - A review with VoiceOver and NVDA, done by a person.
-- Deployment: one canonical address, aligned security headers, and share images.
 
 ## Planned after 5.0.0
 

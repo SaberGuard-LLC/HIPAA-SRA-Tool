@@ -7,6 +7,7 @@ Notable changes to SaberGuard SRA Workspace. Versions follow [semantic versionin
 Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on GitHub.
 
 ### Changed
+- The hosted copy's Content Security Policy header is now the page's own policy plus `frame-ancestors 'none'`, so it allows no network connection, and the copy also sends `Cross-Origin-Opener-Policy: same-origin` and an explicit `Strict-Transport-Security` header. `/docs` addresses on the hosted copy redirect to the documentation site.
 - Attaching a large evidence file and opening a file that holds large evidence are about twice as fast, using the browser's own base64 conversion where it has one. A 10 MB attachment is listed in about 56 ms, down from 132 ms, with no long task.
 - The header logo is a 12 KB image sized in the markup, in place of the 80 KB original, and the page has its own favicon.
 - Colors: secondary text, borders, and the page background are adjusted, status pills use the agreed pairs, and a partial fill color is added for bars and the heat map. Pills and chips are fully rounded, header buttons are at least 36 px tall, and status choices at least 40 px.
@@ -28,6 +29,8 @@ Version 5.0.0 is in progress. The work is tracked in issues labeled 5.0.0 on Git
 - The catalog review is a list grouped by safeguard beside the selected row, with filters that show counts, a search across id, citation, title, and regulation text, status and verification basis as radio groups, notes and recommendation side by side, linked risks, and an evidence table. J and K move between rows, 1 to 6 set the status, and slash searches.
 - The risk register is a table with filters (High, Open, In progress, Past target date, Accepted), a form that opens under the chosen row, a 5 by 5 heat map for inherent or residual ratings, and the coverage panel.
 - A File menu in the header holds Open, Save, Save protected file, Save without evidence, and Export remediation plan (CSV). The header shows the organization, the report version and status, and when the file was last saved.
+- The report ends with "Prepared with SaberGuard SRA Workspace, sra.saberguard.tech". A checkbox in step 7 leaves the line out, and the choice is saved in the file.
+- <https://sra.saberguard.tech> is the canonical address. The page has a canonical link and Open Graph and Twitter card tags with a share image.
 - `docs/accessibility.md`: an automated axe check of every view in both themes, with no violations, and a keyboard-only walkthrough.
 - For hosts: `SRA.configure({ embedded: true })` hides the start screen, the open and save controls, and the footer, and Ctrl or Cmd + S then fires `sra:save-requested` for the host. The page fires `sra:dirty` on the first edit after an open or save and `sra:saved` when a save completes, so a host need not poll `isDirty()`. `SRA.navigate(step)` and `SRA.loadSample()` are also exposed.
 - The sample is now a version 5 assessment with threats and vulnerabilities on its risks, an interview log, and evidence hashes.

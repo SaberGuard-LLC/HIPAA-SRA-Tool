@@ -147,4 +147,4 @@ The release workflow checks that the tag matches `package.json`, runs `npm run c
 sha256sum -c SHA256SUMS
 ```
 
-Vercel serves <https://sra.saberguard.tech>, and GitHub Pages serves the mirror and these pages.
+Vercel serves <https://sra.saberguard.tech>, the canonical address, and redirects its `/docs` addresses to these pages. GitHub Pages serves the mirror and these pages. The page's canonical link and its share image (`assets/share.png`, 1200 by 630) point at the Vercel address. A change to the Content Security Policy goes in both `index.html` and `vercel.json`; a test checks that they match.

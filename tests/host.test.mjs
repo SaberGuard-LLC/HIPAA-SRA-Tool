@@ -3,6 +3,7 @@
    README says: no backend, no network. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { read } from './helpers.mjs';
 
 const app = read('assets/app.js');
@@ -28,6 +29,25 @@ test('the public page still forbids every network connection', () => {
   assert.match(csp, /connect-src 'none'/);
   assert.match(csp, /default-src 'none'/);
   assert.ok(!/host\.js/.test(html), 'no host script on the public page');
+});
+
+test('the hosted copy sends the same policy as the page, plus frame, opener and transport headers', () => {
+  const meta = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
+  const headers = Object.fromEntries(JSON.parse(read('vercel.json')).headers.find(h => h.source === '/(.*)').headers.map(h => [h.key, h.value]));
+  assert.equal(headers['Content-Security-Policy'], `${meta}; frame-ancestors 'none'`);
+  assert.equal(headers['Cross-Origin-Opener-Policy'], 'same-origin');
+  assert.match(headers['Strict-Transport-Security'], /^max-age=\d{8,}/);
+  assert.equal(headers['X-Content-Type-Options'], 'nosniff');
+});
+
+test('the page names its canonical address and a share image kept in the repository', () => {
+  assert.match(html, /<link rel="canonical" href="https:\/\/sra\.saberguard\.tech\/">/);
+  for (const tag of ['og:image', 'twitter:image']) {
+    const url = html.match(new RegExp(`(?:property|name)="${tag}" content="([^"]+)"`))[1];
+    assert.match(url, /^https:\/\/sra\.saberguard\.tech\/assets\/share\.png$/);
+  }
+  const png = readFileSync(new URL('../assets/share.png', import.meta.url));
+  assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630]);
 });
 
 test('the theme is light unless the address asks for dark, and nothing is kept in browser storage', () => {
@@ -95,5 +115,5 @@ test('the public page behaves as before when nothing calls configure', () => {
 });
 
 test('leaving a field without changing it does not mark the work unsaved', () => {
-  assert.match(app, /const h = \(\) => \{\s*if \(state\.meta\[el\.id\] === el\.value\) return;/);
+  assert.match(app, /const h = \(\) => \{\s*if \(state\.meta\[el\.id\] === metaValue\(el\)\) return;/);
 });

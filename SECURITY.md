@@ -48,7 +48,7 @@ Fixes are released in the latest version. Version 5.0.0 is in development and wi
 ### In the browser
 
 - The page makes no network connection. A Content Security Policy in `index.html` sets `default-src 'none'` and `connect-src 'none'`, and allows scripts, fonts, and stylesheets only from the page's own origin. Images may also be embedded in the page as data, and styles may be inline.
-- The hosted copy also sends a Content Security Policy header, with `frame-ancestors 'none'`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, and a `Permissions-Policy` that turns off the camera, microphone, geolocation, and payment.
+- The hosted copy also sends the same Content Security Policy as a header, with `frame-ancestors 'none'` added, and `Cross-Origin-Opener-Policy: same-origin`, `Strict-Transport-Security`, `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, and a `Permissions-Policy` that turns off the camera, microphone, geolocation, and payment.
 - It uses no cookies, `localStorage`, `sessionStorage`, or IndexedDB.
 - It has no runtime dependencies and no build step. What is in the repository is what runs.
 - Values read from a file are validated on open, and text from a file is escaped before it is shown. A letterhead logo is accepted only as an embedded PNG, JPEG, WebP, or SVG image.
