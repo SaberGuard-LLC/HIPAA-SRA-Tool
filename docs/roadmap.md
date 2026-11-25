@@ -1,24 +1,22 @@
 ---
 title: Roadmap
 nav_order: 13
-description: What is planned for version 5.0.0 and later, what is being considered, and what is deliberately left out.
+description: What version 5.0.0 added, what is planned next, what is being considered, and what is deliberately left out.
 ---
 
 # Roadmap
 
-Nothing here is a commitment or a date. It is the order SaberGuard expects to work in. The work is tracked in [issues labelled 5.0.0](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues?q=label%3A5.0.0).
+Nothing here is a commitment or a date. It is the order SaberGuard expects to work in. Work is tracked in [GitHub issues](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/issues).
 
-## Version 5.0.0, in progress
+## Version 5.0.0, released November 25, 2026
 
-Version 5.0.0 changes the saved file format to version 5. Files from every earlier version will still open without loss, and a version 4 file marked Final will still print as Final.
+Version 5.0.0 changes the saved file format to version 5. Files from every earlier version open without loss, and a version 4 file marked Final still prints as Final. The full list is in [`CHANGELOG.md`](https://github.com/SaberGuard-LLC/HIPAA-SRA-Tool/blob/main/CHANGELOG.md).
 
 ### License
 
-Done, pending release: the license changes to the [PolyForm Shield License 1.0.0]({{ '/docs/license/' | relative_url }}). Version 4.2.0 is the last release under the MIT License, published as the `v4.2.0` release so it is easy to find.
+The license changed to the [PolyForm Shield License 1.0.0]({{ '/docs/license/' | relative_url }}). Version 4.2.0 is the last version under the MIT License.
 
-### On the main branch, not released yet
-
-The following are merged to `main` and tested, and are not in a release yet:
+### What 5.0.0 added
 
 - SHA-256 for every evidence file, recorded with the date added and the source, shown in the catalog and printed in Appendix A.
 - An assessment fingerprint on the report cover and in Appendix B, tying a signed PDF to its JSON file.
@@ -30,11 +28,10 @@ The following are merged to `main` and tested, and are not in a release yet:
 - Deployment: <https://sra.saberguard.tech> is the canonical address, the hosted copy's security headers match the page's own policy, and the page has a share image. The report can end with a line naming the workspace, which a checkbox in step 7 turns off.
 - Performance work measured change by change in `PERF.md`: a smaller logo, one view at a time, faster attaching and opening of large evidence, and size budgets enforced by test. Changes that did not beat run-to-run variance were reverted and are logged there too.
 
-### Still to do for 5.0.0
-
-- A review with VoiceOver and NVDA, done by a person.
-
 ## Planned after 5.0.0
+
+A screen reader review.
+: A walkthrough with VoiceOver and NVDA, done by a person. See [accessibility]({{ '/docs/accessibility/' | relative_url }}).
 
 Crosswalk to the HHS SRA Tool.
 : A table from the HHS tool's questions to the catalog rows, so a practice's HHS answers can be carried in as "stated by the client". It needs checking against the tool's user guide first.

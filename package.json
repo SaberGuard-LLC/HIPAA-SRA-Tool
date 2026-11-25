@@ -1,6 +1,6 @@
 {
   "name": "saberguard-sra-workspace",
-  "version": "4.2.0",
+  "version": "5.0.0",
   "private": true,
   "description": "A workspace for documenting a HIPAA Security Rule risk analysis.",
   "license": "SEE LICENSE IN LICENSE",

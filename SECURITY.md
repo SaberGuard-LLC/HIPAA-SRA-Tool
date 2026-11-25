@@ -38,10 +38,10 @@ SaberGuard Ward is a separate product and is not in this repository.
 
 | Version | Supported |
 | --- | --- |
-| 4.x | Yes |
-| 3.x and earlier | No. Files saved by them still open in 4.x. |
+| 5.x | Yes |
+| 4.x and earlier | No. Files saved by them still open in 5.x. |
 
-Fixes are released in the latest version. Version 5.0.0 is in development and will replace 4.x as the supported version when it ships.
+Fixes are released in the latest version.
 
 ## How the project keeps itself safe
 
