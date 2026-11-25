@@ -591,6 +591,7 @@ const SRAReport = (function () {
         <p class="small rpt-fingerprint"><b>Assessment file fingerprint</b> <span class="hash">${esc(SRAIntegrity.grouped(print))}</span></p>
         <p class="small muted">The fingerprint is a SHA-256 over the assessment's contents, including the SHA-256 of every evidence file but not the files themselves or the save time. A saved assessment file with the same fingerprint holds exactly what this report was printed from. The workspace shows the fingerprint of the open assessment in step 7.</p>
         <p class="small muted">Produced with the SaberGuard SRA Workspace. SaberGuard publishes the workspace and did not review this report unless named as the assessor. The workspace is not the HHS Security Risk Assessment (SRA) Tool, is not affiliated with or endorsed by HHS, and does not replace the HHS tool. The report records the assessor's work and judgment. It is not legal advice and does not by itself establish compliance with the HIPAA Security Rule.</p>
+        ${m.colophon === 'off' ? '' : '<p class="small rpt-colophon">Prepared with SaberGuard SRA Workspace, sra.saberguard.tech</p>'}
       </section>`;
 
     return `<div class="rpt ${S.isDraft ? 'is-draft' : ''}">

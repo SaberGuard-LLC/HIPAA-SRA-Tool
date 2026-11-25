@@ -15,7 +15,7 @@ An assessment is saved as one JSON file, format name `SaberGuard HIPAA SRA`, cur
 | `format`, `version` | The format name and version. The name is what **Open** checks. |
 | `savedAt`, `exportedAt` | When the file was written. |
 | `evidenceIncluded` | `false` when saved without evidence. |
-| `meta` | Step 1, step 6, the report status, and the letterhead settings. |
+| `meta` | Step 1, step 6, the report status, the letterhead settings, and `colophon` (`on` or `off`, whether the report's last line names the workspace). |
 | `assets` | Inventory rows: kind, zone, ePHI held, lifecycle, owner, vendor, business associate agreement, location, encryption at rest, multi-factor authentication, and `noThreatNote`, why no reasonably anticipated threat applies. |
 | `flows` | Data flows: from, to, direction, ePHI carried, transport, encryption in transit. |
 | `controls` | One entry per catalog row id: status, notes, recommendation, verification basis, evidence. Each evidence entry has `name`, `type`, `size`, `sha256`, `addedAt`, `source`, and either `data` or `omitted: true`. |
@@ -88,7 +88,7 @@ Letterhead settings were added in 4.1 as optional fields in `meta`. A file witho
 
 ## What is validated on open
 
-Values the workspace does not recognize fall back to a safe default. An evidence `sha256` that is not 64 hex characters, an `addedAt` that is not a date, and a `source` other than `upload` or `ward` are dropped. an unknown status becomes not reviewed, an unknown kind or zone becomes unknown, an unknown letterhead becomes none. A letterhead logo is kept only if it is an embedded PNG, JPEG, WebP, or SVG image. Unknown catalog row ids are kept as they are. A risk's link to a row or flow that no longer exists is removed, and fields the workspace does not know on inventory rows, flows, and risks are not kept.
+Values the workspace does not recognize fall back to a safe default. An evidence `sha256` that is not 64 hex characters, an `addedAt` that is not a date, and a `source` other than `upload` or `ward` are dropped. An unknown status becomes not reviewed, an unknown kind or zone becomes unknown, an unknown letterhead becomes none, and a `colophon` other than `off` becomes `on`. A letterhead logo is kept only if it is an embedded PNG, JPEG, WebP, or SVG image. Unknown catalog row ids are kept as they are. A risk's link to a row or flow that no longer exists is removed, and fields the workspace does not know on inventory rows, flows, and risks are not kept.
 
 ## Catalog row ids
 

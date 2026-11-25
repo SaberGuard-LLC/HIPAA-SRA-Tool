@@ -819,8 +819,9 @@
   }
 
   /* ---- Metadata, dashboard, completeness checks -------------------------- */
-  function collectMeta() { document.querySelectorAll('.meta').forEach(el => state.meta[el.id] = el.value); }
-  function hydrateMeta() { document.querySelectorAll('.meta').forEach(el => { el.value = state.meta[el.id] != null ? state.meta[el.id] : ''; }); }
+  const metaValue = el => el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value;
+  function collectMeta() { document.querySelectorAll('.meta').forEach(el => state.meta[el.id] = metaValue(el)); }
+  function hydrateMeta() { document.querySelectorAll('.meta').forEach(el => { if (el.type === 'checkbox') el.checked = state.meta[el.id] !== 'off'; else el.value = state.meta[el.id] != null ? state.meta[el.id] : ''; }); }
 
   let frame = 0;
   function updateDashboard(opts = {}) {
@@ -1274,10 +1275,10 @@
   /* ---- Wiring ------------------------------------------------------------ */
   document.querySelectorAll('.meta').forEach(el => {
     const h = () => {
-      if (state.meta[el.id] === el.value) return;
+      if (state.meta[el.id] === metaValue(el)) return;
       updateDashboard();
       if (['entityType', 'clearinghouse', 'groupHealthPlan'].includes(el.id)) stale.add('catalog');
-      if (reportMode && ['letterhead', 'letterheadSpace', 'firmLogo'].includes(el.id)) renderReportView();
+      if (reportMode && ['letterhead', 'letterheadSpace', 'firmLogo', 'colophon'].includes(el.id)) renderReportView();
     };
     el.addEventListener('input', h); el.addEventListener('change', h);
   });

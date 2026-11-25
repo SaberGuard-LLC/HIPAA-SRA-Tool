@@ -95,5 +95,5 @@ test('the public page behaves as before when nothing calls configure', () => {
 });
 
 test('leaving a field without changing it does not mark the work unsaved', () => {
-  assert.match(app, /const h = \(\) => \{\s*if \(state\.meta\[el\.id\] === el\.value\) return;/);
+  assert.match(app, /const h = \(\) => \{\s*if \(state\.meta\[el\.id\] === metaValue\(el\)\) return;/);
 });
